@@ -1,6 +1,6 @@
 ## 新建项目
 使用Vue-cli3 创建项目，配置如下:
-！[vue-cli-options](screenshot/clipboard.png)
+![vue-cli-options](screenshot/clipboard.png)
 
 ## Tsx热加载
 ### 所需依赖
