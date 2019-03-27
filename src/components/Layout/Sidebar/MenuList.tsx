@@ -15,13 +15,19 @@ import './MenuList.less';
 
 export default class MenuList extends Vue {
     render() {
-        const {menuData} = this.$store.state.app;
+        const {menuData, sidebar: { opened } } = this.$store.state.app;
         console.log('玫瑰');
         console.log(menuData);
         return (
-            <a-menu 
+            <a-menu
+            inlineCollapsed={!opened}
             mode='inline'
             class='left-menu'
+            on-click={(params: {item: any, key: string, keyPath: string[]}) => {
+                const keyPath = params.keyPath.reverse();
+                this.openPage(keyPath.join('/'));
+            }}
+
             >
             {menuData ? this.renderMenu(menuData) : null}
             </a-menu>
@@ -45,7 +51,6 @@ export default class MenuList extends Vue {
                             <span>{item.name}</span>
                         </a-menu-item>
                 }
-                console.log("11111");
                 return <a-submenu id={item.path} key={item.path}>
                     <template slot='title'>
                         <a-icon type={item.icon}></a-icon>
@@ -60,6 +65,11 @@ export default class MenuList extends Vue {
                 <span>{item.name}</span>
             </a-menu-item>
         })
+    }
+
+
+    openPage(path: string) {
+        this.$router.push(path);
     }
 
 }

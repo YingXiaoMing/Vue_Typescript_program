@@ -6,6 +6,16 @@
     height: 100vh;
     max-height: 100vh;
     transition: .3s all ease-in-out;
+    .ant-menu-inline-collapsed {
+        width: 54px;
+    }
+    .ant-menu-inline-collapsed > .ant-menu-item, 
+    .ant-menu-inline-collapsed > .ant-menu-item-group > .ant-menu-item-group-list > .ant-menu-item, .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+        padding: 0 20px !important;
+        span {
+            display: none;
+        }
+    }
     .logo-wrap {
         display: flex;
         text-align: center;
