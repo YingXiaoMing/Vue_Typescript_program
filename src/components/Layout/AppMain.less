@@ -11,4 +11,22 @@
         padding-top: 56px;
         overflow-y: auto;
     }
+    .page-wrap {
+        height: e('calc(100vh - 56px)');
+        width: 100%;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+    &.sideLayout {
+        .side-bar {
+            min-width: 54px;
+            width: 54px;
+            .logo-wrap h1 {
+                display: none;
+            }
+        }
+        .page-content {
+            width: e('calc(100vw - 54px)');
+        }
+    }
 }
