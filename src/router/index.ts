@@ -19,13 +19,19 @@ export const asyncRouterMap: routerItem[] = [
         children: [
             {
                 path: 'add',
-                icon: 'add',
+                icon: 'user-add',
                 name: '新增员工',
-                component: () => import('@/views/staff/add'),
+                component: () => import('../views/staff/add'),
                 meta: {key: 'staffadd'}
+            },
+            {
+                path: 'search',
+                icon: 'idcard',
+                name: '查询员工资料',
+                component: () => import('../views/staff/search'),
+                meta: {key: 'staffsearch'}
             }
         ]
-
     }
 ]
 
@@ -42,7 +48,7 @@ export const asyncRouterMap: routerItem[] = [
 
 
 export default new Router({
-    routes: constantRouterMap
+    routes: [...constantRouterMap,...asyncRouterMap]
 });
 
 
