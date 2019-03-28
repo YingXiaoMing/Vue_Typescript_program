@@ -1,13 +1,16 @@
 import { Component , Vue } from 'vue-property-decorator';
 
 @Component({
-    name: 'Staff',
+    name: 'staff',
 })
 
 export default class Staff extends Vue {
     render() {
+        const { keepList } = this.$store.state.app;
         return (
-            <router-view/>
+            <keep-alive include={keepList}>
+                <router-view/>
+            </keep-alive>
         )
     }
 } 

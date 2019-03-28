@@ -1,7 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
-    name: 'StaffSearch',
+    name: 'staffsearch',
     components: {}
 })
 export default class Search extends Vue {
