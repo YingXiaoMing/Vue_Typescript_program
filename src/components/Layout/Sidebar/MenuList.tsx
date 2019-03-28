@@ -1,7 +1,8 @@
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Menu, Icon } from 'ant-design-vue';
 import { routerItem } from '@/interface';
 import './MenuList.less';
+import { routeToArray } from '@/utils';
 @Component({
     components: {
         'a-menu': Menu,
@@ -14,15 +15,22 @@ import './MenuList.less';
 
 
 export default class MenuList extends Vue {
+
+    keys: string[] = []
+
+    @Watch('$route', { immediate: true, deep: true })
+    routeChange(to: any, from: any) {
+        this.keys = routeToArray(to.path).routeArr;
+    }
+
     render() {
         const {menuData, sidebar: { opened } } = this.$store.state.app;
-        console.log('玫瑰');
-        console.log(menuData);
         return (
             <a-menu
             inlineCollapsed={!opened}
             mode='inline'
             class='left-menu'
+            selectedKeys= {this.keys}
             on-click={(params: {item: any, key: string, keyPath: string[]}) => {
                 const keyPath = params.keyPath.reverse();
                 this.openPage(keyPath.join('/'));
@@ -48,13 +56,13 @@ export default class MenuList extends Vue {
                         id={item.path}
                         key={`${item.path}`}>
                             <a-icon type={item.icon}></a-icon>
-                            <span>{item.name}</span>
+                            <span>{item.meta.title}</span>
                         </a-menu-item>
                 }
                 return <a-submenu id={item.path} key={item.path}>
                     <template slot='title'>
                         <a-icon type={item.icon}></a-icon>
-                        <span>{item.name}</span>
+                        <span>{item.meta.title}</span>
                     </template>
                     {this.renderMenu(item.children, parentPath ? `${parentPath}/${item.path}` : item.path)}
                 </a-submenu>
@@ -62,7 +70,7 @@ export default class MenuList extends Vue {
             return <a-menu-item id={item.path}
             key={`${item.path}`}>
                 <a-icon type={item.icon}></a-icon>
-                <span>{item.name}</span>
+                <span>{item.meta.title}</span>
             </a-menu-item>
         })
     }
