@@ -13,23 +13,23 @@ export const asyncRouterMap: routerItem[] = [
     {
         path: '/staff',
         icon: 'user',
-        name: '员工操作',
+        name: 'staff',
         component: () => import('../views/staff'),
-        meta: { key: 'staff' },
+        meta: { key: 'staff', title: '员工操作' },
         children: [
             {
                 path: 'add',
                 icon: 'user-add',
-                name: '新增员工',
+                name: 'staffadd',
                 component: () => import('../views/staff/add'),
-                meta: {key: 'staffadd'}
+                meta: {key: 'staffadd', title: '新增员工'}
             },
             {
                 path: 'search',
                 icon: 'idcard',
-                name: '查询员工资料',
+                name: 'staffsearch',
                 component: () => import('../views/staff/search'),
-                meta: {key: 'staffsearch'}
+                meta: {key: 'staffsearch', title: '查询员工资料'}
             }
         ]
     }
