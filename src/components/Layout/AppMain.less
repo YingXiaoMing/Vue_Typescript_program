@@ -4,18 +4,18 @@
     -ms-flex-direction: row;
     display: flex;
     flex-direction: row;
+    box-sizing: border-box;
     .page-content {
-        width: calc(100vw - 230px);
-        height: 100vh;
+        width:  e('calc(100vw - 230px)');
         position: relative;
         padding-top: 56px;
         overflow-y: auto;
     }
     .page-wrap {
         height: e('calc(100vh - 56px)');
-        width: 100%;
         overflow: auto;
         overflow-x: hidden;
+        margin: 24px;
     }
     &.sideLayout {
         .side-bar {
@@ -27,6 +27,26 @@
         }
         .page-content {
             width: e('calc(100vw - 54px)');
+        }
+    }
+    .page-tabs {
+        .ant-tabs-bar {
+            margin-bottom: 0;
+          }
+        .el-tabs__header {
+            margin-bottom: 0;
+            .el-tabs__nav {
+                border: none;
+            }
+            .el-tabs__item {
+                background-color: #ececec;
+                &.is-active {
+                    background-color: #fff;
+                }
+            }
+        }
+        .ant-tabs-extra-content {
+            display: none;
         }
     }
 }

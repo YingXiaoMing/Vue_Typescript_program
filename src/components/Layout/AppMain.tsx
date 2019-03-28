@@ -1,5 +1,5 @@
 
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, Emit } from 'vue-property-decorator';
 import Header from './Header';
 import { Tabs } from 'ant-design-vue';
 import Sidebar from './Sidebar';
@@ -12,20 +12,55 @@ import './AppMain.less';
 })
 export default class AppMain extends Vue {
 
+    onTabs: any = '1';
+
     @Watch('$route', { immediate: true, deep: true })
     routeChange(to: any, from: any) {
         this.$store.dispatch('AddTabPane' , to.path);
     }
 
-    render() {
-        const { sidebar: {opened} } = this.$store.state.app;
+    @Emit()
+    private tabChange(name: any) {
+        this.tabList.forEach((item: any, indexs: number) => {
+            if (item.name === name) {
+                this.$router.push({ name: item.name});
+                this.$store.dispatch('TabChange', item.name);
+            }
+        });
+    }
+
+    @Emit()
+    private onTabEdit(targetKey: string, action: string) {
+        if (action === 'remove') {
+            this.$store.dispatch('RemoveTab', targetKey);
+        }
+    }
+
+    tabList = [];
+    private render() {
+        const { sidebar: {opened} , tabList, tabActiveKey, keepList } = this.$store.state.app;
+        this.onTabs = tabActiveKey;
+        this.tabList = tabList;
+        console.log(this.tabList);
         return (
             <div class={`app-main ${opened ? '' : 'sideLayout'}`}>
                 <Sidebar/>
                 <div class='page-content'>
                     <Header/>
+                    <a-tabs class='page-tabs' activeKey={this.onTabs}
+                    on-change={this.tabChange} type='editable-card'
+                    on-edit={this.onTabEdit}>
+                        {
+                            tabList.map((item: any, index: number) => <a-tab-pane
+                            tab={item.meta.title} key={item.name}
+                            closable={tabList.length > 1}>
+                            </a-tab-pane>)
+                        }
+                    </a-tabs>
                     <div class='page-wrap'>
-                        <router-view></router-view>
+                        <keep-alive include={keepList}>
+                            <router-view></router-view>
+                        </keep-alive>
                     </div>
                 </div>
             </div>
