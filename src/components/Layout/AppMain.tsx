@@ -4,6 +4,7 @@ import Header from './Header';
 import { Tabs } from 'ant-design-vue';
 import Sidebar from './Sidebar';
 import './AppMain.less';
+import '@/style/global.less';
 @Component({
     components: {
         'a-tabs': Tabs,
@@ -41,7 +42,6 @@ export default class AppMain extends Vue {
         const { sidebar: {opened} , tabList, tabActiveKey, keepList } = this.$store.state.app;
         this.onTabs = tabActiveKey;
         this.tabList = tabList;
-        console.log(this.tabList);
         return (
             <div class={`app-main ${opened ? '' : 'sideLayout'}`}>
                 <Sidebar/>
