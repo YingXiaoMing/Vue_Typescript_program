@@ -3,17 +3,15 @@ import './index.less';
 import config from '@/utils/config';
 import MenuList from './MenuList';
 import types from '@/store/mutation-types';
-import { asyncRouterMap } from "@/router/index";
+import { asyncRouterMap } from '@/router/index';
 @Component({
-    components: {}
+    components: {},
 })
 export default class Sidebar extends Vue {
-    created() {
-        console.log(types.SET_MENUDATA);
-        console.log(this.$store);
-        this.$store.dispatch('GetMenuData',asyncRouterMap);
+    public created() {
+        this.$store.dispatch('GetMenuData', asyncRouterMap);
     }
-    render() {
+    public render() {
         return (
             <div class='side-bar'>
                 <div class='logo-wrap'>
@@ -22,6 +20,6 @@ export default class Sidebar extends Vue {
                 </div>
                 <MenuList/>
             </div>
-        )
+        );
     }
 }

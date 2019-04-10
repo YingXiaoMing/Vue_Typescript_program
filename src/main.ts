@@ -2,11 +2,8 @@ import Vue from 'vue';
 import App from '@/App';
 import router ,{asyncRouterMap} from '@/router';
 import store from '@/store';
-import './style/global.less';
-import { asyncRouterMap } from './router';
 Vue.config.productionTip = false;
-
-
+// import './style/global.less';
 router.beforeEach((to, from, next) => {
   if (!store.state.app.menuData.length) {
     store.dispatch('GetMenuData',asyncRouterMap);
@@ -14,12 +11,6 @@ router.beforeEach((to, from, next) => {
   }
   next();
 })
-
-
-
-
-
-
 new Vue({
   router,
   store,

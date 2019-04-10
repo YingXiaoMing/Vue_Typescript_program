@@ -1,6 +1,6 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Menu, Icon } from 'ant-design-vue';
-import { routerItem } from '@/interface';
+import { RouterItem } from '@/interface';
 import './MenuList.less';
 import { routeToArray } from '@/utils';
 @Component({
@@ -9,21 +9,21 @@ import { routeToArray } from '@/utils';
         'a-submenu': Menu.SubMenu,
         'a-icon': Icon,
         'a-menu-item': Menu.Item,
-        'a-menu-item-group': Menu.ItemGroup
-    }
+        'a-menu-item-group': Menu.ItemGroup,
+    },
 })
 
 
 export default class MenuList extends Vue {
 
-    keys: string[] = []
+    public keys: string[] = [];
 
     @Watch('$route', { immediate: true, deep: true })
-    routeChange(to: any, from: any) {
+    public routeChange(to: any, from: any) {
         this.keys = routeToArray(to.path).routeArr;
     }
 
-    render() {
+    public render() {
         const {menuData, sidebar: { opened } } = this.$store.state.app;
         return (
             <a-menu
@@ -35,18 +35,17 @@ export default class MenuList extends Vue {
                 const keyPath = params.keyPath.reverse();
                 this.openPage(keyPath.join('/'));
             }}
-
             >
             {menuData ? this.renderMenu(menuData) : null}
             </a-menu>
-        )
+        );
     }
 
-    renderMenu(menuData: routerItem[], parentPath?: string): (JSX.Element | null)[] {
-        return menuData.map((item: routerItem) => {
+    public renderMenu(menuData: RouterItem[], parentPath?: string): Array<JSX.Element | null> {
+        return menuData.map((item: RouterItem) => {
             if (item.children) {
                 let isEmpty = true;
-                item.children.forEach((items: routerItem) => {
+                item.children.forEach((items: RouterItem) => {
                     if (!items.hidden) {
                         isEmpty = false;
                     }
@@ -57,7 +56,7 @@ export default class MenuList extends Vue {
                         key={`${item.path}`}>
                             <a-icon type={item.icon}></a-icon>
                             <span>{item.meta.title}</span>
-                        </a-menu-item>
+                        </a-menu-item>;
                 }
                 return <a-submenu id={item.path} key={item.path}>
                     <template slot='title'>
@@ -65,18 +64,18 @@ export default class MenuList extends Vue {
                         <span>{item.meta.title}</span>
                     </template>
                     {this.renderMenu(item.children, parentPath ? `${parentPath}/${item.path}` : item.path)}
-                </a-submenu>
+                </a-submenu>;
             }
             return <a-menu-item id={item.path}
             key={`${item.path}`}>
                 <a-icon type={item.icon}></a-icon>
                 <span>{item.meta.title}</span>
-            </a-menu-item>
-        })
+            </a-menu-item>;
+        });
     }
 
 
-    openPage(path: string) {
+    public openPage(path: string) {
         this.$router.push(path);
     }
 

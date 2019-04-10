@@ -1,16 +1,16 @@
 import { Component, Vue, Watch, Prop, Emit } from 'vue-property-decorator';
 import { Breadcrumb, Badge, Dropdown, Icon, Menu  } from 'ant-design-vue';
 import './index.less';
-import { routerItem } from '@/interface';
+import { RouterItem } from '@/interface';
 import { routeToArray } from '@/utils';
 
-interface breadItem {
-    url: string,
-    text: string,
+interface BreadItem {
+    url: string;
+    text: string;
 }
 
 @Component({
-    components:{
+    components: {
         'a-breadcrumb': Breadcrumb,
         'a-breadcrumb-item': Breadcrumb.Item,
         'a-badge': Badge,
@@ -19,16 +19,16 @@ interface breadItem {
         'a-menu': Menu,
         'a-menu-item': Menu.Item,
         'a-menu-divider': Menu.Divider,
-    }
+    },
 })
 export default class Header extends Vue {
-    menuData: routerItem[] = [];
-    breadList: breadItem[] = [];
-    onIndex: number = 0;
+    private menuData: RouterItem[] = [];
+    private breadList: BreadItem[] = [];
+    private onIndex: number = 0;
 
 
     @Watch('$route', { immediate: true, deep: true })
-    routeChange(to: any, from: any) {
+    private routeChange(to: any, from: any) {
         const toDeapth = routeToArray(to.path);
         this.onIndex = 0;
         this.breadList = [];
@@ -36,18 +36,18 @@ export default class Header extends Vue {
     }
 
     @Watch('menuData')
-    initRouteBread() {
+    private initRouteBread() {
         const toDeapth = routeToArray(this.$route.path);
         this.routerBread(this.menuData, toDeapth.routeArr);
     }
 
     @Emit()
-    routerBread(data: routerItem[], toDeapth: string[]) {
-        data.map((item: routerItem) => {
-            if (item.path == toDeapth[this.onIndex]) {
+    private routerBread(data: RouterItem[], toDeapth: string[]) {
+        data.map((item: RouterItem) => {
+            if (item.path === toDeapth[this.onIndex]) {
                 this.breadList.push({
                     url: item.path,
-                    text: item.name ? item.name : ''
+                    text: item.meta.title ? item.meta.title : '',
                 });
                 if (item.children && (toDeapth.length - 1) >= this.onIndex) {
                     this.onIndex += 1;
@@ -59,11 +59,11 @@ export default class Header extends Vue {
     }
 
     @Emit()
-    switchSidebar(): void {
+    private switchSidebar(): void {
         this.$store.dispatch('ToggleSideBar');
     }
 
-    render() {
+    private render() {
         const { menuData , sidebar : { opened } } = this.$store.state.app;
         this.menuData = menuData;
         return(
@@ -71,7 +71,7 @@ export default class Header extends Vue {
                 <div class='header-left'>
                     <i class={`menu-btn iconfont-${!opened ? 'indent' : 'outdent'}`} on-click={this.switchSidebar}></i>
                     <a-breadcrumb class='header-bread' separator='/'>
-                        {this.breadList.map((item: breadItem) => <a-breadcrumb-item
+                        {this.breadList.map((item: BreadItem) => <a-breadcrumb-item
                         to={item.url ? { path: '/'} : null}>{item.text}</a-breadcrumb-item>)}
                     </a-breadcrumb>
                 </div>
@@ -98,6 +98,6 @@ export default class Header extends Vue {
                     </li>
                 </ul>
             </div>
-        )
+        );
     }
 }
