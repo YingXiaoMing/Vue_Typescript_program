@@ -63,7 +63,7 @@ interface TableData  {
         'a-date-picker': DatePicker,
         'a-select': Select,
         'a-select-option': Select.Option,
-    }
+    },
 })
 export default class LegalTable extends Vue {
     private cacheOriginData: any = [];
