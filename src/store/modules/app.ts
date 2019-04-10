@@ -1,18 +1,16 @@
 import types from '../mutation-types';
-import { routerItem } from '@/interface';
+import { RouterItem } from '@/interface';
 import { routeToArray } from '@/utils';
 import router from '@/router';
 
-
-//循环匹配当前路由数据
 function findMenu(
     data: any,
-    url: Array<string>,
-    tabList: Array<any>,
+    url: string[],
+    tabList: any[],
     tabActiveKey: string,
     params?: string,
     query?: any,
-    key?: string[]
+    key?: string[],
 ) {
     let result: any = { tabList, tabActiveKey };
     data.forEach((item: any) => {
@@ -30,7 +28,7 @@ function findMenu(
                 result.tabActiveKey = item.name;
             } else {
                 url.shift();
-                result = findMenu(item.children,url, tabList, tabActiveKey, params, query, key);
+                result = findMenu(item.children, url, tabList, tabActiveKey, params, query, key);
             }
         }
     });
@@ -47,11 +45,11 @@ const app = {
         },
         tabList: [],
         tabActiveKey: '',
-        keepList: [], //需要缓存的页面name
+        keepList: [],
 
     },
     mutations: {
-        [types.SET_MENUDATA]: (state: any, menuData: routerItem[]) => {
+        [types.SET_MENUDATA]: (state: any, menuData: RouterItem[]) => {
             state.menuData = menuData;
         },
         [types.TOGGLE_SIDEBAR]: (state: any) => {
@@ -63,10 +61,10 @@ const app = {
         },
         [types.KEEP_CHANGE]: (state: any, keepList: any) => {
             state.keepList = keepList;
-        }
+        },
     },
     actions: {
-        GetMenuData: (context: any, menuData: routerItem[]) => {
+        GetMenuData: (context: any, menuData: RouterItem[]) => {
             context.commit(types.SET_MENUDATA, menuData);
         },
         ToggleSideBar: (context: any) => {
@@ -126,8 +124,8 @@ const app = {
             });
             resultData.tabList = tabList;
             context.commit(types.TAB_CHANGE, resultData);
-        }
-    }
-}
+        },
+    },
+};
 
 export default app;
