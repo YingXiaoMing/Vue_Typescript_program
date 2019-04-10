@@ -43,17 +43,17 @@ import Component from 'vue-class-component';
 import { columnList } from '@/interface';
 import { Emit } from 'vue-property-decorator';
 import moment from 'moment';
-interface tableData  {
+interface TableData  {
     legalType: {
-        value: string,
-        label: string,
-    },
-    legalNum: string,
-    issueDate: string | null,
-    expireDate: string | null,
-    editable: boolean,
-    isNew: boolean,
-    key: number,
+        value: string;
+        label: string;
+    };
+    legalNum: string;
+    issueDate: string | null;
+    expireDate: string | null;
+    editable: boolean;
+    isNew: boolean;
+    key: number;
 }
 @Component({
     components: {
@@ -66,48 +66,48 @@ interface tableData  {
     }
 })
 export default class LegalTable extends Vue {
-    cacheOriginData:any = [];
-    LegalType = [{
+    private cacheOriginData: any = [];
+    private LegalType = [{
         value: '1',
         label: '身份证',
-    },{
+    }, {
         value: '2',
         label: '护照',
-    },{
+    }, {
         value: '3',
         label: '台胞证',
-    },{
+    }, {
         value: '4',
         label: '港澳通行证',
-    }]
-    column:columnList[] = [{
+    }];
+    private column: columnList[] = [{
         title: '证件类型',
         dataIndex: 'legalType',
         align: 'center',
-        scopedSlots: { customRender: 'legalType' }
-    },{
+        scopedSlots: { customRender: 'legalType' },
+    }, {
         title: '证件号码1',
         dataIndex: 'legalNum',
         align: 'center',
-        scopedSlots: { customRender: 'legalNum' }
-    },{
+        scopedSlots: { customRender: 'legalNum' },
+    }, {
         title: '开始日期',
         dataIndex: 'issueDate',
         align: 'center',
-        scopedSlots: { customRender: 'issueDate' }
-    },{
+        scopedSlots: { customRender: 'issueDate' },
+    }, {
         title: '到期日期',
         dataIndex: 'expireDate',
         align: 'center',
-        scopedSlots: { customRender: 'expireDate' }
-    },{
+        scopedSlots: { customRender: 'expireDate' },
+    }, {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
-        scopedSlots: { customRender: 'action' }
-    }]
-    dateFormat = 'YYYY-MM-DD';
-    data : tableData[] = [{
+        scopedSlots: { customRender: 'action' },
+    }];
+    private dateFormat = 'YYYY-MM-DD';
+    private data: TableData[] = [{
         legalType: {
             value: '1',
             label: '身份证',
@@ -118,12 +118,12 @@ export default class LegalTable extends Vue {
         editable: true,
         isNew: true,
         key: 1,
-    }]
-    momentFromDate(date: string) {
+    }];
+    private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
     @Emit()
-    toggle(key:number) {
+    private toggle(key: number) {
         const target = this.data.filter(item => item.key === key)[0];
         if (target) {
             if (!target.editable) {
@@ -133,10 +133,8 @@ export default class LegalTable extends Vue {
         }
     }
     @Emit()
-    cancel(key:number) {
-        console.log('样我m');
+    private cancel(key: number) {
         const target = this.data.filter(item => item.key === key)[0];
-        console.log(this.cacheOriginData);
         if (this.cacheOriginData[key]) {
             const newData = Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -145,21 +143,21 @@ export default class LegalTable extends Vue {
         target.editable = false;
     }
     @Emit()
-    handleChange(value:any, key: number, name: string) {
+    private handleChange(value: any, key: number, name: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => key == item.key)[0];
+        const target = newData.filter(item => key === item.key)[0];
         if (target) {
             target[name] = value;
             this.data = newData;
         }
     }
     @Emit()
-    saveRow(key: number) {
+    private saveRow(key: number) {
         const target = this.data.filter(item => item.key === key)[0];
         target.editable = false;
     }
     @Emit()
-    addRow(key:number) {
+    private addRow(key: number) {
         const target = this.data.filter(item => item.key === key)[0];
         const index = key + 1;
         target.editable = false;
@@ -178,7 +176,7 @@ export default class LegalTable extends Vue {
         });
     }
     @Emit()
-    removeRow(key:number) {
+    private removeRow(key: number) {
         const newData = this.data.filter(item => item.key !== key);
         this.data = newData;
     }

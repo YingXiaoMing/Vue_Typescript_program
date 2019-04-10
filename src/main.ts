@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import App from '@/App';
-import router ,{asyncRouterMap} from '@/router';
+import router , { asyncRouterMap } from '@/router';
 import store from '@/store';
 Vue.config.productionTip = false;
 // import './style/global.less';

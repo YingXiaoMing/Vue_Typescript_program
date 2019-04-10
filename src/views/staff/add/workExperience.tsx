@@ -25,7 +25,7 @@ interface ValueData {
     },
     props: {
         Form,
-    }
+    },
 })
 
 class WorkExperience extends Vue {
@@ -124,7 +124,7 @@ class WorkExperience extends Vue {
                     <a-work-table ref='workExperienceTable'></a-work-table>
                 </a-row>
             </div>
-        )
+        );
     }
 }
 export default Form.create({

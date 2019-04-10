@@ -126,7 +126,6 @@ class Step1 extends Vue {
         });
         getEmploymentSource().then((response) => {
             this.employeeOriginOption = this.transformSelectData(response);
-            console.log(this.employeeOriginOption);
         });
     }
     private transformSelectData(data: any) {
@@ -157,7 +156,7 @@ class Step1 extends Vue {
     @Emit()
     private nextStep() {
         this.Form.validateFields((err: any, values: object) => {
-            if (!err) {}
+            // if (!err) {}
         });
         // this.$emit('nextStep');
     }

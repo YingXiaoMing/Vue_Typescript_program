@@ -9,14 +9,16 @@ import '@/style/global.less';
     components: {
         'a-tabs': Tabs,
         'a-tab-pane': Tabs.TabPane,
-    }
+    },
 })
 export default class AppMain extends Vue {
 
-    onTabs: any = '1';
+    public onTabs: any = '1';
+
+    public tabList = [];
 
     @Watch('$route', { immediate: true, deep: true })
-    routeChange(to: any, from: any) {
+    public routeChange(to: any, from: any) {
         this.$store.dispatch('AddTabPane' , to.path);
     }
 
@@ -36,8 +38,6 @@ export default class AppMain extends Vue {
             this.$store.dispatch('RemoveTab', targetKey);
         }
     }
-
-    tabList = [];
     private render() {
         const { sidebar: {opened} , tabList, tabActiveKey, keepList } = this.$store.state.app;
         this.onTabs = tabActiveKey;
@@ -64,6 +64,6 @@ export default class AppMain extends Vue {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 }

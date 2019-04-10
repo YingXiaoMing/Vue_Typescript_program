@@ -16,7 +16,7 @@ import { Form, Row, Divider, Col, Input, DatePicker, Radio, Upload, Button, Icon
     },
     props: {
         Form,
-    }
+    },
 })
 class Step3 extends Vue {
     private basicItemLayout = {
@@ -74,8 +74,8 @@ class Step3 extends Vue {
                                         message: ' ',
                                     }],
                                 })(<a-radio-group>
-                                    <a-col {...{props: {lg:{span: 8}}}}><a-radio value='1'>永久</a-radio></a-col>
-                                    <a-col {...{props: {lg:{span: 16}}}}>
+                                    <a-col {...{props: {lg: {span: 8}}}}><a-radio value='1'>永久</a-radio></a-col>
+                                    <a-col {...{props: {lg: {span: 16}}}}>
                                         <a-radio value='2' style='width:130px'>
                                             <a-date-picker></a-date-picker>
                                         </a-radio>
@@ -86,8 +86,8 @@ class Step3 extends Vue {
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item {...{props: this.fromItemLayout}} label=''>
                                 {getFieldDecorator('expireDate')(<a-radio-group>
-                                    <a-col {...{props: {lg:{span: 8}}}}><a-radio value='1'>永久</a-radio></a-col>
-                                    <a-col {...{props: {lg:{span: 16}}}}>
+                                    <a-col {...{props: {lg: {span: 8}}}}><a-radio value='1'>永久</a-radio></a-col>
+                                    <a-col {...{props: {lg: {span: 16}}}}>
                                         <a-radio value='2' style='width:130px'>
                                             <a-date-picker></a-date-picker>
                                         </a-radio>
@@ -102,5 +102,5 @@ class Step3 extends Vue {
     }
 }
 export default Form.create({
-    props: {}
+    props: {},
 })(Step3);
