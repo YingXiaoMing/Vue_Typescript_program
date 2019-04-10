@@ -20,4 +20,4 @@ export function routeToArray(route: string): { routeArr: string[], params: strin
         routeArr: ret,
         params,
     };
-}  
+}
