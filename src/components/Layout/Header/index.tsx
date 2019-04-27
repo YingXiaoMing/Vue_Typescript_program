@@ -25,8 +25,8 @@ export default class Header extends Vue {
     private menuData: RouterItem[] = [];
     private breadList: BreadItem[] = [];
     private onIndex: number = 0;
-
-
+    private $route: any;
+    private $store: any;
     @Watch('$route', { immediate: true, deep: true })
     private routeChange(to: any, from: any) {
         const toDeapth = routeToArray(to.path);

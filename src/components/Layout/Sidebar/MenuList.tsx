@@ -15,9 +15,9 @@ import { routeToArray } from '@/utils';
 
 
 export default class MenuList extends Vue {
-
     public keys: string[] = [];
-
+    private $store: any;
+    private $router: any;
     @Watch('$route', { immediate: true, deep: true })
     public routeChange(to: any, from: any) {
         this.keys = routeToArray(to.path).routeArr;
@@ -76,6 +76,9 @@ export default class MenuList extends Vue {
 
 
     public openPage(path: string) {
+        if (path === '/staff/add') {
+            this.$store.dispatch('changeEmployeeStatus', 1);
+        }
         this.$router.push(path);
     }
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
+    <title>测试ajax</title>
+</head>
+<body>
+    <button id='btn'>点击获取header</button>
+</body>
+</html>
+<script>
+$(function() {
+    $('#btn').click(function(){
+        $.ajax({
+            type: "GET",
+            url: "http://192.168.18.28/api/hr/employee?SearchQuery=&pageIndex=1&pageSize=5",
+            dataType: "json",
+            success: function (data, textStatus, request) {
+                console.log(data);
+                console.log(textStatus);
+                console.log(request.getAllResponseHeaders());
+            }
+        });
+    })
+})
+</script>

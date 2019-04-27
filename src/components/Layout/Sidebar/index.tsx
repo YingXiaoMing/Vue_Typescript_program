@@ -8,6 +8,7 @@ import { asyncRouterMap } from '@/router/index';
     components: {},
 })
 export default class Sidebar extends Vue {
+    private $store: any;
     public created() {
         this.$store.dispatch('GetMenuData', asyncRouterMap);
     }

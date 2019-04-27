@@ -14,8 +14,9 @@ import '@/style/global.less';
 export default class AppMain extends Vue {
 
     public onTabs: any = '1';
-
-    public tabList = [];
+    public tabList: any[] = [];
+    private $store: any;
+    private $router: any;
 
     @Watch('$route', { immediate: true, deep: true })
     public routeChange(to: any, from: any) {
@@ -57,7 +58,7 @@ export default class AppMain extends Vue {
                             </a-tab-pane>)
                         }
                     </a-tabs>
-                    <div class='page-wrap'>
+                    <div class='page-wrap' id='page-wrap'>
                         <keep-alive include={keepList}>
                             <router-view></router-view>
                         </keep-alive>

@@ -4,17 +4,17 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import AppMain from '@/components/Layout/AppMain';
 @Component({
     components: {
-        'a-locale-provider': LocaleProvider
-    }
+        'a-locale-provider': LocaleProvider,
+    },
 })
 export default class App extends Vue {
-    render() {
+    private render() {
         return (
             <div id='app'>
                 <a-locale-provider locale={zh_CN}>
                     <AppMain/>
                 </a-locale-provider>
             </div>
-        )
+        );
     }
 }
