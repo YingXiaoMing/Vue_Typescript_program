@@ -284,7 +284,6 @@ export default class PhoneTable extends Vue {
         return true;
     }
     private filterDuplicateData(target: TableData): boolean {
-        // console.log(_.some(this.data, {positionId: target.positionId }));
         if (this.data.length > 1 && _.some(this.$store.state.step.positionList, {positionId: target.positionId })) {
             message.error('请勿添加重复职位');
             return false;
