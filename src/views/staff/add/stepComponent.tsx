@@ -12,7 +12,7 @@ import { Steps } from 'ant-design-vue';
 export default class Step extends Vue {
     @Prop({ default: 0 }) private currentTabs!: number;
 
-    render() {
+    private render() {
         return (
             <div>
                 <a-step current={this.currentTabs}>
@@ -25,6 +25,6 @@ export default class Step extends Vue {
                     <a-step-item title='关联文档'></a-step-item>
                 </a-step>
             </div>
-        )
+        );
     }
 }

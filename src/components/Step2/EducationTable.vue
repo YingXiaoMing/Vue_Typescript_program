@@ -1,6 +1,6 @@
 <template>
     <a-table :pagination="false" bordered size="small"
-    :columns="column" :dataSource="data">
+    :columns="column" :dataSource="data" :loading="loading">
         <template v-for="(item,u) in ['schoolName','major']" :slot="item" slot-scope="text, record">
             <a-input v-if="record.editable" :value="text" @change="e => handleChange(e.target.value, record.key, item)"></a-input>
             <template v-else>{{ text }}</template>
@@ -13,18 +13,15 @@
         </template>
         
         <template slot="educationLevel" slot-scope="text,record">
-            <a-select labelInValue  v-if="record.editable" :defaultValue="{ key: text.value }" @change="e => handleChange(e.target.value,record.key, 'educationLevel')">
-                <a-select-option v-for="(item,index) in educationLevelOption" :key="index" :value="item.value">{{ item.label }}</a-select-option>
+            <a-select labelInValue  v-if="record.editable" :value="text" @change="e => handleChange(e,record.key, 'educationLevel')">
+                <a-select-option v-for="(item,index) in educationLevelOption" :key="index" :value="item.key">{{ item.label }}</a-select-option>
             </a-select>
             <template v-else>{{ text.label }}</template>
         </template>
 
         <template slot="action" slot-scope="text,record">
             <template v-if="record.editable">
-                <span v-if="record.isNew">
-                    <a @click="addRow(record.key)">添加</a>
-                </span>
-                <span v-else>
+                <span>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
                     <a @click="cancel(record.key)">取消</a>
@@ -41,22 +38,26 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Emit } from 'vue-property-decorator';
-import { Table, Divider, DatePicker, Input, Select } from 'ant-design-vue';
-import { ColumnList } from '@/interface';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
+import { Table, Divider, DatePicker, Input, Select, message } from 'ant-design-vue';
+import { ColumnList, SelectValue } from '@/interface';
 import moment from 'moment';
 import _ from 'lodash';
+import { putEmployeeEducationHistory, deleteEmployeeEducationHistory } from '@/api/staff';
+import jsonpatch from 'fast-json-patch';
+
 interface TableData {
     schoolName: string;
     major: string;
     educationLevel: {
-        value: string;
+        key: string;
         label: string;
     };
     startedDate: string;
     endDate: string;
-    key: number;
+    key: string;
     editable: boolean;
+    [key: string]: any;
 }
 @Component({
     components: {
@@ -69,36 +70,13 @@ interface TableData {
     },
 })
 export default class EducationTable extends Vue {
+    @Prop({ default: false }) private loading!: boolean;
+    @Prop() private tabList!: TableData[];
+    @Prop({ default: [] }) private educationLevelOption!: SelectValue[];
+    @Prop({ default: '' }) private employeeId!: string;
+    private data: TableData[] = this.tabList;
     private dateFormat = 'YYYY-MM-DD';
     private cacheOriginData: any = [];
-    private educationLevelOption = [{
-        value: '1',
-        label: '博士',
-    }, {
-        value: '2',
-        label: '硕士',
-    }, {
-        value: '3',
-        label: '本科',
-    }, {
-        value: '4',
-        label: '专科',
-    }, {
-        value: '5',
-        label: '无',
-    }];
-    private data: TableData[] = [{
-        schoolName: '北滘中学',
-        major: '初中',
-        startedDate: '2008-09-01',
-        endDate: '2011-07-21',
-        educationLevel: {
-            value: '1',
-            label: '博士',
-        },
-        key: 1,
-        editable: false,
-    }];
     private column: ColumnList[] = [{
         title: '学校/受教育机构名称',
         dataIndex: 'schoolName',
@@ -130,12 +108,16 @@ export default class EducationTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
+    @Watch('tabList')
+    private tableDataChange(value: any) {
+        this.data = value;
+    }
     private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
     @Emit()
-    private toggle(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+    private toggle(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData[key] = {...target};
@@ -144,9 +126,9 @@ export default class EducationTable extends Vue {
         }
     }
     @Emit()
-    private cancel(key: number) {
+    private cancel(key: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => item.key === key)[0];
+        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
         if (this.cacheOriginData[key]) {
             Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -157,27 +139,48 @@ export default class EducationTable extends Vue {
     @Emit()
     private handleChange(value: any, key: number, name: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             target[name] = value;
             this.data = newData;
         }
     }
     @Emit()
-    private removeRow(key: number) {
-        const newData = this.data.filter(item => item.key !== key);
-        this.data = newData;
+    private removeRow(key: string) {
+        deleteEmployeeEducationHistory(this.employeeId, key).then((res) => {
+            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
+            this.data = newData;
+        }).catch((err) => {
+            message.error('删除失败');
+        });
     }
     @Emit()
-    private saveRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
-        target.editable = false;
+    private saveRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
+        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+        putEmployeeEducationHistory(this.employeeId, target.key, params).then((res) => {
+            target.editable = false;
+        }).catch((err) => {
+            message.error('更新失败');
+        });
     }
-    @Emit()
-    private addEducationRow(value: TableData) {
-        const key = this.data.length + 1;
-        const newObj = {...value, key, ...{editable: false}};
-        this.data.push(newObj);
+    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
+        const newValues = {
+            educationLevelId: newValue.educationLevel.key,
+            schoolName: newValue.schoolName,
+            major: newValue.schoolName,
+            startedDate: newValue.startedDate,
+            endedDate: newValue.endDate,
+        };
+        const oldValues = {
+            educationLevelId: oldValue.educationLevel.key,
+            schoolName: oldValue.schoolName,
+            major: oldValue.schoolName,
+            startedDate: oldValue.startedDate,
+            endedDate: oldValue.endDate,
+        };
+        const diff = jsonpatch.compare(oldValues, newValues);
+        return diff;
     }
 }
 </script>

@@ -40,7 +40,7 @@
 import Vue from 'vue';
 import { Table, Divider, Input, DatePicker, Select } from 'ant-design-vue';
 import Component from 'vue-class-component';
-import { columnList } from '@/interface';
+import { ColumnList } from '@/interface';
 import { Emit } from 'vue-property-decorator';
 import moment from 'moment';
 interface TableData  {
@@ -54,6 +54,7 @@ interface TableData  {
     editable: boolean;
     isNew: boolean;
     key: number;
+    [key: string]: any;
 }
 @Component({
     components: {
@@ -80,7 +81,7 @@ export default class LegalTable extends Vue {
         value: '4',
         label: '港澳通行证',
     }];
-    private column: columnList[] = [{
+    private column: ColumnList[] = [{
         title: '证件类型',
         dataIndex: 'legalType',
         align: 'center',
@@ -124,7 +125,7 @@ export default class LegalTable extends Vue {
     }
     @Emit()
     private toggle(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+        const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData[key] = {...target};
@@ -134,7 +135,7 @@ export default class LegalTable extends Vue {
     }
     @Emit()
     private cancel(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+        const target = this.data.filter((item) => item.key === key)[0];
         if (this.cacheOriginData[key]) {
             const newData = Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -145,7 +146,7 @@ export default class LegalTable extends Vue {
     @Emit()
     private handleChange(value: any, key: number, name: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        const target = newData.filter((item) => key === item.key)[0];
         if (target) {
             target[name] = value;
             this.data = newData;
@@ -153,12 +154,12 @@ export default class LegalTable extends Vue {
     }
     @Emit()
     private saveRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+        const target = this.data.filter((item) => item.key === key)[0];
         target.editable = false;
     }
     @Emit()
     private addRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+        const target = this.data.filter((item) => item.key === key)[0];
         const index = key + 1;
         target.editable = false;
         target.isNew = false;
@@ -177,7 +178,7 @@ export default class LegalTable extends Vue {
     }
     @Emit()
     private removeRow(key: number) {
-        const newData = this.data.filter(item => item.key !== key);
+        const newData = this.data.filter((item) => item.key !== key);
         this.data = newData;
     }
 

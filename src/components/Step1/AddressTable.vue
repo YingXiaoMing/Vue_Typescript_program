@@ -1,26 +1,26 @@
 <template>
     <a-table :pagination="false" bordered size="small"
-    :columns="column" :dataSource="data">
+    :columns="column" :dataSource="data" :loading="loading">
         <template slot="addressType" slot-scope="text,record">
-            <a-select labelInValue  v-if="record.editable" :defaultValue="{ key: text.value }" @change="e => handleChange(e.target.value,record.key, 'legalType')">
-                <a-select-option v-for="(item,index) in AddressType" :key="index" :value="item.value">{{ item.label }}</a-select-option>
+            <a-select labelInValue  v-if="record.editable" :value="text" @change="e => handleChange(e,record.key, 'addressType')">
+                <a-select-option v-for="(item,index) in AddressType" :key="index" :value="item.key">{{ item.label }}</a-select-option>
             </a-select>
             <template v-else>{{text.label}}</template>
         </template>
         <template slot="province" slot-scope="text,record">
-            <a-select v-if="record.editable" :value="province" @change="e => onAreaCityChange(e,'province',record.key)">
+            <a-select v-if="record.editable" :value="text" @change="e => onAreaCityChange(e,'province',record.key)">
               <a-select-option v-for="(item,index) in provinceOptions" :key="item" :value="item">{{item}}</a-select-option>
             </a-select>
             <template v-else>{{text}}</template>
         </template> 
         <template slot="city" slot-scope="text,record">
-            <a-select v-if="record.editable" :value="city" @change="e => onAreaCityChange(e,'city',record.key)">
+            <a-select v-if="record.editable" :value="text" @change="e => onAreaCityChange(e,'city',record.key)">
               <a-select-option v-for="(item,index) in cityOptions" :key="item" :value="item">{{item}}</a-select-option>
             </a-select>
             <template v-else>{{text}}</template>
         </template>
         <template slot="area" slot-scope="text,record">
-            <a-select v-if="record.editable" :value="area" @change="e => onAreaCityChange(e,'area',record.key)">
+            <a-select v-if="record.editable" :value="text" @change="e => onAreaCityChange(e,'area',record.key)">
               <a-select-option v-for="(item,index) in areaOptions" :key="item" :value="item">{{item}}</a-select-option>
             </a-select>
             <template v-else>{{text}}</template>
@@ -35,7 +35,6 @@
                     <a-divider type="vertical"></a-divider>
                     <a @click="cancel(record.key)">取消</a>
                 </span>
-                
             </template>
             <span v-else>
                 <a @click="toggle(record.key)">编辑</a>
@@ -52,24 +51,29 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Emit } from 'vue-property-decorator';
-import { Table, Divider, Select, Input } from 'ant-design-vue';
-import { ColumnList } from '@/interface';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
+import { Table, Divider, Select, Input, message } from 'ant-design-vue';
+import { ColumnList, SelectValue, BasicData } from '@/interface';
 import provinceData from '@/utils/province';
 import cityData from '@/utils/city';
 import areaData from '@/utils/area';
+import { getAddressTypeOption } from '@/api/basic';
+import jsonpatch from 'fast-json-patch';
+import { getEmployeeContactAddressData, putEmployeeContactAddressData, newEmployeeContactAddressData, deleteEmployeeContactAddressData } from '@/api/staff';
+import _ from 'lodash';
 interface TableData {
     addressType: {
-        value: string,
+        key: string,
         label: string,
     };
     province: string;
     city: string;
     area: string;
     address: string;
-    key: number;
+    key: string;
     editable: boolean;
     isNew: boolean;
+    [key: string]: any;
 }
 @Component({
     components: {
@@ -81,26 +85,21 @@ interface TableData {
     },
 })
 export default class AddressTable extends Vue {
+    @Prop() private options!: SelectValue[];
+    @Prop() private tabList!: TableData[];
+    @Prop({default : false}) private tloading!: boolean;
+    @Prop({default : true}) private isNew!: boolean;
+    @Prop({default: ''}) private employeeId!: string;
+    private $store: any;
     private cacheOriginData: any = [];
     private province: string = '广东省';
     private city: string = '佛山市';
     private area: string = '顺德区';
+    private loading: boolean = this.tloading;
     private provinceOptions = provinceData;
     private cityOptions: string[] = [];
     private areaOptions: string[] = [];
-    private AddressType = [{
-        value: '1',
-        label: '居住地址',
-    }, {
-        value: '2',
-        label: '身份证地址',
-    }, {
-        value: '3',
-        label: '老家地址',
-    }, {
-        value: '4',
-        label: '通讯地址',
-    }];
+    private AddressType: SelectValue[] = [];
     private column: ColumnList[] = [{
         title: '地址类型',
         dataIndex: 'addressType',
@@ -132,26 +131,68 @@ export default class AddressTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
-    private data: TableData[] = [{
-        addressType: {
-            value: '1',
-            label: '居住地址',
-        },
-        province: '广东省',
-        area: '顺德区',
-        city: '佛山市',
-        address: '北滘',
-        key: 1,
-        editable: true,
-        isNew: true,
-    }];
+    private data: TableData[] = this.tabList;
     private mounted() {
-        this.cityOptions = cityData['广东省'];
-        this.areaOptions = areaData['佛山市'];
+        const provinceName = '广东省';
+        const cityName = '佛山市';
+        this.cityOptions = cityData[provinceName];
+        this.areaOptions = areaData[cityName];
+    }
+    @Watch('options')
+    private optionChange(value: any) {
+        this.AddressType = value;
+    }
+    @Watch('tabList')
+    private tableDataChange(value: any) {
+        this.data = value;
+    }
+    @Watch('tloading')
+    private loadingChange(value: any) {
+        this.loading = value;
+    }
+    private isNullAddress(target: TableData): boolean {
+        if (target.province === '' || target.city === '' || target.area === '' || target.address === '') {
+            message.error('联系地址信息请填写完整');
+            return false;
+        }
+        return true;
+    }
+    private loadAddressData() {
+        this.loading = true;
+        getEmployeeContactAddressData(this.employeeId).then((res: any) => {
+            const newData = _.map(res, (item) => {
+                const targetLegalType = _.find(this.AddressType, { key: item.typeId});
+                return {
+                    addressType: targetLegalType ? targetLegalType : {key: '', label: ''},
+                    province: item.address.provinceOrState,
+                    area: item.address.districtOrTown,
+                    city: item.address.city,
+                    address: item.address.street,
+                    key: item.id,
+                    editable: false,
+                    isNew: false,
+                };
+            });
+            this.data = newData;
+            this.data.push({
+                addressType: this.AddressType[0],
+                province: '',
+                area: '',
+                city: '',
+                address: '',
+                key: '1',
+                editable: true,
+                isNew: true,
+            });
+            this.loading = false;
+        }).catch((err) => {
+            this.loading = false;
+            message.error('加载数据失败，请联系管理员');
+        });
     }
     @Emit()
     private toggle(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData[key] = {...target};
@@ -167,7 +208,7 @@ export default class AddressTable extends Vue {
     @Emit()
     private cancel(key: number) {
         const newData = [...this.data];
-        const target = newData.filter(item => item.key === key)[0];
+        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {
             Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -178,26 +219,85 @@ export default class AddressTable extends Vue {
     @Emit()
     private handleChange(value: any, key: number, name: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             target[name] = value;
             this.data = newData;
         }
     }
     @Emit()
-    private saveRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+    private saveRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
+        if (target && this.isNullAddress(target)) {
+            if (this.isNew) {
+                this.saveNewData(target);
+            } else {
+                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                this.remoteUpdateEmployeeAddressData(key, diff, target);
+            }
+        }
+    }
+    private remoteUpdateEmployeeAddressData(key: string, diff: any, target: any) {
+        if (diff.length > 0) {
+            putEmployeeContactAddressData(this.employeeId, key, diff).then((res) => {
+                this.loadAddressData();
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        } else {
+            target.editable = false;
+        }
+    }
+    private saveNewData(target: any) {
         target.editable = false;
+        const newData = [...this.data];
+        newData.pop();
+        this.$store.dispatch('ReplaceContactAddressList', newData);
+    }
+    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
+        const newValues = {
+            typeId: newValue.addressType.key,
+            address: {
+                provinceOrState: newValue.province,
+                city: newValue.city,
+                districtOrTown: newValue.area,
+                street: newValue.address,
+            },
+        };
+        const oldValues = {
+            typeId: oldValue.addressType.key,
+            address: {
+                provinceOrState: oldValue.province,
+                city: oldValue.city,
+                districtOrTown: oldValue.area,
+                street: oldValue.address,
+            },
+        };
+        const diff = jsonpatch.compare(oldValues, newValues);
+        return diff;
     }
     @Emit()
-    private removeRow(key: number) {
-        const newData = this.data.filter(item => item.key !== key);
-        this.data = newData;
+    private removeRow(key: string) {
+        if (this.data.length === 2) {
+            message.error('必须存在一条联系地址信息');
+            return;
+        }
+        if (this.isNew) {
+            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
+            this.data = newData;
+            this.$store.dispatch('RemoveContactAddressList', key);
+        } else {
+            deleteEmployeeContactAddressData(this.employeeId, key).then((res) => {
+                this.loadAddressData();
+            }).catch((err) => {
+                message.error('删除失败');
+            });
+        }
     }
     @Emit()
     private onAreaCityChange(value: string, fieldName: string, key: number) {
         const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             switch (fieldName) {
                 case 'province':
@@ -226,21 +326,40 @@ export default class AddressTable extends Vue {
         }
     }
     @Emit()
-    private addRow(key: number) {
-        const target = this.data.filter(item => item.key)[0];
+    private addRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        if (target && this.isNullAddress(target)) {
+            if (this.isNew) {
+                this.firstAddRow(target, key);
+            } else  {
+                newEmployeeContactAddressData(this.employeeId, {
+                    typeId: target.addressType.key,
+                    address: {
+                        provinceOrState: target.province,
+                        city: target.city,
+                        districtOrTown: target.area,
+                        street: target.address,
+                    },
+                }).then((res) => {
+                    this.loadAddressData();
+                }).catch((err) => {
+                    message.error('新增失败');
+                });
+            }
+        }
+    }
+    private firstAddRow(target: any, key: string) {
         const index = key + 1;
         const newData = [...this.data];
         target.editable = false;
         target.isNew = false;
+        this.$store.dispatch('ReplaceContactAddressList', newData);
         this.data.push({
-            addressType: {
-                value: '1',
-                label: '居住地址',
-            },
-            province: '广东省',
-            area: '顺德区',
-            city: '佛山市',
-            address: '北滘',
+            addressType: this.AddressType[0],
+            province: '',
+            area: '',
+            city: '',
+            address: '',
             key: index,
             editable: true,
             isNew: true,

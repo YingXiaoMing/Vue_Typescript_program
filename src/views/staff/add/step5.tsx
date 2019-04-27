@@ -1,20 +1,21 @@
 import { Component, Vue, Emit } from 'vue-property-decorator';
 import { Form, Row, Divider, Col, Input, DatePicker,
     Radio, Upload, Button, Icon, Select, message } from 'ant-design-vue';
-import { SelectValues, BasicData } from '@/interface';
-import { getCredentialTypeOption } from '@/api/basic';
-import { newEmployeeCredential, newEmployeeCredentialAttachment, getEmployeeCredentialData } from '@/api/staff';
+import { SelectValue, BasicData } from '@/interface';
+import { getBankNameOption } from '@/api/basic';
+import BankTabkle from '@/components/Step5/BankTable.vue';
+import { addEmployeeBankData, newEmployeeBankAttachment, getEmployeeBankData } from '@/api/staff';
 import _ from 'lodash';
 import moment from 'moment';
-import CredentialTable from '@/components/Step3/CredentialTable.vue';
 interface NewValueForm {
-    credentialType: {
+    bankType: {
         key: string;
         value: string;
     };
-    credentialName: string;
-    issueDate: any;
-    expireDate: number;
+    accountOpenedBranch: string;
+    accountHolderName: string;
+    bankAccountNumber: string;
+    note: string;
 }
 @Component({
     components: {
@@ -31,26 +32,34 @@ interface NewValueForm {
         'a-icon': Icon,
         'a-select': Select,
         'a-option': Select.Option,
-        'a-credentialTable': CredentialTable,
+        'bank-table': BankTabkle,
     },
     props: {
         Form,
     },
 })
-class Step3 extends Vue {
+class Step4 extends Vue {
     private employeeId: string = '';
+    private bankNameTypeOption: SelectValue[] = [];
     private dateFormat: string = 'YYYY-MM-DD';
-    private credentialLoading: boolean = false;
+    private bankLoading: boolean = false;
+    private endedDateShow: boolean = true;
     private expireDate: string | null = null;
     private fileList: any = [];
-    private endedDateShow: boolean = true;
     private Form: any;
-    private $store: any;
-    private credentialTypeOption: SelectValues[] = [];
     private basicItemLayout = {
         lg: {span: 8},
         md: {span: 12},
         sm: {span: 24},
+    };
+    private basicItemLayout2 = {
+        lg: {span: 24},
+        md: {span: 24},
+        sm: {span: 24},
+    };
+    private fromItemLayout = {
+        labelCol: { span: 8 },
+        wrapperCol: { span: 16 },
     };
     private botttomLayout = {
         lg: {span: 12, offset: 8},
@@ -62,10 +71,7 @@ class Step3 extends Vue {
         md: {span: 24},
         sm: {span: 24},
     };
-    private fromItemLayout = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
-    };
+    private $store: any;
     @Emit()
     private nextStep() {
         this.$emit('nextStep');
@@ -75,35 +81,26 @@ class Step3 extends Vue {
         this.$emit('preStep');
     }
     private created() {
-        const { employeeId }  = this.$store.state.step;
+        const { employeeId } = this.$store.state.step;
         this.employeeId = employeeId;
-        this.fetchCredentialTypeData();
+        this.fetchContractTypeData();
     }
-    private fetchCredentialTypeData() {
-        getCredentialTypeOption().then((res) => {
-            this.credentialTypeOption = this.transformSelectData(res);
-            this.loadCredentialData();
+    private fetchContractTypeData() {
+        getBankNameOption().then((res) => {
+            this.bankNameTypeOption = this.transformSelectData(res);
+            this.loadContractData();
         });
     }
-    private loadCredentialData() {
-        this.credentialLoading = true;
-        getEmployeeCredentialData(this.employeeId).then((res) => {
-            const newData = _.map(res, (item) => {
-                return {
-                    key: item.id,
-                    name: item.name,
-                    credentialType: _.find(this.credentialTypeOption, {key: item.typeId}),
-                    issueDate: moment(item.issueDate).format(this.dateFormat),
-                    editable: false,
-                    expireDate: moment(item.expireDate).format(this.dateFormat),
-                    employeeCredentialAttachments: item.employeeCredentialAttachments,
-                };
-            });
-            this.$store.dispatch('ReplaceCredentialList', newData);
-            this.credentialLoading = false;
-        }).catch((err) => {
-            this.credentialLoading = false;
-        });
+    private onRadioChange(e: any) {
+        switch (e.target.value) {
+            case 0:
+                this.endedDateShow = true;
+                this.expireDate = null;
+                break;
+            default:
+                this.endedDateShow = false;
+                break;
+        }
     }
     private transformSelectData(data: any) {
         return _.map(data, (item: BasicData) => {
@@ -123,39 +120,48 @@ class Step3 extends Vue {
         this.fileList = [...this.fileList, file];
         return false;
     }
-    @Emit()
-    private onRadioChange(e: any) {
-        switch (e.target.value) {
-            case 0:
-                this.endedDateShow = true;
-                this.expireDate = null;
-                break;
-            default:
-                this.endedDateShow = false;
-                break;
-        }
+    private loadContractData() {
+        this.bankLoading = true;
+        getEmployeeBankData(this.employeeId).then((res) => {
+            const newData = _.map(res, (item) => {
+                return {
+                    key: item.id,
+                    bankType: _.find(this.bankNameTypeOption, {key: item.bankNameId}),
+                    accountOpenedBranch: item.accountOpenedBranch,
+                    accountHolderName: item.accountHolderName,
+                    bankAccountNumber: item.bankAccountNumber,
+                    note: item.note,
+                    editable: false,
+                };
+            });
+            this.$store.dispatch('ReplaceBankList', newData);
+            this.bankLoading = false;
+        }).catch(() => {
+            this.bankLoading = false;
+            message.error('加载数据失败，请联系管理员');
+        });
     }
-    private credntialDataAdd(e: HTMLFormElement) {
+    private addData(e: HTMLFormElement) {
         e.preventDefault();
-        this.Form.validateFields((err: any, values: NewValueForm) => {
+        this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 const param = this.transformValueData(values);
-                newEmployeeCredential(this.employeeId, param).then((res: any) => {
+                addEmployeeBankData(this.employeeId, param).then((res: any) => {
                     const id = res.id;
                     if (this.fileList.length > 0) {
                         const formData = new FormData();
                         this.fileList.forEach((file: any) => {
                             formData.append('files[]', file);
                         });
-                        newEmployeeCredentialAttachment(this.employeeId, id, formData).then(() => {
+                        newEmployeeBankAttachment(this.employeeId, id, formData).then(() => {
                             this.Form.resetFields();
                             this.fileList = [];
-                            this.loadCredentialData();
+                            this.loadContractData();
                         }).catch(() => {
                             message.error('新增失败');
                         });
                     } else {
-                        this.loadCredentialData();
+                        this.loadContractData();
                     }
                 });
             }
@@ -163,40 +169,38 @@ class Step3 extends Vue {
     }
     private transformValueData(data: NewValueForm) {
         return {
-            typeId: data.credentialType.key,
-            name: data.credentialName,
-            issueDate:  moment(data.issueDate).format(this.dateFormat),
-            expireDate: data.expireDate ? this.expireDate : '9999-12-31',
+            bankNameId: data.bankType.key,
+            accountOpenedBranch: data.accountOpenedBranch,
+            bankAccountNumber: data.bankAccountNumber,
+            accountHolderName: data.accountHolderName,
+            note:  data.note,
         };
-    }
-    private onDateChange(value: any, dateString: string) {
-        this.expireDate = dateString;
     }
     private render() {
         const { getFieldDecorator } = this.Form as any;
-        const { credentialList, employeeStatus } = this.$store.state.step;
-        return(
+        const { bankList, employeeStatus } = this.$store.state.step;
+        return (
             <div>
-                <a-row gutter={24} class='basicData'>
-                    <a-divider class='diliver_item'>证件资料</a-divider>
-                    <a-row>
+                <a-row class='basicData'>
+                    <a-divider class='diliver_item'>银行账号</a-divider>
+                    < a-row span={24}>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='证件/证书类型'>
-                                {getFieldDecorator('credentialType', {
-                                    initialValue: this.credentialTypeOption[0],
+                            <a-form-item {...{props: this.fromItemLayout}} label='银行名称'>
+                                {getFieldDecorator('bankType', {
+                                    initialValue: this.bankNameTypeOption[0],
                                     rules: [{
                                         required: true,
                                         message: ' ',
                                     }],
                                 })(<a-select labelInValue>
-                                {this.credentialTypeOption.map((item: any, index: number) => <a-option
+                                    {this.bankNameTypeOption.map((item: any, index: number) => <a-option
                                     value={item.key}>{item.label}</a-option>)}
                                 </a-select>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='证件/证书名称'>
-                                {getFieldDecorator('credentialName', {
+                            <a-form-item {...{props: this.fromItemLayout}} label='开户行'>
+                                {getFieldDecorator('accountOpenedBranch', {
                                     rules: [{
                                         required: true,
                                         message: ' ',
@@ -205,36 +209,33 @@ class Step3 extends Vue {
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='颁发日期'>
-                                {getFieldDecorator('issueDate', {
+                            <a-form-item {...{props: this.fromItemLayout}} label='账户名'>
+                                {getFieldDecorator('accountHolderName', {
                                     rules: [{
                                         required: true,
                                         message: ' ',
                                     }],
-                                })(<a-date-picker></a-date-picker>)}
+                                })(<a-input></a-input>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='有效日期'>
-                                {getFieldDecorator('expireDate', {
-                                    initialValue: 0,
+                            <a-form-item {...{props: this.fromItemLayout}} label='账户'>
+                                {getFieldDecorator('bankAccountNumber', {
                                     rules: [{
                                         required: true,
                                         message: ' ',
                                     }],
-                                })(<a-radio-group onChange={(e: any) => this.onRadioChange(e)}>
-                                    <a-col {...{props: {lg: {span: 8}}}}><a-radio value={0}>永久</a-radio></a-col>
-                                    <a-col {...{props: {lg: {span: 16}}}}>
-                                        <a-radio value={1} style='width:138px'>
-                                            <a-date-picker format={this.dateFormat} disabled={this.endedDateShow}
-                                            onChange={this.onDateChange}></a-date-picker>
-                                        </a-radio>
-                                    </a-col>
-                                </a-radio-group>)}
+                                })(<a-input></a-input>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='证件上传'>
+                            <a-form-item {...{props: this.fromItemLayout}} label='备注'>
+                                {getFieldDecorator('note', {
+                                })(<a-input></a-input>)}
+                            </a-form-item>
+                        </a-col>
+                        <a-col {...{props: this.basicItemLayout}}>
+                            <a-form-item {...{props: this.fromItemLayout}} label='附件上传'>
                                 <a-upload fileList={this.fileList} beforeUpload={(file: any) => this.beforeUpload(file)}
                                 remove={(file: any) => this.handleRemove(file)}>
                                     <a-button>
@@ -243,16 +244,16 @@ class Step3 extends Vue {
                                 </a-upload>
                             </a-form-item>
                         </a-col>
-                        <a-col {...{props: this.basicItemLayout}}>
+                        <a-col {...{props: this.basicItemLayout2}}>
                             <a-form-item class='rightBtn'>
-                                <a-button type='primary' on-click={this.credntialDataAdd}>新增</a-button>
+                                <a-button type='primary' on-click={this.addData} style='marginLeft: 30px'>新增</a-button>
                             </a-form-item>
                         </a-col>
                     </a-row>
                     <a-row style='marginTop:18px;marginBottom:30px;'>
-                        <a-credentialTable credentialOption={this.credentialTypeOption}
-                        loading={this.credentialLoading} tabList={credentialList}
-                        employeeId={this.employeeId}></a-credentialTable>
+                        <bank-table loading={this.bankLoading}
+                        bankNameOption={this.bankNameTypeOption}
+                        employeeId={this.employeeId} tabList={bankList}/>
                     </a-row>
                     {employeeStatus === 3 ? null : <a-row>
                     <a-col {...{props: this.botttomLayout}}>
@@ -271,4 +272,4 @@ class Step3 extends Vue {
 }
 export default Form.create({
     props: {},
-})(Step3);
+})(Step4);

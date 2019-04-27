@@ -1,19 +1,19 @@
 <template>
     <a-table :pagination="false" bordered :columns="column" :dataSource="data"
-     size="small">
+     size="small" :loading="loading">
         <template slot="legalNum" slot-scope="text, record">
             <a-input v-if="record.editable" :value="text"
             @change="e => handleChange(e.target.value, record.key, 'legalNum')"></a-input>
             <template v-else>{{text}}</template>
         </template>
         <template v-for="(col,u) in ['issueDate','expireDate']" :slot="col" slot-scope="text, record">
-            <a-date-picker v-if="record.editable" :defaultValue="text?momentFromDate(text):text" :format="dateFormat"
+            <a-date-picker v-if="record.editable" :value="text?momentFromDate(text):text" :format="dateFormat"
             @change="(date,dateString) => handleChange(dateString, record.key, col)"></a-date-picker>
             <template v-else>{{ text }}</template>
         </template>
         <template slot="legalType" slot-scope="text, record">
-            <a-select labelInValue  v-if="record.editable" :defaultValue="{ key: text.value }" @change="e => handleChange(e.target.value,record.key, 'legalType')">
-                <a-select-option v-for="(item,index) in LegalType" :key="index" :value="item.value">{{ item.label }}</a-select-option>
+            <a-select labelInValue  v-if="record.editable" :value="text" @change="e => handleChange(e,record.key, 'legalType')">
+                <a-select-option v-for="(item,index) in LegalTypeOption" :key="index" :value="item.key">{{ item.label }}</a-select-option>
             </a-select>
             <template v-else>{{text.label}}</template>
         </template>
@@ -36,18 +36,21 @@
         </template>
      </a-table>
 </template>
-
-
 <script lang="ts">
 import Vue from 'vue';
-import { Table, Divider, Input, DatePicker, Select } from 'ant-design-vue';
+import { Table, Divider, Input, DatePicker, Select, message } from 'ant-design-vue';
 import Component from 'vue-class-component';
 import { ColumnList } from '@/interface';
-import { Emit } from 'vue-property-decorator';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
 import moment from 'moment';
+import { getLegalIdentiticationTypeOption } from '@/api/basic';
+import { getEmployeeLegalData, putEmployeeLegalData, newEmployeeLegalData, deleteEmployeeLegalData } from '@/api/staff';
+import { BasicData, SelectValue } from '@/interface';
+import _ from 'lodash';
+import jsonpatch from 'fast-json-patch';
 interface TableData  {
     legalType: {
-        value: string,
+        key: string,
         label: string,
     };
     legalNum: string;
@@ -55,7 +58,8 @@ interface TableData  {
     expireDate: string | null;
     editable: boolean;
     isNew: boolean;
-    key: number;
+    key: string;
+    [key: string]: any;
 }
 @Component({
     components: {
@@ -68,20 +72,15 @@ interface TableData  {
     },
 })
 export default class LegalTable extends Vue {
+    @Prop() private options!: SelectValue[];
+    @Prop() private tabList!: TableData[];
+    @Prop({default : true}) private isNew!: boolean;
+    @Prop({default : false}) private tloading!: boolean;
+    @Prop({default: ''}) private employeeId!: string;
+    private LegalTypeOption: SelectValue[] = this.options;
+    private $store: any;
     private cacheOriginData: any = [];
-    private LegalType = [{
-        value: '1',
-        label: '身份证',
-    }, {
-        value: '2',
-        label: '护照',
-    }, {
-        value: '3',
-        label: '台胞证',
-    }, {
-        value: '4',
-        label: '港澳通行证',
-    }];
+    private loading: boolean = this.tloading;
     private column: ColumnList[] = [{
         title: '证件类型',
         dataIndex: 'legalType',
@@ -109,24 +108,63 @@ export default class LegalTable extends Vue {
         scopedSlots: { customRender: 'action' },
     }];
     private dateFormat = 'YYYY-MM-DD';
-    private data: TableData[] = [{
-        legalType: {
-            value: '1',
-            label: '身份证',
-        },
-        legalNum: '440681199502165623',
-        issueDate: '1995-02-13',
-        expireDate: '2019-04-01',
-        editable: true,
-        isNew: true,
-        key: 1,
-    }];
+    private data: TableData[] = this.tabList;
+    private isNullLegal(target: TableData): boolean {
+        if (target.legalNum === '' || target.expireDate === null || target.issueDate === null) {
+            message.error('身份证件信息不完整');
+            return false;
+        }
+        return true;
+    }
+    private loadLegalData() {
+        this.loading = true;
+        getEmployeeLegalData(this.employeeId).then((res: any) => {
+            const newData = _.map(res, (item) => {
+                const targetLegalType = _.find(this.LegalTypeOption, { key: item.typeId});
+                return {
+                    legalType: targetLegalType ? targetLegalType : {key: '', label: ''},
+                    legalNum: item.idNumber,
+                    issueDate: moment(item.issueDate).format(this.dateFormat),
+                    expireDate: moment(item.expireDate).format(this.dateFormat),
+                    editable: false,
+                    isNew: false,
+                    key: item.id,
+                };
+            });
+            this.data = newData;
+            this.data.push({
+                legalType: this.LegalTypeOption[0],
+                legalNum: '',
+                issueDate: null,
+                expireDate: null,
+                editable: true,
+                isNew: true,
+                key: '1',
+            });
+            this.loading = false;
+        }).catch((err) => {
+            this.loading = false;
+            message.error('加载数据失败，请联系管理员');
+        });
+    }
     private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
+    @Watch('options')
+    private optionChange(value: any) {
+        this.LegalTypeOption = value;
+    }
+    @Watch('tabList')
+    private tableDataChange(value: any) {
+        this.data = value;
+    }
+    @Watch('tloading')
+    private loadingChange(value: any) {
+        this.loading = value;
+    }
     @Emit()
-    private toggle(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+    private toggle(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData[key] = {...target};
@@ -135,9 +173,9 @@ export default class LegalTable extends Vue {
         }
     }
     @Emit()
-    private cancel(key: number) {
+    private cancel(key: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => item.key === key)[0];
+        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {
             Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -147,41 +185,109 @@ export default class LegalTable extends Vue {
     }
     @Emit()
     private handleChange(value: any, key: number, name: string) {
-        const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        // const newData = [...this.data];
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             target[name] = value;
-            this.data = newData;
         }
     }
     @Emit()
-    private saveRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+    private saveRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        if (target && this.isNullLegal(target)) {
+            if (this.isNew) {
+                this.saveNewData(target);
+            } else {
+                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                this.remoteUpdateEmployeeLegalData(key, diff, target);
+            }
+        }
+    }
+    private remoteUpdateEmployeeLegalData(key: string, diff: any, target: any) {
+        if (diff.length > 0) {
+            putEmployeeLegalData(this.employeeId, key, diff).then((res) => {
+                this.loadLegalData();
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        } else {
+            target.editable = false;
+        }
+    }
+    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
+        const newValues = {
+            typeId: newValue.legalType.key,
+            idNumber: newValue.legalNum,
+            issueDate: newValue.issueDate,
+            expireDate: newValue.expireDate,
+        };
+        const oldValues = {
+            typeId: oldValue.legalType.key,
+            idNumber: oldValue.legalNum,
+            issueDate: oldValue.issueDate,
+            expireDate: oldValue.expireDate,
+        };
+        const diff = jsonpatch.compare(oldValues, newValues);
+        return diff;
+    }
+    private saveNewData(target: any) {
+        const newData = [...this.data];
+        newData.pop();
+        this.$store.dispatch('ReplaceLegalList', newData);
         target.editable = false;
     }
     @Emit()
-    private addRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
-        const index = key + 1;
-        target.editable = false;
-        target.isNew = false;
-        this.data.push({
-            legalType: {
-                value: '1',
-                label: '身份证',
-            },
-            legalNum: '',
-            issueDate: null,
-            expireDate: null,
-            editable: true,
-            isNew: true,
-            key: index,
-        });
+    private addRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
+        if (target && this.isNullLegal(target)) {
+            if (this.isNew) {
+                this.firstAddRow(target, key);
+            } else {
+                newEmployeeLegalData(this.employeeId, {
+                    typeId: target.legalType.key,
+                    idNumber: target.legalNum,
+                    issueDate: target.issueDate,
+                    expireDate: target.expireDate,
+                }).then((res) => {
+                    this.loadLegalData();
+                }).catch((err) => {
+                    message.error('新增失败');
+                });
+            }
+        }
+    }
+    private firstAddRow(target: any, key: string) {
+            const index = key + 1;
+            target.editable = false;
+            target.isNew = false;
+            this.$store.dispatch('AddLegalList', target);
+            this.data.push({
+                legalType: this.LegalTypeOption[0],
+                legalNum: '',
+                issueDate: null,
+                expireDate: null,
+                editable: true,
+                isNew: true,
+                key: index,
+            });
     }
     @Emit()
-    private removeRow(key: number) {
-        const newData = this.data.filter(item => item.key !== key);
-        this.data = newData;
+    private removeRow(key: string) {
+        if (this.data.length === 2) {
+            message.error('必须存在一条身份证件信息');
+            return;
+        }
+        if (this.isNew) {
+            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
+            this.data = newData;
+            this.$store.dispatch('RemoveLegalList', key);
+        } else {
+            deleteEmployeeLegalData(this.employeeId, key).then((res) => {
+                this.loadLegalData();
+            }).catch((err) => {
+                message.error('删除失败');
+            });
+        }
     }
 
 }

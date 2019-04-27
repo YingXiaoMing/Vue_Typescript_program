@@ -1,10 +1,12 @@
-import { Component, Vue, Emit } from 'vue-property-decorator';
-import { Row, Col, Form, Input, Select, DatePicker, Button } from 'ant-design-vue';
+import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
+import { Row, Col, Form, Input, Select, DatePicker, Button, message } from 'ant-design-vue';
 import WorkExperienceTable from '@/components/Step2/WorkExperienceTable.vue';
 import moment from 'moment';
+import { getEmployeeWorkExperience, newEmployeeWorkExperience } from '@/api/staff';
+import _ from 'lodash';
 interface ValueData {
     companyName: string;
-    position: string;
+    positionName: string;
     startedDate: string;
     endDate: string;
     salary: string;
@@ -29,6 +31,8 @@ interface ValueData {
 })
 
 class WorkExperience extends Vue {
+    @Prop({ default: '' }) private employeeId!: string;
+    private workExperienceLoading: boolean = false;
     private dateFormat = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 6},
@@ -40,6 +44,13 @@ class WorkExperience extends Vue {
         wrapperCol: { span: 14 },
     };
     private Form: any;
+    private $store: any;
+    private created() {
+        this.fetchWorkData();
+    }
+    private fetchWorkData() {
+        this.loadWorkExperienceData();
+    }
     @Emit()
     private workExperienceAdd(e: HTMLFormElement) {
         e.preventDefault();
@@ -47,12 +58,50 @@ class WorkExperience extends Vue {
             if (!err) {
                 values.startedDate = moment(values.startedDate).format(this.dateFormat);
                 values.endDate = moment(values.endDate).format(this.dateFormat);
-                this.$refs.workExperienceTable.addWorkExperienceRow(values);
+                newEmployeeWorkExperience(this.employeeId, {
+                    companyName: values.companyName,
+                    positionName: values.positionName,
+                    startedDate: values.startedDate,
+                    endedDate: values.endDate,
+                    endedJobReason: values.endedJobReason,
+                    salary: values.salary,
+                    reference: values.reference,
+                    referencePhoneNumber: values.reference,
+                }).then((res) => {
+                    this.Form.resetFields();
+                    this.loadWorkExperienceData();
+                }).catch((error) => {
+                    message.error('新增失败');
+                });
             }
+        });
+    }
+    private loadWorkExperienceData() {
+        this.workExperienceLoading = true;
+        getEmployeeWorkExperience(this.employeeId).then((res) => {
+            const newData = _.map(res, (item) => {
+                return {
+                    key: item.id,
+                    companyName: item.companyName,
+                    positionName: item.positionName,
+                    startedDate: moment(item.startedDate).format(this.dateFormat),
+                    endedDate: moment(item.endedDate).format(this.dateFormat),
+                    endedJobReason: item.endedJobReason,
+                    salary: item.salary,
+                    reference: item.reference,
+                    referencePhoneNumber: item.reference,
+                    editable: false,
+                };
+            });
+            this.$store.dispatch('ReplaceWorkExperienceList', newData);
+            this.workExperienceLoading = false;
+        }).catch((err) => {
+            this.workExperienceLoading = false;
         });
     }
     private render() {
         const { getFieldDecorator } = this.Form as any;
+        const { workExperienceList } = this.$store.state.step;
         return (
             <div>
                 <a-row>
@@ -68,7 +117,7 @@ class WorkExperience extends Vue {
                     </a-col>
                     <a-col {...{props: this.basicItemLayout}}>
                         <a-form-item {...{props: this.fromItemLayout}} label='职位'>
-                            {getFieldDecorator('position', {
+                            {getFieldDecorator('positionName', {
                                 rules: [{
                                     required: true,
                                     message: ' ',
@@ -121,12 +170,15 @@ class WorkExperience extends Vue {
                     </a-col>
                 </a-row>
                 <a-row style='marginTop:18px;marginBottom:30px'>
-                    <a-work-table ref='workExperienceTable'></a-work-table>
+                    <a-work-table ref='workExperienceTable' tabList={workExperienceList}
+                    employeeId={this.employeeId} loading={this.workExperienceLoading}></a-work-table>
                 </a-row>
             </div>
         );
     }
 }
 export default Form.create({
-    props: {},
+    props: {
+        employeeId: String,
+    },
 })(WorkExperience);

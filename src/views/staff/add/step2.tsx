@@ -1,15 +1,19 @@
 import { Component, Vue, Emit } from 'vue-property-decorator';
-import { Row, Divider, Col, Form, Input, Select, DatePicker, Button } from 'ant-design-vue';
+import { Row, Divider, Col, Form, Input, Select, DatePicker, Button, message } from 'ant-design-vue';
 import EducationTable from '@/components/Step2/EducationTable.vue';
 import moment from 'moment';
 import WorkExperience from './workExperience';
+import { getEducationLevelOption } from '@/api/basic';
+import { BasicData, SelectValues } from '@/interface';
+import { newEmployeeEducationHistory, getEmployeeEducationHistory } from '@/api/staff';
+import _ from 'lodash';
 interface ValueData {
     major: string;
     schoolName: string;
     startedDate: string;
     endDate: string;
     educationLevel: {
-        value: string;
+        key: string;
         label: string;
     };
 }
@@ -32,6 +36,7 @@ interface ValueData {
     },
 })
 class Step2 extends Vue {
+    public $store: any;
     private dateFormat = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 8},
@@ -47,39 +52,74 @@ class Step2 extends Vue {
         lg: {span: 12, offset: 8},
         md: {span: 24, offset: 14},
         sm: {span: 24, offset: 14},
-    }
+    };
     private fromItemLayout = {
         labelCol: { span: 12 },
         wrapperCol: { span: 12 },
     };
-    private educationLevelOption = [{
-        value: '1',
-        label: '博士',
-    }, {
-        value: '2',
-        label: '硕士',
-    }, {
-        value: '3',
-        label: '本科',
-    }, {
-        value: '4',
-        label: '专科',
-    }, {
-        value: '5',
-        label: '无',
-    }];
+    private educationLevelOption: SelectValues[] = [];
+    private educationTableLoading: boolean = false;
     private Form: any;
+    private employeeId: string = '';
+    private created() {
+        const { employeeId } = this.$store.state.step;
+        this.employeeId = employeeId;
+        this.fetchBasicData();
+    }
+    private fetchBasicData() {
+        getEducationLevelOption().then((response) => {
+            this.educationLevelOption = this.transformSelectData(response);
+            this.loadEducationHistoryData();
+        });
+    }
+    private loadEducationHistoryData() {
+        this.educationTableLoading = true;
+        getEmployeeEducationHistory(this.employeeId).then((res) => {
+            const newData = _.map(res, (item) => {
+                return {
+                    key: item.id,
+                    startedDate: moment(item.startedDate).format(this.dateFormat),
+                    endDate: moment(item.endedDate).format(this.dateFormat),
+                    major: item.major,
+                    schoolName: item.schoolName,
+                    educationLevel: _.find(this.educationLevelOption, {key: item.educationLevelId}),
+                    editable: false,
+                };
+            });
+            this.$store.dispatch('ReplaceEducationHistoryList', newData);
+            this.educationTableLoading = false;
+        }).catch((err) => {
+            this.educationTableLoading = false;
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
+        });
+    }
     @Emit()
     private EducationTableAdd(e: HTMLFormElement) {
         e.preventDefault();
         this.Form.validateFields((err: any, values: ValueData) => {
             if (!err) {
-                values.startedDate = moment(values.startedDate).format(this.dateFormat);
-                values.endDate = moment(values.endDate).format(this.dateFormat);
-                this.$refs.educationTable.addEducationRow(values);
+                newEmployeeEducationHistory(this.employeeId, {
+                    educationLevelId: values.educationLevel.key,
+                    schoolName: values.schoolName,
+                    major: values.major,
+                    startedDate: moment(values.startedDate).format(this.dateFormat),
+                    endedDate: moment(values.endDate).format(this.dateFormat),
+                }).then((res) => {
+                    this.Form.resetFields();
+                    this.loadEducationHistoryData();
+
+                }).catch((error) => {
+                    message.error('新增失败');
+                });
             }
         });
-        // this.$refs.educationTable.addEducationRow();
     }
     @Emit()
     private nextStep() {
@@ -91,6 +131,7 @@ class Step2 extends Vue {
     }
     private render() {
         const { getFieldDecorator } = this.Form as any;
+        const { educationHistoryList, employeeStatus } = this.$store.state.step;
         return (
             <div>
                 <a-row gutter={24} class='basicData'>
@@ -126,7 +167,7 @@ class Step2 extends Vue {
                                     }],
                                 })(<a-select labelInValue >
                                     {this.educationLevelOption.map((item: any, index: number) => <a-option
-                                    key={index} value={item.value}>{item.label}</a-option>)}
+                                    value={item.key}>{item.label}</a-option>)}
                                 </a-select>)}
                             </a-form-item>
                         </a-col>
@@ -157,12 +198,14 @@ class Step2 extends Vue {
                         </a-col>
                     </a-row>
                     <a-row style='marginTop:18px;marginBottom:30px'>
-                        <a-education-table ref='educationTable'></a-education-table>
+                        <a-education-table ref='educationTable' loading={this.educationTableLoading}
+                        tabList={educationHistoryList} employeeId={this.employeeId}
+                        educationLevelOption={this.educationLevelOption}></a-education-table>
                     </a-row>
                     <a-divider class='diliver_item'>工作经历</a-divider>
-                    <WorkExperience/>
+                    <WorkExperience employeeId={this.employeeId}></WorkExperience>
                 </a-row>
-                <a-row>
+                {employeeStatus === 3 ? null : <a-row>
                     <a-col {...{props: this.botttomLayout}}>
                         <a-col {...{props: this.bottomLayoutBtn}}>
                             <a-button type='primary' on-click={this.preStep}>上一步</a-button>
@@ -171,7 +214,7 @@ class Step2 extends Vue {
                             <a-button type='primary' on-click={this.nextStep}>下一步</a-button>
                         </a-col>
                     </a-col>
-                </a-row>
+                </a-row>}
             </div>
         );
     }

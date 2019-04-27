@@ -1,12 +1,12 @@
 <template>
-    <a-table :pagination="false" bordered
+    <a-table :pagination="false" bordered :loading="loading"
     size="small" :columns="column" :dataSource="data">
-        <template v-for="(item,u) in ['companyName','position','salary','reference',
+        <template v-for="(item,u) in ['companyName','positionName','salary','reference',
         'referencePhoneNumber','endedJobReason']" :slot="item" slot-scope="text, record">
             <a-input v-if="record.editable" :value="text" @change="e => handleChange(e.target.value, record.key, item)"></a-input>
             <template v-else>{{ text }}</template>
         </template>
-        <template v-for="(col,u) in ['startedDate','endDate']" :slot="col" slot-scope="text, record">
+        <template v-for="(col,u) in ['startedDate','endedDate']" :slot="col" slot-scope="text, record">
             <a-date-picker v-if="record.editable" :defaultValue="text?momentFromDate(text):text" :format="dateFormat"
             @change="(date,dateString) => handleChange(dateString, record.key, col)"></a-date-picker>
             <template v-else>{{ text }}</template>
@@ -33,21 +33,25 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Table, Divider, DatePicker, Input } from 'ant-design-vue';
-import { Emit } from 'vue-property-decorator';
+import { Table, Divider, DatePicker, Input, message } from 'ant-design-vue';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { ColumnList } from '@/interface';
+import jsonpatch from 'fast-json-patch';
+import { putEmployeeWorkExperience, deleteEmployeeWorkExperience } from '@/api/staff';
+import _ from 'lodash';
 import moment from 'moment';
 interface TableData {
     companyName: string;
-    position: string;
+    positionName: string;
     startedDate: string;
     endDate: string;
     salary: string;
     reference: string;
     referencePhoneNumber: string;
     endedJobReason: string;
-    key: number;
+    key: string;
     editable: boolean;
+    [key: string]: any;
 }
 @Component({
     components: {
@@ -58,20 +62,12 @@ interface TableData {
     },
 })
 export default class WorkExperienceTable extends Vue {
+    @Prop() private tabList!: TableData[];
+    @Prop({ default: false }) private loading!: boolean;
+    @Prop({ default: '' }) private employeeId!: string;
     private cacheOriginData: any = [];
     private dateFormat = 'YYYY-MM-DD';
-    private data: TableData[] = [{
-        companyName: '新感觉有限公司',
-        position: '程序员',
-        startedDate: '2016-08-02',
-        endDate: '2018-07-11',
-        salary: '10',
-        reference: '吴亦凡',
-        referencePhoneNumber: '13128565246',
-        endedJobReason: '出去创业',
-        key: 1,
-        editable: false,
-    }];
+    private data: TableData[] = this.tabList;
     private column: ColumnList[] = [{
         title: '公司名称',
         dataIndex: 'companyName',
@@ -79,9 +75,9 @@ export default class WorkExperienceTable extends Vue {
         scopedSlots: { customRender: 'companyName' },
     }, {
         title: '职位',
-        dataIndex: 'position',
+        dataIndex: 'positionName',
         align: 'center',
-        scopedSlots: { customRender: 'position' },
+        scopedSlots: { customRender: 'positionName' },
     }, {
         title: '入职日期',
         dataIndex: 'startedDate',
@@ -89,9 +85,9 @@ export default class WorkExperienceTable extends Vue {
         scopedSlots: { customRender: 'startedDate' },
     }, {
         title: '离职日期',
-        dataIndex: 'endDate',
+        dataIndex: 'endedDate',
         align: 'center',
-        scopedSlots: { customRender: 'endDate' },
+        scopedSlots: { customRender: 'endedDate' },
     }, {
         title: '工资',
         dataIndex: 'salary',
@@ -112,7 +108,7 @@ export default class WorkExperienceTable extends Vue {
         dataIndex: 'endedJobReason',
         align: 'center',
         scopedSlots: { customRender: 'endedJobReason' },
-    },{
+    }, {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
@@ -121,9 +117,13 @@ export default class WorkExperienceTable extends Vue {
     private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
+    @Watch('tabList')
+    private tableDataChange(value: any) {
+        this.data = value;
+    }
     @Emit()
-    private toggle(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
+    private toggle(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData[key] = {...target};
@@ -132,9 +132,9 @@ export default class WorkExperienceTable extends Vue {
         }
     }
     @Emit()
-    private cancel(key: number) {
+    private cancel(key: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => item.key === key)[0];
+        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
         if (this.cacheOriginData[key]) {
             Object.assign(target, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
@@ -143,30 +143,56 @@ export default class WorkExperienceTable extends Vue {
         target.editable = false;
     }
     @Emit()
-    private handleChange(value: any, key: number, name: string) {
+    private handleChange(value: any, key: string, name: string) {
         const newData = [...this.data];
-        const target = newData.filter(item => key === item.key)[0];
+        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             target[name] = value;
             this.data = newData;
         }
     }
     @Emit()
-    private removeRow(key: number) {
-        const newData = this.data.filter(item => item.key !== key);
-        this.data = newData;
+    private removeRow(key: string) {
+        deleteEmployeeWorkExperience(this.employeeId, key).then((res) => {
+            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
+            this.data = newData;
+        }).catch((err) => {
+            message.error('删除失败');
+        });
     }
     @Emit()
-    private saveRow(key: number) {
-        const target = this.data.filter(item => item.key === key)[0];
-        target.editable = false;
+    private saveRow(key: string) {
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
+        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+        putEmployeeWorkExperience(this.employeeId, target.key, params).then((res) => {
+            target.editable = false;
+        }).catch((err) => {
+            message.error('更新失败');
+        });
     }
-    @Emit()
-    private addWorkExperienceRow(value: TableData) {
-        console.log(value);
-        const key = this.data.length + 1;
-        const newObj = {...value, key, ...{editable: false}};
-        this.data.push(newObj);
+    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
+        const newValues = {
+            companyName: newValue.companyName,
+            positionName: newValue.positionName,
+            startedDate: newValue.startedDate,
+            endedDate: newValue.endDate,
+            endedJobReason: newValue.endedJobReason,
+            salary: newValue.salary,
+            reference: newValue.reference,
+            referencePhoneNumber: newValue.referencePhoneNumber,
+        };
+        const oldValues = {
+            companyName: oldValue.companyName,
+            positionName: oldValue.positionName,
+            startedDate: oldValue.startedDate,
+            endedDate: oldValue.endDate,
+            endedJobReason: oldValue.endedJobReason,
+            salary: oldValue.salary,
+            reference: oldValue.reference,
+            referencePhoneNumber: oldValue.referencePhoneNumber,
+        };
+        const diff = jsonpatch.compare(oldValues, newValues);
+        return diff;
     }
 }
 </script>

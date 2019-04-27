@@ -5,6 +5,7 @@ import { Component , Vue } from 'vue-property-decorator';
 })
 
 export default class Staff extends Vue {
+    private $store: any;
     public render() {
         const { keepList } = this.$store.state.app;
         return (

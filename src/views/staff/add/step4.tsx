@@ -1,20 +1,22 @@
 import { Component, Vue, Emit } from 'vue-property-decorator';
 import { Form, Row, Divider, Col, Input, DatePicker,
     Radio, Upload, Button, Icon, Select, message } from 'ant-design-vue';
-import { SelectValues, BasicData } from '@/interface';
-import { getCredentialTypeOption } from '@/api/basic';
-import { newEmployeeCredential, newEmployeeCredentialAttachment, getEmployeeCredentialData } from '@/api/staff';
+import { SelectValue, BasicData } from '@/interface';
+import { getContractTypeOption } from '@/api/basic';
+import ContractTable from '@/components/Step4/ContractTable.vue';
+import { addEmployeeContactData, newEmployeeContactAttachment, getEmployeeContactData } from '@/api/staff';
 import _ from 'lodash';
 import moment from 'moment';
-import CredentialTable from '@/components/Step3/CredentialTable.vue';
 interface NewValueForm {
-    credentialType: {
+    contractType: {
         key: string;
         value: string;
     };
-    credentialName: string;
+    contractName: string;
+    contractNum: string;
     issueDate: any;
     expireDate: number;
+    note: string;
 }
 @Component({
     components: {
@@ -31,26 +33,34 @@ interface NewValueForm {
         'a-icon': Icon,
         'a-select': Select,
         'a-option': Select.Option,
-        'a-credentialTable': CredentialTable,
+        'contract-table': ContractTable,
     },
     props: {
         Form,
     },
 })
-class Step3 extends Vue {
+class Step4 extends Vue {
     private employeeId: string = '';
+    private contractTypeOption: SelectValue[] = [];
     private dateFormat: string = 'YYYY-MM-DD';
-    private credentialLoading: boolean = false;
+    private contractLoading: boolean = false;
+    private endedDateShow: boolean = true;
     private expireDate: string | null = null;
     private fileList: any = [];
-    private endedDateShow: boolean = true;
     private Form: any;
-    private $store: any;
-    private credentialTypeOption: SelectValues[] = [];
     private basicItemLayout = {
         lg: {span: 8},
         md: {span: 12},
         sm: {span: 24},
+    };
+    private basicItemLayout2 = {
+        lg: {span: 16},
+        md: {span: 12},
+        sm: {span: 24},
+    };
+    private fromItemLayout = {
+        labelCol: { span: 8 },
+        wrapperCol: { span: 16 },
     };
     private botttomLayout = {
         lg: {span: 12, offset: 8},
@@ -62,10 +72,7 @@ class Step3 extends Vue {
         md: {span: 24},
         sm: {span: 24},
     };
-    private fromItemLayout = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
-    };
+    private $store: any;
     @Emit()
     private nextStep() {
         this.$emit('nextStep');
@@ -75,35 +82,26 @@ class Step3 extends Vue {
         this.$emit('preStep');
     }
     private created() {
-        const { employeeId }  = this.$store.state.step;
+        const { employeeId } = this.$store.state.step;
         this.employeeId = employeeId;
-        this.fetchCredentialTypeData();
+        this.fetchContractTypeData();
     }
-    private fetchCredentialTypeData() {
-        getCredentialTypeOption().then((res) => {
-            this.credentialTypeOption = this.transformSelectData(res);
-            this.loadCredentialData();
+    private fetchContractTypeData() {
+        getContractTypeOption().then((res) => {
+            this.contractTypeOption = this.transformSelectData(res);
+            this.loadContractData();
         });
     }
-    private loadCredentialData() {
-        this.credentialLoading = true;
-        getEmployeeCredentialData(this.employeeId).then((res) => {
-            const newData = _.map(res, (item) => {
-                return {
-                    key: item.id,
-                    name: item.name,
-                    credentialType: _.find(this.credentialTypeOption, {key: item.typeId}),
-                    issueDate: moment(item.issueDate).format(this.dateFormat),
-                    editable: false,
-                    expireDate: moment(item.expireDate).format(this.dateFormat),
-                    employeeCredentialAttachments: item.employeeCredentialAttachments,
-                };
-            });
-            this.$store.dispatch('ReplaceCredentialList', newData);
-            this.credentialLoading = false;
-        }).catch((err) => {
-            this.credentialLoading = false;
-        });
+    private onRadioChange(e: any) {
+        switch (e.target.value) {
+            case 0:
+                this.endedDateShow = true;
+                this.expireDate = null;
+                break;
+            default:
+                this.endedDateShow = false;
+                break;
+        }
     }
     private transformSelectData(data: any) {
         return _.map(data, (item: BasicData) => {
@@ -119,43 +117,56 @@ class Step3 extends Vue {
         newFileList.splice(index, 1);
         this.fileList = newFileList;
     }
+    private onDateChange(value: any, dateString: string) {
+        this.expireDate = dateString;
+    }
     private beforeUpload(file: any): boolean {
         this.fileList = [...this.fileList, file];
         return false;
     }
-    @Emit()
-    private onRadioChange(e: any) {
-        switch (e.target.value) {
-            case 0:
-                this.endedDateShow = true;
-                this.expireDate = null;
-                break;
-            default:
-                this.endedDateShow = false;
-                break;
-        }
+    private loadContractData() {
+        this.contractLoading = true;
+        getEmployeeContactData(this.employeeId).then((res) => {
+            const newData = _.map(res, (item) => {
+                return {
+                    key: item.id,
+                    contractType: _.find(this.contractTypeOption, {key: item.typeId}),
+                    name: item.name,
+                    contractNum: item.no,
+                    note: item.note,
+                    issueDate: moment(item.issueDate).format(this.dateFormat),
+                    expireDate: moment(item.expireDate).format(this.dateFormat),
+                    editable: false,
+                };
+            });
+            this.$store.dispatch('ReplaceContractList', newData);
+            this.contractLoading = false;
+        }).catch(() => {
+            this.contractLoading = false;
+            message.error('加载数据失败，请联系管理员');
+        });
     }
-    private credntialDataAdd(e: HTMLFormElement) {
+    private addData(e: HTMLFormElement) {
         e.preventDefault();
-        this.Form.validateFields((err: any, values: NewValueForm) => {
+        this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 const param = this.transformValueData(values);
-                newEmployeeCredential(this.employeeId, param).then((res: any) => {
+                addEmployeeContactData(this.employeeId, param).then((res: any) => {
                     const id = res.id;
                     if (this.fileList.length > 0) {
                         const formData = new FormData();
                         this.fileList.forEach((file: any) => {
                             formData.append('files[]', file);
                         });
-                        newEmployeeCredentialAttachment(this.employeeId, id, formData).then(() => {
+                        newEmployeeContactAttachment(this.employeeId, id, formData).then(() => {
                             this.Form.resetFields();
                             this.fileList = [];
-                            this.loadCredentialData();
+                            this.loadContractData();
                         }).catch(() => {
                             message.error('新增失败');
                         });
                     } else {
-                        this.loadCredentialData();
+                        this.loadContractData();
                     }
                 });
             }
@@ -163,40 +174,39 @@ class Step3 extends Vue {
     }
     private transformValueData(data: NewValueForm) {
         return {
-            typeId: data.credentialType.key,
-            name: data.credentialName,
+            typeId: data.contractType.key,
+            no: data.contractNum,
+            name: data.contractName,
+            note: data.note,
             issueDate:  moment(data.issueDate).format(this.dateFormat),
             expireDate: data.expireDate ? this.expireDate : '9999-12-31',
         };
     }
-    private onDateChange(value: any, dateString: string) {
-        this.expireDate = dateString;
-    }
     private render() {
         const { getFieldDecorator } = this.Form as any;
-        const { credentialList, employeeStatus } = this.$store.state.step;
-        return(
+        const { contractList, employeeStatus } = this.$store.state.step;
+        return (
             <div>
-                <a-row gutter={24} class='basicData'>
-                    <a-divider class='diliver_item'>证件资料</a-divider>
-                    <a-row>
+                <a-row class='basicData'>
+                    <a-divider class='diliver_item'>个人合同</a-divider>
+                    < a-row span={24}>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='证件/证书类型'>
-                                {getFieldDecorator('credentialType', {
-                                    initialValue: this.credentialTypeOption[0],
+                            <a-form-item {...{props: this.fromItemLayout}} label='合同类型'>
+                                {getFieldDecorator('contractType', {
+                                    initialValue: this.contractTypeOption[0],
                                     rules: [{
                                         required: true,
                                         message: ' ',
                                     }],
                                 })(<a-select labelInValue>
-                                {this.credentialTypeOption.map((item: any, index: number) => <a-option
+                                    {this.contractTypeOption.map((item: any, index: number) => <a-option
                                     value={item.key}>{item.label}</a-option>)}
                                 </a-select>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='证件/证书名称'>
-                                {getFieldDecorator('credentialName', {
+                            <a-form-item {...{props: this.fromItemLayout}} label='合同名称'>
+                                {getFieldDecorator('contractName', {
                                     rules: [{
                                         required: true,
                                         message: ' ',
@@ -205,7 +215,17 @@ class Step3 extends Vue {
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='颁发日期'>
+                            <a-form-item {...{props: this.fromItemLayout}} label='合同编号'>
+                                {getFieldDecorator('contractNum', {
+                                    rules: [{
+                                        required: true,
+                                        message: ' ',
+                                    }],
+                                })(<a-input></a-input>)}
+                            </a-form-item>
+                        </a-col>
+                        <a-col {...{props: this.basicItemLayout}}>
+                            <a-form-item {...{props: this.fromItemLayout}} label='生效日期'>
                                 {getFieldDecorator('issueDate', {
                                     rules: [{
                                         required: true,
@@ -215,7 +235,7 @@ class Step3 extends Vue {
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item {...{props: this.fromItemLayout}} label='有效日期'>
+                            <a-form-item {...{props: this.fromItemLayout}} label='合同有效期至'>
                                 {getFieldDecorator('expireDate', {
                                     initialValue: 0,
                                     rules: [{
@@ -223,14 +243,22 @@ class Step3 extends Vue {
                                         message: ' ',
                                     }],
                                 })(<a-radio-group onChange={(e: any) => this.onRadioChange(e)}>
-                                    <a-col {...{props: {lg: {span: 8}}}}><a-radio value={0}>永久</a-radio></a-col>
-                                    <a-col {...{props: {lg: {span: 16}}}}>
-                                        <a-radio value={1} style='width:138px'>
-                                            <a-date-picker format={this.dateFormat} disabled={this.endedDateShow}
-                                            onChange={this.onDateChange}></a-date-picker>
-                                        </a-radio>
-                                    </a-col>
+                                    <a-radio value={0}>永久</a-radio>
+                                    <a-radio value={1} style='width:138px'>
+                                        <a-date-picker format={this.dateFormat} disabled={this.endedDateShow}
+                                        onChange={this.onDateChange}></a-date-picker>
+                                    </a-radio>
                                 </a-radio-group>)}
+                            </a-form-item>
+                        </a-col>
+                        <a-col {...{props: this.basicItemLayout}}>
+                            <a-form-item {...{props: this.fromItemLayout}} label='备注'>
+                                {getFieldDecorator('note', {
+                                    rules: [{
+                                        required: true,
+                                        message: ' ',
+                                    }],
+                                })(<a-input></a-input>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
@@ -243,16 +271,16 @@ class Step3 extends Vue {
                                 </a-upload>
                             </a-form-item>
                         </a-col>
-                        <a-col {...{props: this.basicItemLayout}}>
-                            <a-form-item class='rightBtn'>
-                                <a-button type='primary' on-click={this.credntialDataAdd}>新增</a-button>
+                        <a-col {...{props: this.basicItemLayout2}}>
+                            <a-form-item  class='rightBtn'>
+                                <a-button type='primary' on-click={this.addData}>新增</a-button>
                             </a-form-item>
                         </a-col>
                     </a-row>
                     <a-row style='marginTop:18px;marginBottom:30px;'>
-                        <a-credentialTable credentialOption={this.credentialTypeOption}
-                        loading={this.credentialLoading} tabList={credentialList}
-                        employeeId={this.employeeId}></a-credentialTable>
+                        <contract-table loading={this.contractLoading}
+                        contractOption={this.contractTypeOption}
+                        employeeId={this.employeeId} tabList={contractList}/>
                     </a-row>
                     {employeeStatus === 3 ? null : <a-row>
                     <a-col {...{props: this.botttomLayout}}>
@@ -271,4 +299,4 @@ class Step3 extends Vue {
 }
 export default Form.create({
     props: {},
-})(Step3);
+})(Step4);
