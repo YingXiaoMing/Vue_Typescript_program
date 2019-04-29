@@ -66,11 +66,14 @@ export default class MenuList extends Vue {
                     {this.renderMenu(item.children, parentPath ? `${parentPath}/${item.path}` : item.path)}
                 </a-submenu>;
             }
-            return <a-menu-item id={item.path}
-            key={`${item.path}`}>
-                <a-icon type={item.icon}></a-icon>
-                <span>{item.meta.title}</span>
-            </a-menu-item>;
+            if (item.isShow) {
+                return <a-menu-item id={item.path}
+                key={`${item.path}`}>
+                    <a-icon type={item.icon}></a-icon>
+                    <span>{item.meta.title}</span>
+                </a-menu-item>;
+            }
+            return null;
         });
     }
 
