@@ -15,12 +15,12 @@
                 </a-col>
                 <a-col :lg="6" :md="12" :sm="24">
                     <a-form-item>
-                        <a-button type="primary" @click="searchData">快速查询</a-button>
+                        <a-button type="primary" @click="search">快速查询</a-button>
                     </a-form-item>
                 </a-col>
             </a-row>
             <a-row :gutter="24">
-                <a-search-table :loading="searchLoading" :tabList="tabData"></a-search-table>
+                <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination"></a-search-table>
             </a-row>
         </div>
     </div>
@@ -33,6 +33,7 @@ import { Row, Col, Form, AutoComplete, Select, Button, Input } from 'ant-design-
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import SearchTable from './searchTable.vue';
 import { getEmployeeData, searchEmployeeData } from '@/api/staff';
+import { Pagination } from '@/interface';
 import _ from 'lodash';
 import './index.less';
 interface EmployeeData {
@@ -54,6 +55,11 @@ interface EmployeeData {
     name: 'staffsearch',
 })
 export default class Search extends Vue {
+    private pagination: Pagination = {
+        pageSize: 0,
+        total: 0,
+        onChange: this.pageChange,
+    };
     private tabData: any = [];
     private searchLoading: boolean = false;
     private searchKey: string = '';
@@ -68,14 +74,20 @@ export default class Search extends Vue {
     private onSelect(value: string) {
         this.searchKey = value;
     }
-    private searchData() {
+    private pageChange(current: number, pageSize: number) {
+        this.searchData(current, pageSize);
+    }
+    private search() {
+        this.searchData(1, 5);
+    }
+    private searchData(current: number, pageSize: number) {
         this.searchLoading = true;
         const params = new URLSearchParams();
-        // params.set('SearchQuery', this.searchKey);
-        // params.set('pageIndex', '1');
-        // params.set('pageSize', '5');
+        params.set('SearchQuery', this.searchKey);
+        params.set('PageNumber', current.toString());
+        params.set('PageSize', pageSize.toString());
         getEmployeeData(params).then((res) => {
-            this.tabData = _.map(res, (item) => {
+            this.tabData = _.map(res.data, (item) => {
                 return {
                     key: item.id,
                     id: item.employeeStringID,
@@ -86,6 +98,9 @@ export default class Search extends Vue {
             });
             this.searchLoading = false;
             this.searchKey = '';
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
         });
     }
     private handleChange(value: string) {

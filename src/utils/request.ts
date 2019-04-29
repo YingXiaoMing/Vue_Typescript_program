@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from './config';
+import _ from 'lodash';
 const service = axios.create({
     baseURL: config.baseUrl,
     timeout: 5000,
@@ -7,6 +8,9 @@ const service = axios.create({
 
 service.interceptors.response.use(
     (response) => {
+        if (_.has(response.headers, 'x-pagination')) {
+            return response;
+        }
         return response.data;
     },
     (error) => {

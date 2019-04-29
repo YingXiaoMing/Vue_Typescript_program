@@ -1,5 +1,5 @@
 <template>
-    <a-table :columns="column" bordered size="small" :loading="loading" :dataSource="data">
+    <a-table :columns="column" bordered size="small" :loading="loading" :dataSource="data" :pagination="pagination">
         <template slot="action" slot-scope="text,record">
             <span >
                 <a @click="toggle(record.key)">编辑</a>
@@ -17,7 +17,7 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 import { Table, Divider } from 'ant-design-vue';
-import { ColumnList } from '@/interface';
+import { ColumnList, Pagination } from '@/interface';
 interface TableData {
     key: string;
     id: string;
@@ -33,7 +33,9 @@ interface TableData {
 export default class SearchTable extends Vue {
     @Prop({ default: false }) private loading!: boolean;
     @Prop() private tabList!: TableData[];
+    @Prop() private paginationData!: Pagination;
     private data: TableData[] = this.tabList;
+    private pagination: Pagination = this.paginationData;
     private $router: any;
     private $store: any;
     private column: ColumnList[] = [{
@@ -66,10 +68,14 @@ export default class SearchTable extends Vue {
     private tableDataChange(value: any) {
         this.data = value;
     }
+    @Watch('paginationData')
+    private paginationDataChange(value: any) {
+        this.pagination = value;
+    }
     private toggle(key: string) {
         this.$store.dispatch('changeEmployeeStatus', 3);
         this.$store.dispatch('ChangeEmployeeId', key);
-        this.$router.push('/staff/add');
+        this.$router.push('/staff/edit');
     }
 }
 </script>
