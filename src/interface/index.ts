@@ -6,6 +6,7 @@ export interface RouterItem {
     path: string;
     icon?: string;
     hidden?: boolean;
+    isShow?: boolean;
     redirect?: string | object;
     meta?: any;
     children?: RouterItem[];
@@ -376,4 +377,10 @@ export interface AttachmentData {
     name: string;
     description: string;
     editable: boolean;
+}
+
+export interface Pagination {
+    pageSize: number;
+    total: number;
+    onChange: any;
 }
