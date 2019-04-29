@@ -1,6 +1,6 @@
 <template>
     <a-modal :visible="isVisible"
-    @cancel="cancelHandle" :width="728" title="附件上传">
+    @cancel="cancelHandle" :width="728" title="附件上传" :footer="null">
         <a-row>
             <a-form layout='inline' class='attach_form'>
                 <a-form-item label='文件描述'>
