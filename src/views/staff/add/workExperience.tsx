@@ -58,6 +58,10 @@ class WorkExperience extends Vue {
             if (!err) {
                 values.startedDate = moment(values.startedDate).format(this.dateFormat);
                 values.endDate = moment(values.endDate).format(this.dateFormat);
+                if (moment(values.startedDate).isAfter(values.endDate)) {
+                    message.error('离职日期不能早于入职日期');
+                    return;
+                }
                 newEmployeeWorkExperience(this.employeeId, {
                     companyName: values.companyName,
                     positionName: values.positionName,
