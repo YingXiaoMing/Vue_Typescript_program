@@ -140,6 +140,10 @@ class Step3 extends Vue {
         this.Form.validateFields((err: any, values: NewValueForm) => {
             if (!err) {
                 const param = this.transformValueData(values);
+                if (param.expireDate && moment(param.issueDate).isAfter(param.expireDate)) {
+                    message.error('有效日期不能早于颁发日期');
+                    return;
+                }
                 newEmployeeCredential(this.employeeId, param).then((res: any) => {
                     const id = res.id;
                     if (this.fileList.length > 0) {

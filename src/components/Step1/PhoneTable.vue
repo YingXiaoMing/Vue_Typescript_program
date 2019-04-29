@@ -28,9 +28,17 @@
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
-                <a-divider type="vertical" v-if="record.isRequired === 'false'"></a-divider>
-                <a @click="removeRow(record.key)" v-if="record.isRequired === 'false'">删除</a>
+                <template v-if="record.isRequired === 'true'">
+                    <a-tooltip placement="top" title="系统必须保留一个主号码，如需删除主号码，请将其它号码设置为主号码">
+                        <a @click="toggle(record.key)">编辑</a>
+                    </a-tooltip>
+                </template>
+                <template v-else>
+                    <a @click="toggle(record.key)">编辑</a>
+                    <a-divider type="vertical"></a-divider>
+                    <a @click="removeRow(record.key)">删除</a>
+                </template>
+                
             </span>
         </template>
 
@@ -51,7 +59,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
-import { Table, Divider, Checkbox, Select, Input, message} from 'ant-design-vue';
+import { Table, Divider, Checkbox, Select, Input, message, Tooltip} from 'ant-design-vue';
 import { ColumnList, SelectValue, BasicData } from '@/interface';
 import { getPhoneTypeOption } from '@/api/basic';
 import { getEmployeePhoneData, putEmployeePhoneData, newEmployeePhoneData, deleteEmployeePhoneData, replaceeEmployeeMainPhoneNum } from '@/api/staff';
@@ -76,6 +84,7 @@ interface TableData {
         'a-select': Select,
         'a-select-option': Select.Option,
         'a-input': Input,
+        'a-tooltip': Tooltip,
     },
 })
 export default class PhoneTable extends Vue {

@@ -184,10 +184,13 @@ export default class LegalTable extends Vue {
         target.editable = false;
     }
     @Emit()
-    private handleChange(value: any, key: number, name: string) {
-        // const newData = [...this.data];
+    private handleChange(value: any, key: string, name: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
+            if (target.issueDate &&  !moment(value).isAfter(target.issueDate)) {
+                message.error('到期日期不能早于开始日期');
+                return;
+            }
             target[name] = value;
         }
     }

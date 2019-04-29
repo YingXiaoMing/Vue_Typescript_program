@@ -13,9 +13,15 @@
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
-                <a-divider type="vertical" v-if="!record.mainPosition"></a-divider>
-                <a @click="removeRow(record.key)"  v-if="!record.mainPosition">删除</a>
+                <template v-if="record.mainPosition">
+                    <a-tooltip placement="top" title="系统必须保留一个主职位，如需删除主职位，请将其它号码设置为主职位"></a-tooltip>
+                    <a @click="toggle(record.key)">编辑</a>
+                </template>
+                <template v-else>
+                    <a @click="toggle(record.key)">编辑</a>
+                    <a-divider type="vertical"></a-divider>
+                    <a @click="removeRow(record.key)">删除</a>
+                </template>
             </span>
         </template>
         <template slot="position" slot-scope="text,record">
@@ -35,7 +41,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
-import { Table, Cascader, Divider, Radio, message, Button } from 'ant-design-vue';
+import { Table, Cascader, Divider, Radio, message, Button, Tooltip } from 'ant-design-vue';
 import { ColumnList, CascderOption, CascderOptionItem, CascderServerOption, RemotePositionsTableData } from '@/interface';
 import { getOrginzationData } from '@/api/basic';
 import { newEmployeePostionData, deleteEmployeePostionData, getEmployeePositionData, putEmployeeBasicData } from '@/api/staff';
@@ -57,6 +63,7 @@ interface TableData {
         'a-divider': Divider,
         'a-radio': Radio,
         'a-button': Button,
+        'a-tooltip': Tooltip,
     },
 })
 export default class PhoneTable extends Vue {

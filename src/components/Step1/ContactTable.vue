@@ -137,7 +137,7 @@ export default class PhoneTable extends Vue {
         }
     }
     private isNullContact(target: TableData): boolean {
-        if (target.name === '' || target.tel1 === '' || target.tel2 === '' || target.remark === '') {
+        if (target.name === '' || target.tel1 === '' || target.tel2 === '') {
             message.error('紧急联系人资料请填写完整');
             return false;
         }

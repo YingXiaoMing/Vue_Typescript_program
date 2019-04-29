@@ -146,24 +146,28 @@ class Step4 extends Vue {
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 const param = this.transformValueData(values);
-                addEmployeeBankData(this.employeeId, param).then((res: any) => {
-                    const id = res.id;
-                    if (this.fileList.length > 0) {
-                        const formData = new FormData();
-                        this.fileList.forEach((file: any) => {
-                            formData.append('files[]', file);
-                        });
-                        newEmployeeBankAttachment(this.employeeId, id, formData).then(() => {
-                            this.Form.resetFields();
-                            this.fileList = [];
+                if (this.fileList.length > 0) {
+                    addEmployeeBankData(this.employeeId, param).then((res: any) => {
+                        const id = res.id;
+                        if (this.fileList.length > 0) {
+                            const formData = new FormData();
+                            this.fileList.forEach((file: any) => {
+                                formData.append('files[]', file);
+                            });
+                            newEmployeeBankAttachment(this.employeeId, id, formData).then(() => {
+                                this.Form.resetFields();
+                                this.fileList = [];
+                                this.loadContractData();
+                            }).catch(() => {
+                                message.error('新增失败');
+                            });
+                        } else {
                             this.loadContractData();
-                        }).catch(() => {
-                            message.error('新增失败');
-                        });
-                    } else {
-                        this.loadContractData();
-                    }
-                });
+                        }
+                    });
+                } else {
+                    message.error('附件不能为空');
+                }
             }
         });
     }

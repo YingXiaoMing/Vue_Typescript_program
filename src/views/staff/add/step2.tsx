@@ -105,6 +105,10 @@ class Step2 extends Vue {
         e.preventDefault();
         this.Form.validateFields((err: any, values: ValueData) => {
             if (!err) {
+                if (moment(values.startedDate).isAfter(values.endDate)) {
+                    message.error('结束日期不能早于开始日期');
+                    return;
+                }
                 newEmployeeEducationHistory(this.employeeId, {
                     educationLevelId: values.educationLevel.key,
                     schoolName: values.schoolName,

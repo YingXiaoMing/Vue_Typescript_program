@@ -151,6 +151,10 @@ class Step4 extends Vue {
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 const param = this.transformValueData(values);
+                if (param.expireDate && moment(param.issueDate).isAfter(param.expireDate)) {
+                    message.error('有效日期不能早于生效日期');
+                    return;
+                }
                 addEmployeeContactData(this.employeeId, param).then((res: any) => {
                     const id = res.id;
                     if (this.fileList.length > 0) {
@@ -253,12 +257,7 @@ class Step4 extends Vue {
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item {...{props: this.fromItemLayout}} label='备注'>
-                                {getFieldDecorator('note', {
-                                    rules: [{
-                                        required: true,
-                                        message: ' ',
-                                    }],
-                                })(<a-input></a-input>)}
+                                {getFieldDecorator('note')(<a-input></a-input>)}
                             </a-form-item>
                         </a-col>
                         <a-col {...{props: this.basicItemLayout}}>

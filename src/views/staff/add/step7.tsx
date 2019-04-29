@@ -107,25 +107,29 @@ class Step7 extends Vue {
         e.preventDefault();
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
-                const param = this.transformValueData(values);
-                addEmployeeRelatedDocumentData(this.employeeId, param).then((res: any) => {
-                    const id = res.id;
-                    if (this.fileList.length > 0) {
-                        const formData = new FormData();
-                        this.fileList.forEach((file: any) => {
-                            formData.append('files[]', file);
-                        });
-                        newEmployeeRelatedDocumentAttachment(this.employeeId, id, formData).then(() => {
-                            this.Form.resetFields();
-                            this.fileList = [];
+                if (this.fileList.length > 0) {
+                    const param = this.transformValueData(values);
+                    addEmployeeRelatedDocumentData(this.employeeId, param).then((res: any) => {
+                        const id = res.id;
+                        if (this.fileList.length > 0) {
+                            const formData = new FormData();
+                            this.fileList.forEach((file: any) => {
+                                formData.append('files[]', file);
+                            });
+                            newEmployeeRelatedDocumentAttachment(this.employeeId, id, formData).then(() => {
+                                this.Form.resetFields();
+                                this.fileList = [];
+                                this.loadDocumentData();
+                            }).catch(() => {
+                                message.error('新增失败');
+                            });
+                        } else {
                             this.loadDocumentData();
-                        }).catch(() => {
-                            message.error('新增失败');
-                        });
-                    } else {
-                        this.loadDocumentData();
-                    }
-                });
+                        }
+                    });
+                } else {
+                    message.error('上传的附件不能为空');
+                }
             }
         });
     }
