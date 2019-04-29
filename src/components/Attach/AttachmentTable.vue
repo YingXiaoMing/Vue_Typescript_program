@@ -17,7 +17,7 @@
             <span v-else>
                 <a @click="toggle(record.key)">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a>下载</a>
+                <a @click="donwloadFile(record.key)">下载</a>
                 <a-divider type="vertical"></a-divider>
                 <a @click="removeRow(record.key)" class="red">删除</a>
             </span>
@@ -32,6 +32,7 @@ import { ColumnList, AttachmentData } from '@/interface';
 import { Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 import jsonpatch from 'fast-json-patch';
+import config from '@/utils/config';
 import { getEmployeeAttachmentDescriptionById, getEmployeeAttachmentById, deleteEmployeeAttachment } from '@/api/staff';
 interface TableData {
     name: string;
@@ -84,6 +85,14 @@ export default class AttachmentTable extends Vue {
             }
             target.editable = !target.editable;
         }
+    }
+    private donwloadFile(key: string) {
+        const url = config.baseUrl + '/employee/' + this.employeeId + '/' + this.pathName + '/' + this.employeePropertyId + '/Attachment/' + key;
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
     }
     private removeRow(key: string) {
         deleteEmployeeAttachment(this.employeeId, this.employeePropertyId, key, this.pathName).then((res: any) => {
