@@ -69,6 +69,19 @@ export const getEmploymentTypeOption = () =>
         url: '/EmployementType',
         method: 'get',
     });
+// 调职类型
+export const getEmployeePositionChangeType = () =>
+    request({
+        url: '/EmployeePositionChangeType/PositionTransfer',
+        method: 'get',
+    });
+
+// 离职类型
+export const getEmployeeEndJonType = () =>
+    request({
+        url: '/EndedJobType',
+        method: 'get',
+    })
 
 // 证件类型
 export const getLegalIdentiticationTypeOption = () =>

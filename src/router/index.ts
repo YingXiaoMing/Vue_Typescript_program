@@ -41,6 +41,14 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import('../views/staff/edit/index.vue'),
                 meta: {key: 'staffedit', title: '编辑员工资料'},
             },
+            {
+                path: 'transfer',
+                name: 'staff-transfer',
+                isShow: true,
+                icon: 'team',
+                component: () => import('../views/staff/transfer/index.vue'),
+                meta: {key: 'stafftransfer', title: '员工调离职'},
+            },
         ],
     },
     {
