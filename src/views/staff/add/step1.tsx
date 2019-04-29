@@ -220,6 +220,7 @@ class Step1 extends Vue {
             case 1:
                 this.isNew = true;
                 this.fetchData(() => {
+                    this.clearBasicData();
                     // 处理身份证件资料
                     this.LegalIdTableData = [{
                         legalType: this.LegalTypeOption[0],
@@ -488,7 +489,11 @@ class Step1 extends Vue {
     @Emit()
     private nextStep() {
         const { LegalList, phoneNumberList, contactAddressList,
-            emergencyContactsList, positionList } = this.$store.state.step;
+            emergencyContactsList, positionList, employeeStatus} = this.$store.state.step;
+        if (_.isEqual(employeeStatus, 2)) {
+            this.$emit('nextStep');
+            return;
+        }
         this.Form.validateFields((err: any, values: BasicForm) => {
             if (!err) {
                 const basicData: FormBasicData = this.convertFormData(values, LegalList, contactAddressList, phoneNumberList, emergencyContactsList, positionList);
@@ -733,8 +738,32 @@ class Step1 extends Vue {
         const diff = jsonpatch.compare(oldValues, newValues);
         return diff;
     }
+    private clearBasicData() {
+        this.basicData = {
+            id: '',
+            first_name: '',
+            last_name: '',
+            nick_name: '',
+            birthOfDate: null,
+            isMarried: 1,
+            highEducation: this.highEducationOption[0],
+            gender: 1,
+            employeeDate: null,
+            employeeOrigin: this.employeeOriginOption[0],
+            employeeIntroducer: '',
+            workplace: this.workpalceOption[0],
+            workNature: this.employeeTypeOption[0],
+            ethnicGroupId: this.ethnicGroupOption[0],
+            personalAbilityDescription: '',
+            dueDate: {
+                check: true,
+                date: moment().add({ month: 3 }).format(this.dateFormat),
+            },
+        };
+    }
     private render() {
         const { getFieldDecorator } = this.Form as any;
+        const { employeeStatus } = this.$store.state.step;
         const thiz = this;
         return (
             <div>
@@ -970,7 +999,7 @@ class Step1 extends Vue {
                         </a-upload>
                     </a-col>
                 </a-row>
-                <a-row class='bottom_button'><a-button type='primary' on-click={this.nextStep}>下一步</a-button></a-row>
+                { employeeStatus === 3 ? null : <a-row class='bottom_button'><a-button type='primary' on-click={this.nextStep}>下一步</a-button></a-row> }
             </div>
         );
     }

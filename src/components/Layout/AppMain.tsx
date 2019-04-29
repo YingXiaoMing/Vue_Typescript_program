@@ -2,6 +2,7 @@
 import { Component, Vue, Watch, Emit } from 'vue-property-decorator';
 import Header from './Header';
 import { Tabs } from 'ant-design-vue';
+import _ from 'lodash';
 import Sidebar from './Sidebar';
 import './AppMain.less';
 import '@/style/global.less';
@@ -27,6 +28,9 @@ export default class AppMain extends Vue {
     private tabChange(name: any) {
         this.tabList.forEach((item: any, indexs: number) => {
             if (item.name === name) {
+                if (_.isEqual(name, 'staffadd')) {
+                    this.$store.dispatch('changeEmployeeStatus', 1);
+                }
                 this.$router.push({ name: item.name});
                 this.$store.dispatch('TabChange', item.name);
             }
