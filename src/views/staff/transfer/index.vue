@@ -5,7 +5,7 @@
                 <a-col  :lg="8" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工姓名(工号)">
                         <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                        @search="handleChange" @select="onSelect">
+                        @search="handleChange" @select="onSelect" v-model="searchKey">
                             <template slot="dataSource">
                                 <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                             </template>
@@ -27,7 +27,7 @@
                 </a-col>
             </a-row>
             <a-row>
-                <a-tab-component></a-tab-component>
+                <a-tab-component :orginData="originPostions" :employeeId="employeeId" @clearEmployeeDatas="clearEmployeeDatas"></a-tab-component>
             </a-row>
         </div>
     </div>
@@ -37,10 +37,11 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Row, Col, Form, AutoComplete, Select, Input } from 'ant-design-vue';
-import { searchEmployeeData } from '@/api/staff';
+import { searchEmployeeData, getEmployeePositionData } from '@/api/staff';
 import TabComponent from './tabs.vue';
 import _ from 'lodash';
 import './index.less';
+import { SelectValue } from '@/interface';
 interface EmployeeData {
     value: string;
     text: string;
@@ -63,9 +64,12 @@ export default class Transfer extends Vue {
     private labelCol = { xs: {span: 24}, sm: {span: 8}};
     private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
     private employeeDataList: EmployeeData[] = [];
+    private originPostions: SelectValue[] = [];
+    private searchName: string = '';
     private searchKey: string = '';
     private employeeName: string = '';
     private employeeNum: string = '';
+    private employeeId: string = '';
     private handleChange(value: string) {
         this.fetch(value);
     }
@@ -74,10 +78,25 @@ export default class Transfer extends Vue {
         if (item) {
             this.employeeName = item.name;
             this.employeeNum = item.id;
+            getEmployeePositionData(item.value).then((res: any) => {
+                // tslint:disable-next-line:no-shadowed-variable
+                this.originPostions = _.map(res.positions, (item: any) => {
+                    return {
+                        key: item.id,
+                        label: item.positionFullPath,
+                    };
+                });
+                this.employeeId = item.value;
+            });
         }
     }
     private created() {
         this.fetch('');
+    }
+    private clearEmployeeDatas() {
+        this.employeeName = '';
+        this.employeeNum = '';
+        this.searchKey = '';
     }
     private valueChange(value: string) {
         this.searchKey = value;

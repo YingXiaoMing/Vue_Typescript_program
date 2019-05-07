@@ -1,8 +1,10 @@
-import { Component, Vue } from 'vue-property-decorator';
-import { Form, Row, Col, Select, DatePicker, Button, Input } from 'ant-design-vue';
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Form, Row, Col, Select, DatePicker, Button, Input, message } from 'ant-design-vue';
 import { BasicData, SelectValue } from '@/interface';
 import { getEmployeeEndJonType } from '@/api/basic';
+import { employeeLeavePosition } from '@/api/operation';
 import _ from 'lodash';
+import moment from 'moment';
 @Component({
     components: {
         'a-form-item': Form.Item,
@@ -19,6 +21,8 @@ import _ from 'lodash';
     },
 })
 class Tab2 extends Vue {
+    @Prop({default: ''}) private employeeId!: string;
+    private dateFormat: string = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 24},
         md: {span: 24},
@@ -50,6 +54,23 @@ class Tab2 extends Vue {
                 key: item.id,
                 label: item.name,
             };
+        });
+    }
+    private leaveClick() {
+        this.Form.validateFields((err: any, values: any) => {
+            if (!err) {
+                employeeLeavePosition(this.employeeId, {
+                    employeePositionChangeTypeId: values.endJobType.key,
+                    employmentEndedDate: moment(values.issueDate).format(this.dateFormat),
+                    reason: values.reason,
+                }).then((res) => {
+                    this.Form.resetFields();
+                    message.success('离职操作成功');
+                    this.$emit('clearEmployeeData');
+                }).catch(() => {
+                    message.error('离职操作失败，请重新操作');
+                });
+            }
         });
     }
     private render() {
@@ -92,7 +113,7 @@ class Tab2 extends Vue {
                     </a-row>
                 </a-row>
                 <a-row class='bottom_button'>
-                    <a-button type='primary'>保存</a-button>
+                    <a-button type='primary' on-click={this.leaveClick}>保存</a-button>
                 </a-row>
             </div>
         );
@@ -100,5 +121,7 @@ class Tab2 extends Vue {
 
 }
 export default Form.create({
-    props: {},
+    props: {
+        employeeId: String,
+    },
 })(Tab2);

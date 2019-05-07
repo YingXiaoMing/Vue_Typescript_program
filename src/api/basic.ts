@@ -79,7 +79,7 @@ export const getEmployeePositionChangeType = () =>
 // 离职类型
 export const getEmployeeEndJonType = () =>
     request({
-        url: '/EndedJobType',
+        url: '/EmployeePositionChangeType/PositionEnded',
         method: 'get',
     })
 

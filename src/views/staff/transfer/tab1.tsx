@@ -1,8 +1,11 @@
-import { Component, Vue, Emit } from 'vue-property-decorator';
-import { Form, Cascader, Row, Col, Select, DatePicker, Divider, Button } from 'ant-design-vue';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+import { Form, Cascader, Row, Col, Select, DatePicker, Divider, Button, message } from 'ant-design-vue';
 import { CascderOption, CascderOptionItem, BasicData, SelectValue } from '@/interface';
 import { getOrginzationData, getEmployeePositionChangeType } from '@/api/basic';
 import _ from 'lodash';
+import { employeeTransferPosition } from '@/api/operation';
+import { getEmployeePositionData } from '@/api/staff';
+import moment from 'moment';
 @Component({
     components: {
         'a-form-item': Form.Item,
@@ -20,6 +23,9 @@ import _ from 'lodash';
     },
 })
 class Tab1 extends Vue {
+    @Prop() private OriginPostionOption!: SelectValue[];
+    @Prop({default: ''}) private employeeId!: string;
+    private dateFormat: string = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 12},
         md: {span: 24},
@@ -39,13 +45,17 @@ class Tab1 extends Vue {
         wrapperCol: { span: 16 },
     };
     private Form: any;
-    private OriginPostionOption = [];
+    private OriginPostionOptions: SelectValue[] = [];
     private transferTypeOption: SelectValue[] = [];
     private cascderOption: CascderOption[] = [];
+    private isNewPosition: boolean = false;
+    @Watch('OriginPostionOption')
+    private OriginPostionOptionChange(value: SelectValue[]) {
+        this.OriginPostionOptions = value;
+    }
     private created() {
         getEmployeePositionChangeType().then((res: any) => {
             this.transferTypeOption = this.transformSelectData(res);
-            console.log(this.transferTypeOption);
         });
         getOrginzationData().then((res: any) => {
             const Options: CascderOption[] = [];
@@ -70,6 +80,41 @@ class Tab1 extends Vue {
                 key: item.id,
                 label: item.name,
             };
+        });
+    }
+    private transferEmployeePostion() {
+        this.Form.validateFields((err: any, values: any) => {
+            if (!err) {
+                if (!this.isNewPosition) {
+                    message.error('请选择一个有效职位');
+                    return;
+                }
+                employeeTransferPosition(this.employeeId, {
+                    orginalPositionId: values.originPostion.key,
+                    newPositionId: _.last(values.newPostion),
+                    employeePositionChangeTypeId: values.transferType.key,
+                    effectiveDate: moment(values.issueDate).format(this.dateFormat),
+                }).then((res) => {
+                    this.resetEmployeeData();
+                }).catch(() => {
+                    message.error('操作失败，请重新操作');
+                });
+            }
+        });
+    }
+    // 重新获取员工的职位信息
+    private resetEmployeeData() {
+        getEmployeePositionData(this.employeeId).then((res: any) => {
+            this.Form.resetFields();
+            // this.OriginPostionOptions = _.map(res.positions, (item: any) => {
+            //     return {
+            //         key: item.id,
+            //         label: item.positionFullPath,
+            //     };
+            // });
+            message.success('员工调职操作成功');
+            this.$emit('clearEmployeeData');
+            this.OriginPostionOptions = [];
         });
     }
     private traverseStepNodechilden(data: any, TopParentNode: CascderOption) {
@@ -109,6 +154,10 @@ class Tab1 extends Vue {
             });
         }
     }
+    private positionsChange( value: string[], selectOption: CascderOption[] ) {
+        const target = _.last(selectOption);
+        this.isNewPosition =  _.has(target, 'key');
+    }
     private render() {
         const { getFieldDecorator } = this.Form as any;
         return (
@@ -118,9 +167,9 @@ class Tab1 extends Vue {
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item label='原职位' {...{props: this.fromItemLayout}}>
                                 {getFieldDecorator('originPostion',{
-                                    initialValue: this.OriginPostionOption[0],
+                                    initialValue: this.OriginPostionOptions[0],
                                 })(<a-select labelInValue>
-                                {this.OriginPostionOption.map((item: any, index: number) => <a-option
+                                {this.OriginPostionOptions.map((item: any, index: number) => <a-option
                                         value={item.key}>{item.label}</a-option>)}
                                 </a-select>)}
                             </a-form-item>
@@ -161,13 +210,14 @@ class Tab1 extends Vue {
                                         required: true,
                                         message: ' ',
                                     }],
-                                })(<a-cascader options={this.cascderOption} style='width:100%'></a-cascader>)}
+                                })(<a-cascader options={this.cascderOption}
+                                style='width:100%' on-change={this.positionsChange}></a-cascader>)}
                             </a-form-item>
                         </a-col>
                     </a-row>
                 </a-row>
                 <a-row class='bottom_button'>
-                    <a-button type='primary'>保存</a-button>
+                    <a-button type='primary' on-click={this.transferEmployeePostion}>保存</a-button>
                 </a-row>
             </div>
         );
@@ -175,5 +225,8 @@ class Tab1 extends Vue {
 
 }
 export default Form.create({
-    props: {},
+    props: {
+        OriginPostionOption: Array,
+        employeeId: String,
+    },
 })(Tab1);
