@@ -212,6 +212,112 @@ class Step1 extends Vue {
     private $store: any;
     private employeeId: string = '';
     private isNew: boolean = true;
+    private fullEmployeeData() {
+        // 处理身份证件资料
+        this.LegalIdTableData = [{
+            legalType: this.LegalTypeOption[0],
+            legalNum: '440681199502165623',
+            issueDate: '1995-02-13',
+            expireDate: '2019-04-01',
+            editable: true,
+            isNew: true,
+            key: '1',
+        }];
+        // 处理证件资料
+        this.phoneNumTableData = [{
+            phoneType: this.phoneTypeOption[0],
+            phoneNum: '13129218652',
+            isRequired: 'true',
+            editable: true,
+            key: '1',
+            isNew: true,
+        }];
+        // 处理地址资料
+        this.addressTableData = [{
+            addressType: this.AddressTypeOption[0],
+            province: '广东省',
+            area: '顺德区',
+            city: '佛山市',
+            address: '北滘',
+            key: '1',
+            editable: true,
+            isNew: true,
+        }];
+        // 处理紧急联系人资料
+        this.contractTableData = [{
+            name: '小茗',
+            tel1: '15915211411',
+            tel2: '13129256852',
+            remark: '家庭电话',
+            key: '1',
+            editable: true,
+            relationship: this.relationshipTypeOption[0],
+            isNew: true,
+        }];
+        // 职位信息
+        this.positionTableData = [{
+            position: '',
+            mainPosition: true,
+            editable: true,
+            key: '1',
+            isNew: true,
+            selectOption: [],
+            positionId: '',
+        }];
+    }
+    private fillEmptyEmployeeData() {
+        // 处理身份证件资料
+        this.LegalIdTableData = [{
+            legalType: this.LegalTypeOption[0],
+            legalNum: '',
+            issueDate: '',
+            expireDate: '',
+            editable: true,
+            isNew: true,
+            key: '1',
+        }];
+        // 处理证件资料
+        this.phoneNumTableData = [{
+            phoneType: this.phoneTypeOption[0],
+            phoneNum: '13129218652',
+            isRequired: 'true',
+            editable: true,
+            key: '1',
+            isNew: true,
+        }];
+        // 处理地址资料
+        this.addressTableData = [{
+            addressType: this.AddressTypeOption[0],
+            province: '广东省',
+            area: '顺德区',
+            city: '佛山市',
+            address: '北滘',
+            key: '1',
+            editable: true,
+            isNew: true,
+        }];
+        // 处理紧急联系人资料
+        this.contractTableData = [{
+            name: '小茗',
+            tel1: '15915211411',
+            tel2: '13129256852',
+            remark: '家庭电话',
+            key: '1',
+            editable: true,
+            relationship: this.relationshipTypeOption[0],
+            isNew: true,
+        }];
+        // 职位信息
+        this.positionTableData = [{
+            position: '',
+            mainPosition: true,
+            editable: true,
+            key: '1',
+            isNew: true,
+            selectOption: [],
+            positionId: '',
+        }];
+    }
     @Emit()
     private created() {
         const { employeeId, employeeStatus } = this.$store.state.step;
@@ -221,57 +327,8 @@ class Step1 extends Vue {
                 this.isNew = true;
                 this.fetchData(() => {
                     this.clearBasicData();
-                    // 处理身份证件资料
-                    this.LegalIdTableData = [{
-                        legalType: this.LegalTypeOption[0],
-                        legalNum: '440681199502165623',
-                        issueDate: '1995-02-13',
-                        expireDate: '2019-04-01',
-                        editable: true,
-                        isNew: true,
-                        key: '1',
-                    }];
-                    // 处理证件资料
-                    this.phoneNumTableData = [{
-                        phoneType: this.phoneTypeOption[0],
-                        phoneNum: '13129218652',
-                        isRequired: 'true',
-                        editable: true,
-                        key: '1',
-                        isNew: true,
-                    }];
-                    // 处理地址资料
-                    this.addressTableData = [{
-                        addressType: this.AddressTypeOption[0],
-                        province: '广东省',
-                        area: '顺德区',
-                        city: '佛山市',
-                        address: '北滘',
-                        key: '1',
-                        editable: true,
-                        isNew: true,
-                    }];
-                    // 处理紧急联系人资料
-                    this.contractTableData = [{
-                        name: '小茗',
-                        tel1: '15915211411',
-                        tel2: '13129256852',
-                        remark: '家庭电话',
-                        key: '1',
-                        editable: true,
-                        relationship: this.relationshipTypeOption[0],
-                        isNew: true,
-                    }];
-                    // 职位信息
-                    this.positionTableData = [{
-                        position: '',
-                        mainPosition: true,
-                        editable: true,
-                        key: '1',
-                        isNew: true,
-                        selectOption: [],
-                        positionId: '',
-                    }];
+                    this.fullEmployeeData();
+
                 });
                 break;
             default:
