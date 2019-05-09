@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from './config';
 import _ from 'lodash';
+import { message } from 'ant-design-vue';
 const service = axios.create({
     baseURL: config.baseUrl,
     timeout: 5000,
@@ -14,6 +15,9 @@ service.interceptors.response.use(
         return response.data;
     },
     (error) => {
+        // message.error();
+        const data = error.response.data;
+        message.error(data);
         return Promise.reject(error);
     },
 );

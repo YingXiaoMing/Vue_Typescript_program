@@ -49,6 +49,22 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import('../views/staff/transfer/index.vue'),
                 meta: {key: 'stafftransfer', title: '员工调离职'},
             },
+            {
+                path: 'dismiss',
+                name: 'staff-dismiss',
+                isShow: true,
+                icon: 'tag',
+                component: () => import('../views/staff/dismiss/index.vue'),
+                meta: {key: 'staffdismiss', title: '员工撤复职'},
+            },
+            {
+                path: 'record',
+                name: 'staff-record',
+                isShow: true,
+                icon: 'file-text',
+                component: () => import('../views/staff/record/index.vue'),
+                meta: {key: 'staffrecord', title: '职位操作查询'},
+            },
         ],
     },
     {

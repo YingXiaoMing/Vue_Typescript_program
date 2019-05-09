@@ -279,7 +279,7 @@ class Step1 extends Vue {
         // 处理证件资料
         this.phoneNumTableData = [{
             phoneType: this.phoneTypeOption[0],
-            phoneNum: '13129218652',
+            phoneNum: '',
             isRequired: 'true',
             editable: true,
             key: '1',
@@ -288,20 +288,20 @@ class Step1 extends Vue {
         // 处理地址资料
         this.addressTableData = [{
             addressType: this.AddressTypeOption[0],
-            province: '广东省',
-            area: '顺德区',
-            city: '佛山市',
-            address: '北滘',
+            province: '',
+            area: '',
+            city: '',
+            address: '',
             key: '1',
             editable: true,
             isNew: true,
         }];
         // 处理紧急联系人资料
         this.contractTableData = [{
-            name: '小茗',
-            tel1: '15915211411',
-            tel2: '13129256852',
-            remark: '家庭电话',
+            name: '',
+            tel1: '',
+            tel2: '',
+            remark: '',
             key: '1',
             editable: true,
             relationship: this.relationshipTypeOption[0],
@@ -328,7 +328,8 @@ class Step1 extends Vue {
                 this.fetchData(() => {
                     this.clearBasicData();
                     this.fullEmployeeData();
-
+                    // 发布的时候打开这段代码
+                    // this.fillEmptyEmployeeData()
                 });
                 break;
             default:
