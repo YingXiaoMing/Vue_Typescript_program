@@ -97,6 +97,7 @@ export default class Transfer extends Vue {
         this.employeeName = '';
         this.employeeNum = '';
         this.searchKey = '';
+        this.employeeId = '';
     }
     private valueChange(value: string) {
         this.searchKey = value;

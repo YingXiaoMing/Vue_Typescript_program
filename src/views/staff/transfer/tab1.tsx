@@ -83,6 +83,10 @@ class Tab1 extends Vue {
         });
     }
     private transferEmployeePostion() {
+        if (this.employeeId === '') {
+            message.error('请指定某一个员工');
+            return;
+        }
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 if (!this.isNewPosition) {
@@ -96,8 +100,6 @@ class Tab1 extends Vue {
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                 }).then((res) => {
                     this.resetEmployeeData();
-                }).catch(() => {
-                    message.error('操作失败，请重新操作');
                 });
             }
         });
@@ -106,12 +108,6 @@ class Tab1 extends Vue {
     private resetEmployeeData() {
         getEmployeePositionData(this.employeeId).then((res: any) => {
             this.Form.resetFields();
-            // this.OriginPostionOptions = _.map(res.positions, (item: any) => {
-            //     return {
-            //         key: item.id,
-            //         label: item.positionFullPath,
-            //     };
-            // });
             message.success('员工调职操作成功');
             this.$emit('clearEmployeeData');
             this.OriginPostionOptions = [];
@@ -166,7 +162,11 @@ class Tab1 extends Vue {
                     <a-row>
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item label='原职位' {...{props: this.fromItemLayout}}>
-                                {getFieldDecorator('originPostion',{
+                                {getFieldDecorator('originPostion', {
+                                    rules: [{
+                                        required: true,
+                                        message: ' ',
+                                    }],
                                     initialValue: this.OriginPostionOptions[0],
                                 })(<a-select labelInValue>
                                 {this.OriginPostionOptions.map((item: any, index: number) => <a-option

@@ -57,6 +57,10 @@ class Tab2 extends Vue {
         });
     }
     private leaveClick() {
+        if (this.employeeId === '') {
+            message.error('请指定某一个员工');
+            return;
+        }
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 employeeLeavePosition(this.employeeId, {
@@ -67,8 +71,6 @@ class Tab2 extends Vue {
                     this.Form.resetFields();
                     message.success('离职操作成功');
                     this.$emit('clearEmployeeData');
-                }).catch(() => {
-                    message.error('离职操作失败，请重新操作');
                 });
             }
         });
