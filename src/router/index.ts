@@ -82,6 +82,14 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import('../views/sys/basic'),
                 meta: {key: 'basic', title: '基础资料设置'},
             },
+            {
+                path: 'department',
+                icon: 'cluster',
+                isShow: true,
+                name: 'department',
+                component: () => import('../views/sys/department/index.vue'),
+                meta: {key: 'department', title: '部门管理'},
+            },
         ],
     },
 ];
