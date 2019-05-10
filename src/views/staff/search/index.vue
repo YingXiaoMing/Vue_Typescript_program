@@ -1,30 +1,29 @@
 <template>
     <div class='wrapper'>
-        <div class='staff-head'>
-            <a-row :gutter="24">
-                <a-col :lg="8" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                        @search="handleChange" @select="onSelect">
-                            <template slot="dataSource">
-                                <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
-                            </template>
-                             <a-input @change="e => valueChange(e.target.value)"></a-input>
-                        </a-auto-complete>
-                    </a-form-item>
-                </a-col>
-                <a-col :lg="6" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-button type="primary" @click="search">快速查询</a-button>
-                    </a-form-item>
-                </a-col>
-            </a-row>
-            <a-row :gutter="24">
+        <a-row :gutter="24">
+            <a-col :lg="8" :md="12" :sm="24">
+                <a-form-item>
+                    <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                    @search="handleChange" @select="onSelect">
+                        <template slot="dataSource">
+                            <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
+                        </template>
+                            <a-input @change="e => valueChange(e.target.value)"></a-input>
+                    </a-auto-complete>
+                </a-form-item>
+            </a-col>
+            <a-col :lg="6" :md="12" :sm="24">
+                <a-form-item>
+                    <a-button type="primary" @click="search">快速查询</a-button>
+                </a-form-item>
+            </a-col>
+        </a-row>
+        <a-row :gutter="24">
+            <a-col :span="24">
                 <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination"></a-search-table>
-            </a-row>
-        </div>
+            </a-col>
+        </a-row>
     </div>
-    
 </template>
 <script lang="ts">
 import Vue from 'vue';
@@ -35,7 +34,7 @@ import SearchTable from './searchTable.vue';
 import { getEmployeeData, searchEmployeeData } from '@/api/staff';
 import { Pagination } from '@/interface';
 import _ from 'lodash';
-import './index.less';
+// import './index.less';
 interface EmployeeData {
     value: string;
     text: string;

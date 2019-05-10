@@ -1,5 +1,5 @@
 <template>
-    <div class="conatiner">
+    <div class="wrapper">
         <a-card :bordered="false" class="container_content" id="container_content">
             <a-stepComponent :currentTabs="currentTab"/>
             <Step1 v-if="currentTab === 0" @nextStep='nextStep'></Step1>
