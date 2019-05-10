@@ -1,5 +1,5 @@
 @import '../../../style/var.less';
-@headerHeight: 56px;
+@headerHeight: 57px;
 .header-wrap {
     height: @headerHeight;
     background: #fff;
@@ -8,12 +8,18 @@
     justify-content: space-between;
     box-shadow: 4px 4px 40px 0 rgba(0, 0, 0, .05);
     position: absolute;
-    width: 100%;
     border-left: 1px solid #eee;
     border-bottom: 1px solid #eee;
-    left: 0;
+    padding-left: 230px;
+    position: fixed;
+    right: 0;
     top: 0;
-    z-index: 999;
+    width: 100%;
+    z-index: 15;
+    transition: .3s;
+    &.sideLayout {
+        padding-left: 56px;
+    }
     .menu-btn{
         line-height: @headerHeight;
         width: @headerHeight;

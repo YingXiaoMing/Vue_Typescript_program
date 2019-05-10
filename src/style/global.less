@@ -8,18 +8,22 @@ blockquote, body, dd, dl, dt, fieldset, figure, h1, h2, h3, h4, h5, h6, hr, html
     box-sizing: border-box;
 }
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: .5rem;
+    height: .5rem;
+}
+::-webkit-scrollbar-track {
+    border-radius: 1px;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: #e6e6e6;
+    border-radius: 1px;
+    background-color: rgba(0, 0, 0, .2);
   }
 html {
     font-size: 16px;
 }
 body {
     height: 100%;
-    overflow-y: hidden;
+    // overflow-y: hidden;
     background-color: #f0f2f5 !important;
     font-family: Nunito,sans-serif;
 }
@@ -37,6 +41,24 @@ body {
 }
 .red {
     color: red;
+}
+.sider {
+    z-index: 16;
+    position: relative;
+    overflow-x: hidden;
+    &.sider.ant-fixed-sidemenu {
+        position: fixed;
+        overflow-y: auto;
+        height: 100%;
+    }
+}
+.wrapper {
+    background: #fff;
+    padding: 12px 10px;
+    box-sizing: border-box;
+    border-right: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
 }
 
 @font-face {

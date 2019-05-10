@@ -11,16 +11,15 @@
         padding-top: 56px;
         overflow-y: auto;
     }
-    .page-wrap {
-        height: e('calc(100vh - 56px)');
-        width: 100%;
-        overflow: auto;
-        overflow-x: hidden;
-        // margin: 13px;
-        // box-sizing: border-box;
+    .fixed-header-content {
+        margin: 12px 10px 0 !important;
     }
     .page-content {
-        width: 100vw;
+        padding-left: 230px;
+        &.sideLayout {
+            padding-left: 54px;
+            transition: .3s;
+        }
     }
     &.sideLayout {
         .side-bar {

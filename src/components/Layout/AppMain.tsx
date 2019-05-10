@@ -1,7 +1,7 @@
 
 import { Component, Vue, Watch, Emit } from 'vue-property-decorator';
 import Header from './Header';
-import { Tabs } from 'ant-design-vue';
+import { Tabs, Layout } from 'ant-design-vue';
 import _ from 'lodash';
 import Sidebar from './Sidebar';
 import './AppMain.less';
@@ -10,6 +10,8 @@ import '@/style/global.less';
     components: {
         'a-tabs': Tabs,
         'a-tab-pane': Tabs.TabPane,
+        'a-layout-content': Layout.Content,
+        'a-layout': Layout,
     },
 })
 export default class AppMain extends Vue {
@@ -50,24 +52,26 @@ export default class AppMain extends Vue {
         return (
             <div class={`app-main ${opened ? '' : 'sideLayout'}`}>
                 <Sidebar/>
-                <div class='page-content'>
+                <a-layout class={`page-content ${opened ? '' : 'sideLayout'}`}>
                     <Header/>
-                    <a-tabs class='page-tabs' activeKey={this.onTabs}
-                    on-change={this.tabChange} type='editable-card'
-                    on-edit={this.onTabEdit}>
-                        {
-                            tabList.map((item: any, index: number) => <a-tab-pane
-                            tab={item.meta.title} key={item.name}
-                            closable={tabList.length > 1}>
-                            </a-tab-pane>)
-                        }
-                    </a-tabs>
-                    <div class='page-wrap' id='page-wrap'>
-                        <keep-alive include={keepList}>
-                            <router-view></router-view>
-                        </keep-alive>
-                    </div>
-                </div>
+                    <a-layout-content class='fixed-header-content'>
+                        <a-tabs class='page-tabs' activeKey={this.onTabs}
+                        on-change={this.tabChange} type='editable-card'
+                        on-edit={this.onTabEdit} hide-add={true}>
+                            {
+                                tabList.map((item: any, index: number) => <a-tab-pane
+                                tab={item.meta.title} key={item.name}
+                                closable={tabList.length > 1}>
+                                </a-tab-pane>)
+                            }
+                        </a-tabs>
+                        <div class='page-wrap' id='page-wrap'>
+                            <keep-alive include={keepList}>
+                                <router-view></router-view>
+                            </keep-alive>
+                        </div>
+                    </a-layout-content>
+                </a-layout>
             </div>
         );
     }

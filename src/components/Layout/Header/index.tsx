@@ -67,7 +67,7 @@ export default class Header extends Vue {
         const { menuData , sidebar : { opened } } = this.$store.state.app;
         this.menuData = menuData;
         return(
-            <div class='header-wrap'>
+            <div class={`header-wrap ${opened ? '' : 'sideLayout'}`}>
                 <div class='header-left'>
                     <i class={`menu-btn iconfont-${!opened ? 'indent' : 'outdent'}`} on-click={this.switchSidebar}></i>
                     <a-breadcrumb class='header-bread' separator='/'>
