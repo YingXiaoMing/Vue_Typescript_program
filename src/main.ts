@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import App from '@/App';
+import { Modal } from 'ant-design-vue';
 import router , { asyncRouterMap } from '@/router';
 import store from '@/store';
 Vue.config.productionTip = false;
+Vue.prototype.$confirm = Modal.confirm;
 // import './style/global.less';
 router.beforeEach((to, from, next) => {
   if (!store.state.app.menuData.length) {
@@ -11,6 +13,7 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
+
 new Vue({
   router,
   store,
