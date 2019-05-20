@@ -1,5 +1,5 @@
 import { Component, Vue, Emit } from 'vue-property-decorator';
-import { Form, Divider, Checkbox, Col, Radio, Input, Row } from 'ant-design-vue';
+import { Form, Divider, Checkbox, Col, Radio, Input, Row, Button } from 'ant-design-vue';
 @Component({
     components: {
         'a-divider': Divider,
@@ -10,6 +10,7 @@ import { Form, Divider, Checkbox, Col, Radio, Input, Row } from 'ant-design-vue'
         'a-input': Input,
         'a-row': Row,
         'a-form-item': Form.Item,
+        'a-button': Button,
     },
     props: {
         Form,

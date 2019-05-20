@@ -93,7 +93,7 @@ class WorkExperience extends Vue {
                     endedJobReason: item.endedJobReason,
                     salary: item.salary,
                     reference: item.reference,
-                    referencePhoneNumber: item.reference,
+                    referencePhoneNumber: item.referencePhoneNumber,
                     editable: false,
                 };
             });

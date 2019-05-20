@@ -58,10 +58,12 @@ class Step7 extends Vue {
         md: {span: 24},
         sm: {span: 24},
     };
+    private $router: any;
     private $store: any;
     @Emit()
     private nextStep() {
-        this.$emit('nextStep');
+        // this.$emit('nextStep');
+        this.$router.push('/staff/search');
     }
     @Emit()
     private preStep() {
@@ -188,7 +190,7 @@ class Step7 extends Vue {
                             <a-button type='primary' on-click={this.preStep}>上一步</a-button>
                         </a-col>
                         <a-col {...{props: this.bottomLayoutBtn}}>
-                            <a-button type='primary' on-click={this.nextStep}>下一步</a-button>
+                            <a-button type='primary' on-click={this.nextStep}>完成</a-button>
                         </a-col>
                     </a-col>
                 </a-row>}

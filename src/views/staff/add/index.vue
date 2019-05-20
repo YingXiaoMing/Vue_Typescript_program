@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class='container'>
         <a-card :bordered="false" class="container_content" id="container_content">
             <a-stepComponent :currentTabs="currentTab"/>
             <Step1 v-if="currentTab === 0" @nextStep='nextStep'></Step1>
@@ -40,9 +40,7 @@ export default class Add extends Vue {
     private $store: any;
     @Emit()
     private nextStep() {
-        if (this.currentTab < 2) {
-            this.currentTab += 1;
-        }
+        this.currentTab += 1;
     }
     @Emit()
     private preStep() {
