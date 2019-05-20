@@ -1,0 +1,80 @@
+.wrapper {
+    .ant-card-body {
+        padding: 0px;
+    }
+    .orgchart-container {
+        height: 786px;
+    }
+    .colorMark {
+        width: 160px;
+        height: 80px;
+        position: absolute;
+        top: 10px;
+        left: 42px;
+        .mark-inline {
+            display: inline-block;
+            width: 100%;
+            margin-top: 3px;
+            .circle {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                float: left;
+            }
+            span {
+                float: left;
+                line-height: 20px;
+                height: 20px;
+                font-size: 14px;
+                margin-left: 10px;
+                font-weight: bold;
+            }
+            .deepblue {
+                background-color: rgba(217,83,79,.8);
+            }
+            .blue {
+                background-color: #2BB1F4;
+            }
+        }
+    }
+}
+.orgchart {
+    background-image: none;
+    .node .title {
+        height: 26px;
+        line-height: 26px;
+        &.department {
+            background-color: #2BB1F4;
+        }
+    }
+    .node .content {
+        height: 28px;
+        line-height: 28px;
+        &.department {
+            border: 1px solid #2BB1F4;
+            border-radius: 0;
+            border-bottom: 0;
+        }
+        &:last-child {
+            border-radius: 0 0 4px 4px;
+            border-bottom: 1px solid #2BB1F4;
+        }
+    }
+}
+.orgchart tr.lines td.rightLine, .orgchart tr.lines td.topLine, .orgchart .lines .leftLine {
+    border-color: #ccc;
+}
+.orgchart .lines .downLine {
+    background-color: #ccc;
+}
+.mind-Btn {
+    text-align: center;
+    display: inline-block;
+    .child-Btn {
+        display: block;
+        width: 100%;
+    }
+}
+.ant-popover-inner-content {
+    padding: 0;
+}
