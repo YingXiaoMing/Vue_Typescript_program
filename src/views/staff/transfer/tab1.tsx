@@ -201,7 +201,7 @@ class Tab1 extends Vue {
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-divider class='diliver_item'>调动后</a-divider>
+                    <a-divider >调动后</a-divider>
                     <a-row>
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item label='新职位' {...{props: this.fromItemLayout}}>
