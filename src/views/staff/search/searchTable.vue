@@ -1,13 +1,14 @@
 <template>
     <a-table :columns="column" bordered size="small" :loading="loading" :dataSource="data" :pagination="pagination">
         <template slot="action" slot-scope="text,record">
-            <span >
+            <span>
                 <a @click="toggle(record.key)">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a>调职</a>
-                <a-divider type="vertical"></a-divider>
-                <a class='red'>删除</a>
+                <a @click="transfer(record.key)">调职</a>
             </span>
+        </template>
+        <template slot="position" slot-scope="position">
+            <span class='position-Tag' v-for="t in position"><a-tag :color="t.isDefault? '#108ee9': '#2db7f5'">{{t.positionFullPath}}</a-tag></span>
         </template>
     </a-table>
 </template>
@@ -16,18 +17,30 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
-import { Table, Divider } from 'ant-design-vue';
+import { Table, Divider, Tag } from 'ant-design-vue';
 import { ColumnList, Pagination } from '@/interface';
+import './searchTable.less';
+interface PositionTable {
+    positionFullPath: string;
+}
 interface TableData {
     key: string;
     id: string;
     gender: string;
     name: string;
+    num: string;
+    tel: string;
+    employeeDate: string;
+    highEducation: string;
+    employeeStatus: string;
+    workplace: string;
+    position: PositionTable[];
 }
 @Component({
     components: {
         'a-table': Table,
         'a-divider': Divider,
+        'a-tag': Tag,
     },
 })
 export default class SearchTable extends Vue {
@@ -59,6 +72,36 @@ export default class SearchTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'gender' },
     }, {
+        title: '职位',
+        dataIndex: 'position',
+        align: 'center',
+        scopedSlots: { customRender: 'position' },
+    }, {
+        title: '联系电话',
+        dataIndex: 'tel',
+        align: 'center',
+        scopedSlots: { customRender: 'tel' },
+    }, {
+        title: '入职日期',
+        dataIndex: 'employeeDate',
+        align: 'center',
+        scopedSlots: { customRender: 'employeeDate' },
+    }, {
+        title: '最高学历',
+        dataIndex: 'highEducation',
+        align: 'center',
+        scopedSlots: { customRender: 'highEducation' },
+    }, {
+        title: '在职状态',
+        dataIndex: 'employeeStatus',
+        align: 'center',
+        scopedSlots: { customRender: 'employeeStatus' },
+    }, {
+        title: '工作地点',
+        dataIndex: 'workplace',
+        align: 'center',
+        scopedSlots: { customRender: 'workplace' }
+    }, {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
@@ -76,6 +119,16 @@ export default class SearchTable extends Vue {
         this.$store.dispatch('changeEmployeeStatus', 3);
         this.$store.dispatch('ChangeEmployeeId', key);
         this.$router.push('/staff/edit');
+    }
+    private transfer(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const newData = {...{employeeId: target.num, employeeName: target.name, employeeNum: target.id}};
+        this.$router.push({
+            name: 'staff-transfer',
+            params: {
+                form: newData,
+            },
+        });
     }
 }
 </script>
