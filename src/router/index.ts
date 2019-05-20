@@ -92,6 +92,23 @@ export const asyncRouterMap: RouterItem[] = [
             },
         ],
     },
+    {
+        path: '/reward',
+        icon: 'edit',
+        name: 'reward',
+        component: () => import('../views/reward'),
+        meta: { key: 'reward', title: '奖惩操作' },
+        children: [
+            {
+                path: 'addReward',
+                icon: 'trophy',
+                isShow: true,
+                name: 'addReward',
+                component: () => import('../views/reward/add/index.vue'),
+                meta: { key: 'addReward', title: '新增奖惩' },
+            },
+        ],
+    },
 ];
 
 
