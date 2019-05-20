@@ -5,6 +5,7 @@ import { message } from 'ant-design-vue';
 const service = axios.create({
     baseURL: config.baseUrl,
     timeout: 5000,
+    headers: {'Content-Type': 'application/vnd.ais.hr.department+json'},
 });
 
 service.interceptors.response.use(
