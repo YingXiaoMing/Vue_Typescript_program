@@ -70,28 +70,42 @@ export default class Transfer extends Vue {
     private employeeName: string = '';
     private employeeNum: string = '';
     private employeeId: string = '';
+    private $route: any;
     private handleChange(value: string) {
         this.fetch(value);
+    }
+    private searchEmployeePositionData(employeId: string) {
+        getEmployeePositionData(employeId).then((res: any) => {
+            // tslint:disable-next-line:no-shadowed-variable
+            this.originPostions = _.map(res.positions, (item: any) => {
+                return {
+                    key: item.id,
+                    label: item.positionFullPath,
+                };
+            });
+            this.employeeId = employeId;
+        });
     }
     private onSelect(value: string) {
         const item = _.find(this.employeeDataList, {value});
         if (item) {
             this.employeeName = item.name;
             this.employeeNum = item.id;
-            getEmployeePositionData(item.value).then((res: any) => {
-                // tslint:disable-next-line:no-shadowed-variable
-                this.originPostions = _.map(res.positions, (item: any) => {
-                    return {
-                        key: item.id,
-                        label: item.positionFullPath,
-                    };
-                });
-                this.employeeId = item.value;
-            });
+            this.searchEmployeePositionData(item.value);
         }
     }
     private created() {
         this.fetch('');
+    }
+    private mounted() {
+        if (this.$route.params.form) {
+            const data = this.$route.params.form;
+            this.employeeName = data.employeeName;
+            this.employeeId = data.employeeId;
+            this.searchKey = data.employeeName + '-' + data.employeeNum;
+            this.employeeNum = data.employeeNum;
+            this.searchEmployeePositionData(this.employeeId);
+        }
     }
     private clearEmployeeDatas() {
         this.employeeName = '';
