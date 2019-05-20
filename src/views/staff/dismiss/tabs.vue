@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Tabs } from 'ant-design-vue';
+import { Tabs, message } from 'ant-design-vue';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import Tab1 from './tab1';
 import Tab2 from './tab2';
@@ -40,6 +40,7 @@ export default class Tab extends Vue {
         this.dismissOptionData = value;
     }
     private tabChange(key: string) {
+        if (_.isEqual(this.employeeId, '')) { return; }
         switch (key) {
             case '1':
                 this.getEmployeePostionData();
