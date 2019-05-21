@@ -100,7 +100,7 @@ export default class SearchTable extends Vue {
         title: '工作地点',
         dataIndex: 'workplace',
         align: 'center',
-        scopedSlots: { customRender: 'workplace' }
+        scopedSlots: { customRender: 'workplace' },
     }, {
         title: '操作',
         dataIndex: 'action',

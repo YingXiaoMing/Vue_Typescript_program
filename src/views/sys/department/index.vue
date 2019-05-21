@@ -71,8 +71,8 @@ interface PositionData {
     key: string;
     parentCompanyId?: string;
     parentDepartmentId?: string;
-    editable: boolean,
-    isNew: boolean,
+    editable: boolean;
+    isNew: boolean;
 }
 interface TableData {
     key: string;

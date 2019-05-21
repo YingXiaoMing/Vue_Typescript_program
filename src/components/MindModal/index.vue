@@ -91,7 +91,7 @@ export default class MindModal extends Vue {
                         this.$emit('cancel');
                     });
                 } else if (_.isEqual(this.newId, '2')) {
-                    newHeadDeepartment(this.tabName.id,{
+                    newHeadDeepartment(this.tabName.id, {
                         name: this.tabName.name,
                         description: '',
                     }).then((res) => {
