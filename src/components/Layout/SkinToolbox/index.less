@@ -1,0 +1,74 @@
+.skin-toolbox {
+    z-index: 10;
+    position: fixed;
+    top: 157px;
+    right: 0px;
+    width: 230px;
+    user-select: none;
+    transition: right 0.3s;
+    &.skin-toolbox-close {
+        right: -230px;
+    }
+    .panel {
+        position: relative;
+        margin-bottom: 20px;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-top: 0;
+        .panel-head {
+            position: relative;
+            cursor: pointer;
+            margin-right: 30px;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+            padding: 0 5px;
+            width: 274px;
+            height: 39px;
+            line-height: 35px;
+            right: 44px;
+            font-size: 14px;
+            .panel-icon {
+                font-size: 22px;
+                padding-right: 20px;
+                padding-left: 6px;
+                color: #1890ff;
+                i {
+                    transition: all .8s;
+                    transform: rotate(0deg);
+                }
+            }
+            &:hover .panel-icon i {
+                transform: rotate(-360deg);
+            }
+            .panel-title {
+                padding-left: 56px;
+                font-size: 14px;
+                line-height: 42px;
+                font-weight: 600;
+                color: #666;
+            }
+        }
+        .panel-body {
+            padding: 10px;
+            font-size: 13px;
+            .ant-checkbox-wrapper,
+            .ant-radio-wrapper {
+                display: block;
+                height: 30px;
+                line-height: 30px;
+            }
+            .ant-checkbox-wrapper {
+                margin-left: 0;
+            }
+            h4 {
+                margin-bottom: 10px;
+                font-size: 15px;
+                color: #333;
+            }
+            .ant-tag {
+                width: 182px;
+                text-align: center;
+            }
+        }
+    }
+}

@@ -114,6 +114,7 @@ export default class PhoneTable extends Vue {
         scopedSlots: { customRender: 'isRequired' },
     }, {
         title: '操作',
+        width: 130,
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
@@ -191,7 +192,7 @@ export default class PhoneTable extends Vue {
 
     private isNullPhoneNum(target: TableData): boolean {
         if (target.phoneNum === '') {
-            message.error('电话号码不能为空');
+            message.error('请至少保留一条联系电话信息');
             return false;
         }
         return true;
@@ -336,7 +337,7 @@ export default class PhoneTable extends Vue {
     @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
-            message.error('必须存在一条电话信息');
+            message.error('请至少添加一条联系电话信息');
             return;
         }
         if (this.isNew) {

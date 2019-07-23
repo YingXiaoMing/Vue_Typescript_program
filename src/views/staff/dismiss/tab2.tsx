@@ -54,7 +54,7 @@ class Tab1 extends Vue {
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 employeeRenistatedPosition(this.employeeId, {
-                    positionId: values.position.key,
+                    reinstatedPositionId: values.position.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then((res) => {

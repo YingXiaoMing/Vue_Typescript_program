@@ -102,6 +102,7 @@ export default class PhoneTable extends Vue {
         scopedSlots: { customRender: 'remark' },
     }, {
         title: '操作',
+        width: 130,
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },

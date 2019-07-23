@@ -127,6 +127,7 @@ export default class AddressTable extends Vue {
         scopedSlots: { customRender: 'address' },
     }, {
         title: '操作',
+        width: 130,
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
@@ -279,7 +280,7 @@ export default class AddressTable extends Vue {
     @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
-            message.error('必须存在一条联系地址信息');
+            message.error('请至少保留一条联系地址信息');
             return;
         }
         if (this.isNew) {

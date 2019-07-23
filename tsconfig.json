@@ -9,10 +9,12 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "strictFunctionTypes": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "jest"
     ],
     "paths": {
       "@/*": [
@@ -23,7 +25,7 @@
       "esnext",
       "dom",
       "dom.iterable",
-      "scripthost",
+      "scripthost"
     ]
   },
   "include": [

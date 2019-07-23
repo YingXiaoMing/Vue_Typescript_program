@@ -140,12 +140,12 @@ export const deleteEmployeeContractData = (employeeId: string, id: string) =>
     request.delete('/employee/' + employeeId + '/emergencyContact/' + id);
 
 // 新增员工职位
-export const newEmployeePostionData = (employeeId: string, positionId: string) =>
-    request.post('/employee/' + employeeId + '/position?positionId=' + positionId);
+export const newEmployeePostionData = (employeeId: string, param: any) =>
+    request.post('/employee/' + employeeId + '/position', param);
 
 // 删除员工职位
 export const deleteEmployeePostionData = (employeeId: string, positionId: string) =>
-    request.delete('/employee/' + employeeId + '/position?positionId=' + positionId);
+    request.delete('/employee/' + employeeId + '/position/' + positionId);
 
 // 获取员工所有职位
 export const getEmployeePositionData = (employeeId: string) =>

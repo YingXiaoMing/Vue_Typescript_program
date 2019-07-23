@@ -3,7 +3,8 @@ import { Breadcrumb, Badge, Dropdown, Icon, Menu  } from 'ant-design-vue';
 import './index.less';
 import { RouterItem } from '@/interface';
 import { routeToArray } from '@/utils';
-
+import UpdatePassword from '@/components/personal/UpdatePassword.vue';
+import { removeToken } from '@/utils/auth';
 interface BreadItem {
     url: string;
     text: string;
@@ -19,14 +20,17 @@ interface BreadItem {
         'a-menu': Menu,
         'a-menu-item': Menu.Item,
         'a-menu-divider': Menu.Divider,
+        'a-updatePassword': UpdatePassword,
     },
 })
 export default class Header extends Vue {
     private menuData: RouterItem[] = [];
     private breadList: BreadItem[] = [];
     private onIndex: number = 0;
+    private $router: any;
     private $route: any;
     private $store: any;
+    private modalVisible: boolean = false;
     @Watch('$route', { immediate: true, deep: true })
     private routeChange(to: any, from: any) {
         const toDeapth = routeToArray(to.path);
@@ -62,9 +66,26 @@ export default class Header extends Vue {
     private switchSidebar(): void {
         this.$store.dispatch('ToggleSideBar');
     }
-
+    private menuClick(params: {item: any, key: string, keyPath: string[]}): void {
+        const self = this;
+        switch (params.key) {
+            case '2':
+                this.modalVisible = true;
+                break;
+            case '3':
+                this.$store.dispatch('Logout');
+                removeToken();
+                this.$router.push('/login');
+                break;
+            default:
+                break;
+        }
+    }
+    private cancelHandle() {
+        this.modalVisible = false;
+    }
     private render() {
-        const { menuData , sidebar : { opened } } = this.$store.state.app;
+        const { menuData , sidebar : { opened }, username } = this.$store.state.app;
         this.menuData = menuData;
         return(
             <div class={`header-wrap ${opened ? '' : 'sideLayout'}`}>
@@ -76,20 +97,20 @@ export default class Header extends Vue {
                     </a-breadcrumb>
                 </div>
                 <ul class='header-menu'>
-                    <li>
+                    {/* <li>
                         <a-badge count={6} class='item'>
                             <i class='iconfont-email normal_icon'></i>
                         </a-badge>
                     </li>
-                    <li><i class='iconfont-bell'></i></li>
+                    <li><i class='iconfont-bell'></i></li> */}
                     <li class='user'>
                         <a-dropdown>
                             <span class='ant-dropdown-link'>
                                 <a-icon type='user'></a-icon>
-                                <span class='name'>admin</span>
+                                <span class='name'>{username}</span>
                             </span>
-                            <a-menu slot='overlay'>
-                                <a-menu-item key='1'>个人中心</a-menu-item>
+                            <a-menu slot='overlay' on-click={this.menuClick}>
+                                {/* <a-menu-item key='1'>个人中心</a-menu-item> */}
                                 <a-menu-item key='2'>修改密码</a-menu-item>
                                 <a-menu-divider></a-menu-divider>
                                 <a-menu-item key='3'><font color='red'>退出登录</font></a-menu-item>
@@ -97,6 +118,7 @@ export default class Header extends Vue {
                         </a-dropdown>
                     </li>
                 </ul>
+                <a-updatePassword visible={this.modalVisible} cancel={this.cancelHandle}/>
             </div>
         );
     }

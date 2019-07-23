@@ -10,7 +10,7 @@ import AppMain from '@/components/Layout/AppMain';
 export default class App extends Vue {
     private render() {
         return (
-            <div id='app'>
+            <div id='app' class='fillcontain'>
                 <a-locale-provider locale={zh_CN}>
                     <AppMain/>
                 </a-locale-provider>

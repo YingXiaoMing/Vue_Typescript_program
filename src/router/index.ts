@@ -6,6 +6,7 @@ Vue.use(Router);
 
 export const constantRouterMap: RouterItem[] & RouterOptions['routes'] = [
     {path: '/', redirect: '/home'},
+    {path: '/login', component: () => import('../views/Other/login.vue')},
 ];
 
 
@@ -42,28 +43,43 @@ export const asyncRouterMap: RouterItem[] = [
                 meta: {key: 'staffedit', title: '编辑员工资料'},
             },
             {
-                path: 'transfer',
-                name: 'staff-transfer',
-                isShow: true,
-                icon: 'team',
-                component: () => import('../views/staff/transfer/index.vue'),
-                meta: {key: 'stafftransfer', title: '员工调离职'},
-            },
-            {
-                path: 'dismiss',
-                name: 'staff-dismiss',
-                isShow: true,
-                icon: 'tag',
-                component: () => import('../views/staff/dismiss/index.vue'),
-                meta: {key: 'staffdismiss', title: '员工撤复职'},
-            },
-            {
-                path: 'record',
-                name: 'staff-record',
-                isShow: true,
-                icon: 'file-text',
-                component: () => import('../views/staff/record/index.vue'),
-                meta: {key: 'staffrecord', title: '职位操作查询'},
+                path: 'remote',
+                name: 'staffremote',
+                icon: 'solution',
+                component: () => import('../views/staff/remote'),
+                meta: {key: 'staffremote', title: '人事调用'},
+                children: [{
+                    path: 'transfer',
+                    name: 'staff-transfer',
+                    isShow: true,
+                    icon: 'team',
+                    component: () => import('../views/staff/transfer/index.vue'),
+                    meta: {key: 'stafftransfer', title: '员工调离职'},
+                },
+                {
+                    path: 'dismiss',
+                    name: 'staff-dismiss',
+                    isShow: true,
+                    icon: 'tag',
+                    component: () => import('../views/staff/dismiss/index.vue'),
+                    meta: {key: 'staffdismiss', title: '员工撤复职'},
+                },
+                {
+                    path: 'srecord',
+                    name: 'staffrecord',
+                    isShow: true,
+                    icon: 'file-text',
+                    component: () => import('../views/staff/record/index.vue'),
+                    meta: {key: 'staffrecord', title: '职位记录查询'},
+                },
+                {
+                    path: 'serve',
+                    name: 'staffserve',
+                    isShow: true,
+                    icon: 'crown',
+                    component: () => import('../views/staff/serve/index.vue'),
+                    meta: {key: 'staffrecord', title: '员工任职'},
+                }],
             },
         ],
     },
@@ -107,24 +123,45 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import('../views/reward/add/index.vue'),
                 meta: { key: 'addReward', title: '新增奖惩' },
             },
+            {
+                path: 'record',
+                icon: 'layout',
+                isShow: true,
+                name: 'rewardRecord',
+                component: () => import ('../views/reward/record/index.vue'),
+                meta: { key: 'rewardRecord', title: '奖惩记录' },
+            },
         ],
+    },
+    {
+        path: '/attend',
+        icon: 'dingding',
+        name: 'attend',
+        component: () => import('../views/attendance'),
+        meta: { key: 'attend', title: '考勤操作'},
+        children: [{
+            path: 'attendAdd',
+            icon: 'link',
+            isShow: true,
+            name: 'attendAdd',
+            component: () => import('../views/attendance/add/index.vue'),
+            meta: { key: 'attendAdd', title: '新增加班/请假/出差' },
+        }, {
+            path: 'attendRecord',
+            icon: 'database',
+            isShow: true,
+            name: 'attendRecord',
+            component: () => import('../views/attendance/record/index.vue'),
+            meta: { key: 'attendRecord', title: '加班/请假/出差 记录' },
+        }],
     },
 ];
 
-
-
-
-
-
-
-
-
-
-
-
+const routes = [ ...asyncRouterMap, ...constantRouterMap];
 
 export default new Router({
-    routes: [...constantRouterMap, ...asyncRouterMap],
+    mode: 'history',
+    routes,
 });
 
 

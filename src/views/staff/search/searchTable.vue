@@ -1,5 +1,5 @@
 <template>
-    <a-table :columns="column" bordered size="small" :loading="loading" :dataSource="data" :pagination="pagination">
+    <a-table :columns="column" :bordered="true" size="small" :loading="loading" :dataSource="data" :pagination="pagination">
         <template slot="action" slot-scope="text,record">
             <span>
                 <a @click="toggle(record.key)">编辑</a>

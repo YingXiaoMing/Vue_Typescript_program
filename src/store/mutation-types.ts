@@ -3,5 +3,8 @@ const types = {
     TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR',
     TAB_CHANGE: 'TAB_CHANGE',
     KEEP_CHANGE: 'KEEP_CHANGE',
+    SET_LOGINSTATUS: 'SET_LOGINSTATUS',
+    LOGOUT: 'LOGOUT',
+    SET_USERNAME: 'SET_USERNAME',
 };
 export default types;

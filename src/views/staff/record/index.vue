@@ -13,10 +13,15 @@
                         </a-auto-complete>
                     </a-form-item>
                 </a-col>
+                <a-col :lg="6" :md="12" :sm="24">
+                    <a-form-item>
+                        <a-button type="primary" @click="fastQuery">快速查询</a-button>
+                    </a-form-item>
+                </a-col>
             </a-row>
             <a-row :gutter="24">
                 <a-col :span="24">
-                    <a-recordTable :tabList="recordData"></a-recordTable>
+                    <a-recordTable :tabList="recordData" :vloading="loading" @loadData="loadData"></a-recordTable>
                 </a-col>
             </a-row>
         </div>
@@ -29,13 +34,25 @@ import { Emit, Prop, Watch } from 'vue-property-decorator';
 import RecordTable from './recordTable.vue';
 import { searchEmployeeData } from '@/api/staff';
 import { getEmployeeModificationRecord } from '@/api/operation';
+import { RemotePostionChangeRecord } from '@/interface';
 import './index.less';
 import _ from 'lodash';
-import { Row, Col, Form, AutoComplete, Select, Button, Input } from 'ant-design-vue';
+import moment from 'moment';
+import { Row, Col, Form, AutoComplete, Select, Button, Input, message } from 'ant-design-vue';
 interface EmployeeData {
     value: string;
     text: string;
     id: string;
+}
+interface TableData {
+    key: string;
+    num: string;
+    name: string;
+    transfer: string;
+    type: string;
+    position: string;
+    newPosition: string;
+    lastOperatorDateTime: string;
 }
 @Component({
     components: {
@@ -46,20 +63,16 @@ interface EmployeeData {
         'a-auto-complete': AutoComplete,
         'a-input': Input,
         'a-recordTable': RecordTable,
+        'a-button': Button,
     },
+    name: 'staffrecord',
 })
 export default class Record extends Vue {
+    private dateFormat = 'YYYY-MM-DD';
     private employeeDataList: EmployeeData[] = [];
     private searchKey: string = '';
-    private recordData = [{
-        key: '1',
-        num: 'string',
-        name: 'string',
-        transfer: 'string',
-        type: 'string',
-        position: 'string',
-        newPosition: 'string',
-    }];
+    private recordData: TableData[] = [];
+    private loading: boolean = false;
     private created() {
         this.fetch('');
     }
@@ -84,12 +97,38 @@ export default class Record extends Vue {
     private valueChange(value: string) {
         this.searchKey = value;
     }
+    private fastQuery() {
+        if (_.isEqual(this.searchKey, '')) {
+            message.error('员工输入框不能为空');
+        } else {
+            this.loadData();
+        }
+    }
+    private loadData() {
+        this.loading = true;
+        getEmployeeModificationRecord(this.searchKey).then((res: any) => {
+            this.loading = false;
+            const records: RemotePostionChangeRecord[] = res;
+            this.recordData = _.map(records, (item) => {
+                return {
+                    key: item.id,
+                    num: item.employeeStringID,
+                    name: item.employeeFullName,
+                    transfer: item.employeePositionChangeClassifyName,
+                    type: item.employeePositionChangeTypeName,
+                    position: item.orginalPositionFullPath,
+                    newPosition: item.newPositionFullPath,
+                    lastOperatorDateTime: moment(item.effectiveDate).format(this.dateFormat),
+                    reason: item.reason ? item.reason : '',
+                    employeeId: item.employeeId,
+                };
+            });
+        });
+    }
     private onSelect(value: string) {
         const item = _.find(this.employeeDataList, {value});
         if (item) {
-            getEmployeeModificationRecord(item.value).then((res: any) => {
-                console.log(res);
-            });
+            this.searchKey = item.value;
         }
     }
 }

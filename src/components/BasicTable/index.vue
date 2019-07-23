@@ -21,7 +21,7 @@
                 <span v-else>
                     <a @click="toggle(record.key)">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="removeRow(record.key)">删除</a>
+                    <a @click="removeRow(record.key)" class="red">删除</a>
                 </span>
             </template>
         </a-table>

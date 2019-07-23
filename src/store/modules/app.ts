@@ -46,7 +46,8 @@ const app = {
         tabList: [],
         tabActiveKey: '',
         keepList: [],
-
+        signedIn: false,
+        username: 'admin',
     },
     mutations: {
         [types.SET_MENUDATA]: (state: any, menuData: RouterItem[]) => {
@@ -62,6 +63,16 @@ const app = {
         [types.KEEP_CHANGE]: (state: any, keepList: any) => {
             state.keepList = keepList;
         },
+        [types.SET_LOGINSTATUS]: (state: any, loginStatus: boolean) => {
+            state.signedIn = loginStatus;
+        },
+        [types.LOGOUT]: (state: any) => {
+            state.signedIn = false;
+            state.username = '';
+        },
+        [types.SET_USERNAME]: (state: any, username: string) => {
+            state.username = username;
+        },
     },
     actions: {
         GetMenuData: (context: any, menuData: RouterItem[]) => {
@@ -69,6 +80,9 @@ const app = {
         },
         ToggleSideBar: (context: any) => {
             context.commit(types.TOGGLE_SIDEBAR);
+        },
+        SetSignedStatus: (context: any, signed: boolean) => {
+            context.commit(types.SET_LOGINSTATUS, signed);
         },
         AddKeep: (context: any, name: string[]) => {
             const { keepList } = context.state;
@@ -82,6 +96,13 @@ const app = {
         RemoveKeep: (context: any, name: string) => {
             const newKeepList = context.state.keepList.filter((item: string) => item !== name);
             context.commit(types.KEEP_CHANGE, newKeepList);
+        },
+        Logout: (context: any) => {
+            context.commit(types.LOGOUT);
+        },
+        SetUsername: (context: any, username: string) => {
+            context.commit(types.SET_USERNAME, username);
+            context.commit(types.SET_LOGINSTATUS, true);
         },
         AddTabPane: (context: any, url: string) => new Promise((resolve, rejct) => {
             const { menuData, tabList, tabActiveKey } = context.state;

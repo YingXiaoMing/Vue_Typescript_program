@@ -45,6 +45,9 @@ class Tab1 extends Vue {
         wrapperCol: { span: 16 },
     };
     private Form: any;
+    private newDepartmentId: string = '';
+    private newCompanyId: string = '';
+    private newPositionId: string = '';
     private OriginPostionOptions: SelectValue[] = [];
     private transferTypeOption: SelectValue[] = [];
     private cascderOption: CascderOption[] = [];
@@ -62,13 +65,15 @@ class Tab1 extends Vue {
             const TopParentNode: CascderOption = {
                 value: res.id,
                 label: res.name,
+                companyId: res.id,
+                description: 'company',
                 children: [],
             };
             if (res.subCompanies) {
-                this.traverseStepNodechilden(res.subCompanies, TopParentNode);
+                this.traverseStepNodechilden(res.subCompanies, TopParentNode, 'company');
             }
             if (res.departments) {
-                this.traverseStepNodechilden(res.departments, TopParentNode);
+                this.traverseStepNodechilden(res.departments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
@@ -95,7 +100,9 @@ class Tab1 extends Vue {
                 }
                 employeeTransferPosition(this.employeeId, {
                     orginalPositionId: values.originPostion.key,
-                    newPositionId: _.last(values.newPostion),
+                    newPositionCompanyId: this.newCompanyId,
+                    newPositionDepartmentId: this.newDepartmentId,
+                    newPositionId: this.newPositionId,
                     employeePositionChangeTypeId: values.transferType.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                 }).then((res) => {
@@ -113,32 +120,37 @@ class Tab1 extends Vue {
             this.OriginPostionOptions = [];
         });
     }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption) {
+    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
         const thiz = this;
         if (data) {
             data.map((node: any, index: number) => {
                 index ++;
-                const childrenNode: CascderOption = {value: '', label: '', children: []};
+                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
+                if (_.isEqual(descriptionName, 'company')) {
+                    childrenNode.companyId = node.id;
+                } else if (_.isEqual(descriptionName, 'department')) {
+                    childrenNode.companyId = node.companyId;
+                }
                 childrenNode.label = node.name;
                 childrenNode.value = node.id;
                 if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode);
+                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
                 }
                 if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode);
+                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
                 }
                 if (node.positions) {
                     // tslint:disable-next-line:no-shadowed-variable
                     node.positions.forEach((node: any, index: number) => {
-                        const object: CascderOptionItem = {
-                            value: '',
-                            label: '',
-                            key: '',
-                        };
                         index ++;
-                        object.value = node.id;
-                        object.key = node.id;
-                        object.label = node.name;
+                        const object: CascderOptionItem = {
+                            value: node.id,
+                            label: node.name,
+                            key: node.id,
+                            departmentId: node.departmentId,
+                            description:  'position',
+                            companyId: TopParentNode.companyId,
+                        };
                         if (childrenNode.children) {
                             childrenNode.children.push(object);
                         }
@@ -150,9 +162,14 @@ class Tab1 extends Vue {
             });
         }
     }
-    private positionsChange( value: string[], selectOption: CascderOption[] ) {
+    private positionsChange( value: string[], selectOption: CascderOptionItem[] ) {
         const target = _.last(selectOption);
         this.isNewPosition =  _.has(target, 'key');
+        if (value.length > 0 && selectOption[selectOption.length - 1].key) {
+            this.newPositionId = value[value.length - 1];
+            this.newDepartmentId = selectOption[selectOption.length - 1].departmentId;
+            this.newCompanyId =  selectOption[selectOption.length - 1].companyId;
+        }
     }
     private render() {
         const { getFieldDecorator } = this.Form as any;

@@ -26,8 +26,17 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+            <a-row :gutter="24">
+              <a-col :lg="8" :md="12" :sm="24">
+                  <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工">
+                      <a-select mode="multiple" :defaultValue="['小茗','小花']">
+                        <a-icon type="user" slot="suffixIcon"></a-icon>
+                      </a-select>
+                  </a-form-item>
+              </a-col>
+            </a-row>
             <a-row>
-                <a-tabs-com></a-tabs-com>
+                <a-tabs-com :employeeId="employeeId" @clearEmployeeDatas="clearEmployeeDatas"></a-tabs-com>
             </a-row>
         </div>
     </div>
@@ -35,7 +44,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Row, Col, Form, AutoComplete, Select, Input } from 'ant-design-vue';
+import { Row, Col, Form, AutoComplete, Select, Input, Icon } from 'ant-design-vue';
 import { searchEmployeeData } from '@/api/staff';
 import TabComponent from './tabs.vue';
 import _ from 'lodash';
@@ -55,6 +64,8 @@ interface EmployeeData {
         'a-select-option': Select.Option,
         'a-input': Input,
         'a-tabs-com': TabComponent,
+        'a-icon': Icon,
+        'a-select': Select,
     },
 })
 export default class Add extends Vue {
@@ -79,6 +90,7 @@ export default class Add extends Vue {
         if (item) {
             this.employeeName = item.name;
             this.employeeNum = item.id;
+            this.employeeId = item.value;
         }
     }
     private fetch(value: string) {
@@ -95,6 +107,13 @@ export default class Add extends Vue {
                 };
             });
         });
+    }
+    private clearEmployeeDatas() {
+        this.employeeName = '';
+        this.employeeNum = '';
+        this.employeeId = '';
+        this.searchKey = '';
+        this.fetch('');
     }
 }
 </script>

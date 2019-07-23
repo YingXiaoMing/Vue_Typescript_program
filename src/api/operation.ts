@@ -15,7 +15,7 @@ export const employeeRenistatedPosition = (employeeId: string, param: any) =>
 
 // 查看员工被撤职的职位
 export const getEmployeeDismissedPosition = (employeeId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionDismissed');
+    request.get('/employee/' + employeeId + '/EmployeePositionReinstated/GetEmployeePositionToPositionReinstated');
 
 // 查看员工调离职的记录
 export const getEmployeeModificationRecord = (employeeId: string) =>
@@ -68,3 +68,52 @@ export const deletePosition = (companyId: string, departmentId: string, id: stri
 // 新增职位
 export const newPostion = (companyId: string, departmentId: string, param: any) =>
     request.post('/company/' + companyId + '/department/' + departmentId + '/Position', param);
+
+
+
+// 新增员工奖惩
+export const newPrizePenalty = (employeeId: string, param: any) =>
+    request.post('/Employee/' + employeeId + '/PrizePenalty', param);
+
+// 新增员工日常请假出差操作
+export const newBusinesstrip = (employeeId: string, param: any) =>
+    request.post('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip', param);
+
+// 查询员工调离职
+export const searchPrizePenaltyRecord = (params: any) =>
+    request.get('/PrizePenaltyRecord?' + params);
+
+// 查询员工加班请假记录
+export const searchBusinessRecord = (params: any) =>
+    request.get('/AskforLeaveOvertimeBusinesstripRecord?' + params);
+
+// 操作员工加班请假记录
+export const operateBusinessRecord = (employeeId: string, id: string, params: any) =>
+    request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + id, params);
+
+// 修改员工奖惩
+export const editPrizePenaltyRecord = (employeeId: string, id: string, params: any) =>
+    request.patch('/Employee/' + employeeId + '/PrizePenalty/' + id, params);
+
+
+// 员工任职
+export const newEmployeePositionDelegated = (employeeId: string, param: any) =>
+    request.post('/employee/' + employeeId + '/PositionDelegated', param);
+
+
+// 查看员工撤职所需的职位
+export const getEmployeePositionDismissedRecord = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/GetEmployeePositionForUpdatePositionDismissedRecord');
+
+
+// 查询员工复职所需的职位
+export const getEmployeePositionReinstatedRecord = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionReinstated/' + recordId + '/GetEmployeePositionForUpdateEmployeePositionReinstatedRecord');
+
+// 更新员工复职记录
+export const updateEmployeePositionReinstatedRecord = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/EmployeePositionReinstated/' + recordId + '/UpdateEmployeePositionReinstatedRecord', param);
+
+// 查询员工调职所需的职位
+export const getEmployeePositionTransferRecord = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/GetEmployeePositionForUpdatePositionTransferRrcord');

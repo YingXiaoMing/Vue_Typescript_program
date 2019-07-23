@@ -1,6 +1,10 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-import { Form, Row, Col, Input, Select, DatePicker, Divider, Button } from 'ant-design-vue';
-import { SelectValue } from '@/interface';
+import { Form, Row, Col, Input, Select, DatePicker, Divider, Button, message } from 'ant-design-vue';
+import { SelectValue, BasicData } from '@/interface';
+import { getPrizePenaltyTypePrize } from '@/api/basic';
+import { newPrizePenalty } from '@/api/operation';
+import _ from 'lodash';
+import moment from 'moment';
 @Component({
     components: {
         'a-row': Row,
@@ -18,6 +22,7 @@ import { SelectValue } from '@/interface';
     },
 })
 class Tab1 extends Vue {
+    private dateFormat: string = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 8},
         md: {span: 12},
@@ -36,10 +41,42 @@ class Tab1 extends Vue {
         labelCol: { span: 3 },
         wrapperCol: { span: 20 },
     };
-    private dateFormat: string = 'YYYY-MM-DD';
     @Prop({default: ''}) private employeeId!: string;
     private RewardType: SelectValue[] = [];
     private Form: any;
+    private created() {
+        getPrizePenaltyTypePrize().then((res: any) => {
+            this.RewardType = this.transformSelectData(res);
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
+        });
+    }
+    private rewardClick() {
+        if (_.isEqual(this.employeeId, '')) {
+            message.error('请指定某一个员工');
+            return;
+        }
+        this.Form.validateFields((err: any, values: any) => {
+            if (!err) {
+                newPrizePenalty(this.employeeId, {
+                    prizePenaltyTypeId: values.rewardType.key,
+                    effectiveDate: moment(values.issueDate).format(this.dateFormat),
+                    situationDescription: values.description,
+                    solution: values.deal,
+                }).then(() => {
+                    this.Form.resetFields();
+                    message.success('员工奖惩添加成功');
+                    this.$emit('clearEmployeeData');
+                });
+            }
+        });
+    }
     private render() {
         const { getFieldDecorator } = this.Form as any;
         return (
@@ -85,7 +122,7 @@ class Tab1 extends Vue {
                         </a-col>
                     </a-row>
                     <a-row class='bottom_button'>
-                            <a-button type='primary'>保存</a-button>
+                        <a-button type='primary' on-click={this.rewardClick}>保存</a-button>
                     </a-row>
                 </a-row>
             </div>

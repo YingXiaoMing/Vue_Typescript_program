@@ -6,21 +6,23 @@ import _ from 'lodash';
 import Sidebar from './Sidebar';
 import './AppMain.less';
 import '@/style/global.less';
+import config from '@/utils/config';
+import SkinToolBox from './SkinToolbox/index.vue';
 @Component({
     components: {
         'a-tabs': Tabs,
         'a-tab-pane': Tabs.TabPane,
         'a-layout-content': Layout.Content,
         'a-layout': Layout,
+        'a-skin-box': SkinToolBox,
     },
 })
 export default class AppMain extends Vue {
-
-    public onTabs: any = '1';
+    public onTabs: string = '1';
     public tabList: any[] = [];
     private $store: any;
     private $router: any;
-
+    private $route: any;
     @Watch('$route', { immediate: true, deep: true })
     public routeChange(to: any, from: any) {
         this.$store.dispatch('AddTabPane' , to.path);
@@ -49,6 +51,14 @@ export default class AppMain extends Vue {
         const { sidebar: {opened} , tabList, tabActiveKey, keepList } = this.$store.state.app;
         this.onTabs = tabActiveKey;
         this.tabList = tabList;
+        if (config.openPages.indexOf(this.$route.path) > -1) {
+            console.log('it is nine one');
+            return (
+                <div class='app-one'>
+                    <router-view></router-view>
+                </div>
+            );
+        }
         return (
             <div class={`app-main ${opened ? '' : 'sideLayout'}`}>
                 <Sidebar/>
@@ -72,6 +82,7 @@ export default class AppMain extends Vue {
                         </div>
                     </a-layout-content>
                 </a-layout>
+                <a-skin-box></a-skin-box>
             </div>
         );
     }

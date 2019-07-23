@@ -103,6 +103,7 @@ export default class LegalTable extends Vue {
         scopedSlots: { customRender: 'expireDate' },
     }, {
         title: '操作',
+        width: 130,
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
@@ -187,7 +188,7 @@ export default class LegalTable extends Vue {
     private handleChange(value: any, key: string, name: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if (target.issueDate &&  !moment(value).isAfter(target.issueDate)) {
+            if ( !_.isEqual(name, 'legalNum')  && target.issueDate &&  !moment(value).isAfter(target.issueDate)) {
                 message.error('到期日期不能早于开始日期');
                 return;
             }
@@ -277,7 +278,7 @@ export default class LegalTable extends Vue {
     @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
-            message.error('必须存在一条身份证件信息');
+            message.error('请至少保留一条身份证信息');
             return;
         }
         if (this.isNew) {

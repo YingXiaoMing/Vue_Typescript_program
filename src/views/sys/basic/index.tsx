@@ -1,8 +1,14 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Collapse } from 'ant-design-vue';
 import BasicTable from '@/components/BasicTable/index.vue';
-import { getWorkLocation, getAddressTypeOption, getCredentialTypeOption, getBankNameOption, getContractTypeOption, getEducationLevelOption } from '@/api/basic';
+import PrizeTable from '@/components/PrizeTable/index.vue';
+import BusinessTable from '@/components/BusinessTable/index.vue';
+import { getWorkLocation, getAddressTypeOption, getCredentialTypeOption,
+    getBankNameOption, getContractTypeOption, getEducationLevelOption,
+    getethnicGroupOption, getEmploymentSource, getLegalIdentiticationTypeOption,
+    getRelationship, getPhoneTypeOption, getAllPrizePenaltyClassify, getAllBusinessClassify } from '@/api/basic';
 import _ from 'lodash';
+import { SelectValue } from '@/interface';
 interface TableData {
     name: string;
     key: string;
@@ -14,17 +20,40 @@ interface BasicForm {
     colName: string;
     tableList: any;
 }
+interface PrizeTableData {
+    type: {
+        key: string;
+        label: string;
+    };
+    key: string;
+    name: string;
+    editable: boolean;
+    isNew: boolean;
+}
 @Component({
     name: 'basic',
     components: {
         'a-collapse': Collapse,
         'a-collapse-panel': Collapse.Panel,
         'a-basic-table': BasicTable,
+        'a-prize-table': PrizeTable,
+        'a-business-table': BusinessTable,
     },
 })
 export default class Baisc extends Vue {
-    private workLocationList: TableData[] = [];
-    private addressTypeList: TableData[] = [];
+    private prizeDataList: PrizeTableData[] = [{
+        type: {
+            key: '',
+            label: '',
+        },
+        name: '大功',
+        editable: true,
+        isNew: true,
+        key: '1',
+    }];
+    private businessDataList: PrizeTableData[] = [];
+    private prizePenaltyClassifyType: SelectValue[] = [];
+    private businessClassifyType: SelectValue[] = [];
     private basicList: BasicForm[] = [{
         url: '/workingLocation',
         colName: '工作地点',
@@ -35,7 +64,7 @@ export default class Baisc extends Vue {
         tableList: [],
     }, {
         url: '/credentialType',
-        colName: '证件类型',
+        colName: '员工证书类型',
         tableList: [],
     }, {
         url: '/bankName',
@@ -48,6 +77,26 @@ export default class Baisc extends Vue {
     }, {
         url: '/educationLevel',
         colName: '学历',
+        tableList: [],
+    }, {
+        url: '/ethnicGroup',
+        colName: '国籍/民族',
+        tableList: [],
+    }, {
+        url: '/employmentSource',
+        colName: '入职来源',
+        tableList: [],
+    }, {
+        url: '/legalIdentiticationType',
+        colName: '证件类型',
+        tableList: [],
+    }, {
+        url: '/relationship',
+        colName: '紧急联系人关系',
+        tableList: [],
+    }, {
+        url: '/employeePhoneType',
+        colName: '紧急联系人电话类型',
         tableList: [],
     }];
     private created() {
@@ -84,6 +133,97 @@ export default class Baisc extends Vue {
                 this.packBasicData(res, 5);
             });
         });
+        getethnicGroupOption().then((res) => {
+            this.$nextTick(() => {
+                this.packBasicData(res, 6);
+            });
+        });
+        getEmploymentSource().then((res) => {
+            this.$nextTick(() => {
+                this.packBasicData(res, 7);
+            });
+        });
+        getLegalIdentiticationTypeOption().then((res) => {
+            this.$nextTick(() => {
+                this.packBasicData(res, 8);
+            });
+        });
+        getRelationship().then((res) => {
+            this.$nextTick(() => {
+                this.packBasicData(res, 9);
+            });
+        });
+        getPhoneTypeOption().then((res) => {
+            this.$nextTick(() => {
+                this.packBasicData(res, 10);
+            });
+        });
+        getAllPrizePenaltyClassify().then((res) => {
+            let data: PrizeTableData[] = [];
+            this.prizePenaltyClassifyType = _.map(res, (item: any) => {
+                const newData =  _.map(item.prizePenaltyTypeDtos, (itm) => {
+                    return {
+                        type: {
+                            key: item.prizePenaltyTypeClassifyValue,
+                            label: item.prizePenaltyTypeClassifyDisplayName,
+                        },
+                        key: itm.id,
+                        name: itm.name,
+                        editable: false,
+                        isNew: false,
+                    };
+                });
+                data = _.concat(data, newData);
+                return {
+                    key: item.prizePenaltyTypeClassifyValue,
+                    label: item.prizePenaltyTypeClassifyDisplayName,
+                };
+            });
+            data.push({
+                type: {
+                    key: this.prizePenaltyClassifyType[0].key,
+                    label: this.prizePenaltyClassifyType[0].label,
+                },
+                key: '1',
+                name: '',
+                editable: true,
+                isNew: true,
+            });
+            this.prizeDataList = data;
+        });
+        getAllBusinessClassify().then((res) => {
+            let data: PrizeTableData[] = [];
+            this.businessClassifyType = _.map(res, (item: any) => {
+                const newData = _.map(item.askforLeaveOvertimeBusinesstripTypeDtos, (itm: any) => {
+                    return {
+                        type: {
+                            key: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                            label: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
+                        },
+                        key: itm.id,
+                        name: itm.name,
+                        editable: false,
+                        isNew: false,
+                    };
+                });
+                data = _.concat(data, newData);
+                return {
+                    key: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                    label: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
+                };
+            });
+            data.push({
+                type: {
+                    key: this.businessClassifyType[0].key,
+                    label: this.businessClassifyType[0].label,
+                },
+                key: '1',
+                name: '',
+                editable: true,
+                isNew: true,
+            });
+            this.businessDataList = data;
+        })
     }
     private packBasicData(res: any, nums: number) {
         const data = this.transformValueData(res);
@@ -121,6 +261,12 @@ export default class Baisc extends Vue {
                         <a-basic-table tableList={this.tableList} colName='工作地点' url='/workingLocation'/>
                     </a-collapse-panel> */}
                     {this.basicList ? this.renderBasicTable(this.basicList) : null}
+                    <a-collapse-panel header='奖惩分类' key='12'>
+                        <a-prize-table tableList={this.prizeDataList} options={this.prizePenaltyClassifyType}></a-prize-table>
+                    </a-collapse-panel>
+                    <a-collapse-panel header='请假/加班/出差' key='13'>
+                        <a-business-table tableList={this.businessDataList} options={this.businessClassifyType}></a-business-table>
+                    </a-collapse-panel>
                 </a-collapse>
             </div>
         );

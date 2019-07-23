@@ -53,6 +53,8 @@ interface TableData {
     mainPosition: boolean;
     position: string;
     positionId: string;
+    departmentId?: string;
+    companyId?: string;
     selectOption: string[];
     [key: string]: any;
 }
@@ -87,6 +89,7 @@ export default class PhoneTable extends Vue {
         scopedSlots: { customRender: 'mainPosition' },
     }, {
         title: '操作',
+        width: 130,
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
@@ -97,44 +100,49 @@ export default class PhoneTable extends Vue {
             const TopParentNode: CascderOption = {
                 value: res.id,
                 label: res.name,
+                companyId: res.id,
+                description: 'company',
                 children: [],
             };
             if (res.subCompanies) {
-                this.traverseStepNodechilden(res.subCompanies, TopParentNode);
+                this.traverseStepNodechilden(res.subCompanies, TopParentNode, 'company');
             }
             if (res.departments) {
-                this.traverseStepNodechilden(res.departments, TopParentNode);
+                this.traverseStepNodechilden(res.departments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
         });
     }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption) {
+    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
         const thiz = this;
         if (data) {
             data.map((node: any, index: number) => {
                 index ++;
-                const childrenNode: CascderOption = {value: '', label: '', children: []};
-                childrenNode.label = node.name;
-                childrenNode.value = node.id;
+                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
+                if (_.isEqual(descriptionName, 'company')) {
+                    childrenNode.companyId = node.id;
+                } else if (_.isEqual(descriptionName, 'department')) {
+                    childrenNode.companyId = node.companyId;
+                }
                 if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode);
+                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
                 }
                 if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode);
+                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
                 }
                 if (node.positions) {
                     // tslint:disable-next-line:no-shadowed-variable
                     node.positions.forEach((node: any, index: number) => {
-                        const object: CascderOptionItem = {
-                            value: '',
-                            label: '',
-                            key: '',
-                        };
                         index ++;
-                        object.value = node.id;
-                        object.key = node.id;
-                        object.label = node.name;
+                        const object: CascderOptionItem = {
+                            value: node.id,
+                            label: node.name,
+                            key: node.id,
+                            departmentId: node.departmentId,
+                            description:  'position',
+                            companyId: TopParentNode.companyId,
+                        };
                         if (childrenNode.children) {
                             childrenNode.children.push(object);
                         }
@@ -147,7 +155,7 @@ export default class PhoneTable extends Vue {
         }
     }
     @Emit()
-    private onChange(value: string[], selectOption: CascderOption[], name: string, key: number) {
+    private onChange(value: string[], selectOption: CascderOptionItem[], name: string, key: number) {
         const newData = [...this.data];
         const newLabel = _.map(selectOption, (item) => {
             return item.label;
@@ -156,9 +164,10 @@ export default class PhoneTable extends Vue {
         if (target && value.length > 0) {
             target.position = _.join(newLabel, '->');
             target.selectOption = value;
-            // const row = selectOption.pop();
             if (selectOption[selectOption.length - 1].key) {
                 target.positionId = value[value.length - 1];
+                target.companyId = selectOption[selectOption.length - 1].companyId;
+                target.departmentId = selectOption[selectOption.length - 1].departmentId;
             }
             this.data = newData;
         }
@@ -228,10 +237,12 @@ export default class PhoneTable extends Vue {
             if (this.isNew) {
                 this.firstAddRow(target, key);
             } else {
-                newEmployeePostionData(this.employeeId, target.positionId).then((res) => {
+                newEmployeePostionData(this.employeeId, {
+                    companyId: target.companyId,
+                    departmentId: target.departmentId,
+                    positionId: target.positionId,
+                }).then((res) => {
                     this.loadPostionTableData();
-                }).catch((err) => {
-                    message.error('新增失败');
                 });
             }
         }
@@ -300,7 +311,7 @@ export default class PhoneTable extends Vue {
     @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
-            message.error('必须存在一条职位信息记录');
+            message.error('请至少保留一条职位信息');
             return;
         }
         if (this.isNew) {

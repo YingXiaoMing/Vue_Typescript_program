@@ -140,6 +140,8 @@ export interface ColumnList {
 export interface CascderOption {
     value: string;
     label: string;
+    companyId: string;
+    description: string;
     key?: string;
     children?: CascderOption[];
 }
@@ -147,6 +149,9 @@ export interface CascderOptionItem {
     value: string;
     key: string;
     label: string;
+    departmentId: string;
+    description: string;
+    companyId: string;
 }
 export interface CascderServerOption {
     name: string;
@@ -383,4 +388,40 @@ export interface Pagination {
     pageSize: number;
     total: number;
     onChange: any;
+}
+
+export interface RemotePostionChangeRecord {
+    id: string;
+    employeePositionChangeClassifyName: string;
+    employeePositionChangeTypeName: string;
+    orginalPositionFullPath: string;
+    newPositionFullPath: string;
+    lastOperatorDateTime: string;
+    employeeStringID: string;
+    employeeFullName: string;
+    reason: string;
+    employeeId: string;
+    effectiveDate: string;
+}
+
+export interface PositionReinstatedRecordData {
+    id: string;
+    effectiveDate: string;
+    reason: string;
+    employeeId: string;
+    selectOption: SelectValue[];
+}
+
+export interface PositionDismissedRecordData {
+    id: string;
+    effectiveDate: string;
+    reason: string;
+    employeeId: string;
+    selectOption: SelectValue[];
+}
+export interface PositionTransferRecordData {
+    id: string;
+    effectiveDate: string;
+    selectOption: SelectValue[];
+    employeeId: string;
 }
