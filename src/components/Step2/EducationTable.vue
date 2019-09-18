@@ -5,7 +5,6 @@
             <a-input v-if="record.editable" :value="text" @change="e => handleChange(e.target.value, record.key, item)"></a-input>
             <template v-else>{{ text }}</template>
         </template>
-
         <template v-for="(col,u) in ['startedDate','endDate']" :slot="col" slot-scope="text, record">
             <a-date-picker v-if="record.editable" :defaultValue="text?momentFromDate(text):text" :format="dateFormat"
             @change="(date,dateString) => handleChange(dateString, record.key, col)"></a-date-picker>
@@ -59,6 +58,13 @@ interface TableData {
     editable: boolean;
     [key: string]: any;
 }
+interface RemoteTableData {
+    educationLevelId: string;
+    schoolName: string;
+    major: string;
+    startedDate: string;
+    endedDate: string;
+}
 @Component({
     components: {
         'a-table': Table,
@@ -74,6 +80,7 @@ export default class EducationTable extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop({ default: [] }) private educationLevelOption!: SelectValue[];
     @Prop({ default: '' }) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private data: TableData[] = this.tabList;
     private dateFormat = 'YYYY-MM-DD';
     private cacheOriginData: any = [];
@@ -105,6 +112,7 @@ export default class EducationTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -115,26 +123,29 @@ export default class EducationTable extends Vue {
     private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                educationLevelId: item.educationLevel.key,
+                schoolName: item.schoolName,
+                major: item.major,
+                startedDate: item.startedDate,
+                endedDate: item.endedDate,
+            };
+        });
+        return newData;
+    }
     @Emit()
     private toggle(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
+            this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
         }
     }
     @Emit()
     private cancel(key: string) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        target.editable = false;
+        this.data = _.cloneDeep(this.cacheOriginData);
     }
     @Emit()
     private handleChange(value: any, key: number, name: string) {
@@ -148,8 +159,7 @@ export default class EducationTable extends Vue {
     @Emit()
     private removeRow(key: string) {
         deleteEmployeeEducationHistory(this.employeeId, key).then((res) => {
-            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
-            this.data = newData;
+            this.$emit('loadData');
         }).catch((err) => {
             message.error('删除失败');
         });
@@ -157,29 +167,22 @@ export default class EducationTable extends Vue {
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeEducationHistory(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const params =  this.compareNewAndOldValue(newValue, oldValue);
+            putEmployeeEducationHistory(this.employeeId, params, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            educationLevelId: newValue.educationLevel.key,
-            schoolName: newValue.schoolName,
-            major: newValue.schoolName,
-            startedDate: newValue.startedDate,
-            endedDate: newValue.endDate,
-        };
-        const oldValues = {
-            educationLevelId: oldValue.educationLevel.key,
-            schoolName: oldValue.schoolName,
-            major: oldValue.schoolName,
-            startedDate: oldValue.startedDate,
-            endedDate: oldValue.endDate,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
 }

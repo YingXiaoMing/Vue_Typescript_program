@@ -6,7 +6,7 @@ Vue.use(Router);
 
 export const constantRouterMap: RouterItem[] & RouterOptions['routes'] = [
     {path: '/', redirect: '/home'},
-    {path: '/login', component: () => import('../views/Other/login.vue')},
+    {path: '/login', name: 'login', component: () => import('../views/Other/login.vue')},
 ];
 
 

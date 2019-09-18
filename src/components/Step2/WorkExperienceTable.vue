@@ -53,6 +53,16 @@ interface TableData {
     editable: boolean;
     [key: string]: any;
 }
+interface RemoteTableData {
+    companyName: string;
+    positionName: string;
+    startedDate: string;
+    endedDate: string;
+    endedJobReason: string;
+    salary: string;
+    reference: string;
+    referencePhoneNumber: string;
+}
 @Component({
     components: {
         'a-table': Table,
@@ -65,6 +75,7 @@ export default class WorkExperienceTable extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop({ default: false }) private loading!: boolean;
     @Prop({ default: '' }) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private cacheOriginData: any = [];
     private dateFormat = 'YYYY-MM-DD';
     private data: TableData[] = this.tabList;
@@ -111,6 +122,7 @@ export default class WorkExperienceTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -125,9 +137,7 @@ export default class WorkExperienceTable extends Vue {
     private toggle(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
+            this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
         }
     }
@@ -163,35 +173,35 @@ export default class WorkExperienceTable extends Vue {
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeWorkExperience(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const params =  this.compareNewAndOldValue(newValue, oldValue);
+            putEmployeeWorkExperience(this.employeeId, params, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            companyName: newValue.companyName,
-            positionName: newValue.positionName,
-            startedDate: newValue.startedDate,
-            endedDate: newValue.endDate,
-            endedJobReason: newValue.endedJobReason,
-            salary: newValue.salary,
-            reference: newValue.reference,
-            referencePhoneNumber: newValue.referencePhoneNumber,
-        };
-        const oldValues = {
-            companyName: oldValue.companyName,
-            positionName: oldValue.positionName,
-            startedDate: oldValue.startedDate,
-            endedDate: oldValue.endDate,
-            endedJobReason: oldValue.endedJobReason,
-            salary: oldValue.salary,
-            reference: oldValue.reference,
-            referencePhoneNumber: oldValue.referencePhoneNumber,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                companyName: item.companyName,
+                positionName: item.positionName,
+                startedDate: item.startedDate,
+                endedDate: item.endedDate,
+                endedJobReason: item.endedJobReason,
+                salary: item.salary,
+                reference: item.reference,
+                referencePhoneNumber: item.reference,
+            };
+        });
+        return newData;
+    }
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
 }

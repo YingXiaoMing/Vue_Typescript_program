@@ -26,13 +26,14 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import { Table, Divider, Input, message } from 'ant-design-vue';
-import Component from 'vue-class-component';
+import { message } from 'ant-design-vue';
 import { ColumnList, AttachmentData } from '@/interface';
 import { Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
+import { Table, Input, Divider } from 'ant-design-vue';
 import jsonpatch from 'fast-json-patch';
 import config from '@/utils/config';
+import Component from 'vue-class-component';
 import { getEmployeeAttachmentDescriptionById, getEmployeeAttachmentById, deleteEmployeeAttachment } from '@/api/staff';
 interface TableData {
     name: string;
@@ -44,10 +45,11 @@ interface TableData {
 @Component({
     components: {
         'a-table': Table,
-        'a-divider': Divider,
         'a-input': Input,
+        'a-divider': Divider,
     },
 })
+
 export default class AttachmentTable extends Vue {
     @Prop({default: []}) private dataList!: AttachmentData[];
     @Prop({default: ''}) private employeeId!: string;

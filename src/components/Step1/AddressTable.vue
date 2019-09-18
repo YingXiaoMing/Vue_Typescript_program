@@ -75,6 +75,15 @@ interface TableData {
     isNew: boolean;
     [key: string]: any;
 }
+interface RemoteTableData {
+    typeId: string;
+    address: {
+        provinceOrState: string;
+        city: string;
+        districtOrTown: string;
+        street: string;
+    };
+}
 @Component({
     components: {
         'a-table': Table,
@@ -90,6 +99,7 @@ export default class AddressTable extends Vue {
     @Prop({default : false}) private tloading!: boolean;
     @Prop({default : true}) private isNew!: boolean;
     @Prop({default: ''}) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private $store: any;
     private cacheOriginData: any = [];
     private province: string = '广东省';
@@ -158,46 +168,11 @@ export default class AddressTable extends Vue {
         }
         return true;
     }
-    private loadAddressData() {
-        this.loading = true;
-        getEmployeeContactAddressData(this.employeeId).then((res: any) => {
-            const newData = _.map(res, (item) => {
-                const targetLegalType = _.find(this.AddressType, { key: item.typeId});
-                return {
-                    addressType: targetLegalType ? targetLegalType : {key: '', label: ''},
-                    province: item.address.provinceOrState,
-                    area: item.address.districtOrTown,
-                    city: item.address.city,
-                    address: item.address.street,
-                    key: item.id,
-                    editable: false,
-                    isNew: false,
-                };
-            });
-            this.data = newData;
-            this.data.push({
-                addressType: this.AddressType[0],
-                province: '',
-                area: '',
-                city: '',
-                address: '',
-                key: '1',
-                editable: true,
-                isNew: true,
-            });
-            this.loading = false;
-        }).catch((err) => {
-            this.loading = false;
-            message.error('加载数据失败，请联系管理员');
-        });
-    }
-    @Emit()
+    // 编辑按钮点击
     private toggle(key: number) {
+        this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
             this.province = target.province;
             this.cityOptions = cityData[target.province];
             this.areaOptions = areaData[target.city];
@@ -233,15 +208,20 @@ export default class AddressTable extends Vue {
             if (this.isNew) {
                 this.saveNewData(target);
             } else {
-                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                const newData = this.deleteLast(_.cloneDeep(this.data));
+                const newValue = this.transformRemoteData(newData);
+                const oldValue = this.transformRemoteData(this.cacheOriginData);
+                const diff = this.compareNewAndOldValue(newValue, oldValue);
                 this.remoteUpdateEmployeeAddressData(key, diff, target);
             }
         }
     }
     private remoteUpdateEmployeeAddressData(key: string, diff: any, target: any) {
         if (diff.length > 0) {
-            putEmployeeContactAddressData(this.employeeId, key, diff).then((res) => {
-                this.loadAddressData();
+            putEmployeeContactAddressData(this.employeeId, diff, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('更新失败');
             });
@@ -255,26 +235,25 @@ export default class AddressTable extends Vue {
         newData.pop();
         this.$store.dispatch('ReplaceContactAddressList', newData);
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            typeId: newValue.addressType.key,
-            address: {
-                provinceOrState: newValue.province,
-                city: newValue.city,
-                districtOrTown: newValue.area,
-                street: newValue.address,
-            },
-        };
-        const oldValues = {
-            typeId: oldValue.addressType.key,
-            address: {
-                provinceOrState: oldValue.province,
-                city: oldValue.city,
-                districtOrTown: oldValue.area,
-                street: oldValue.address,
-            },
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
+    }
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                typeId: item.addressType.key,
+                address: {
+                    provinceOrState: item.province,
+                    city: item.city,
+                    districtOrTown: item.area,
+                    street: item.address,
+                },
+            };
+        });
+        return newData;
+    }
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
     @Emit()
@@ -289,7 +268,7 @@ export default class AddressTable extends Vue {
             this.$store.dispatch('RemoveContactAddressList', key);
         } else {
             deleteEmployeeContactAddressData(this.employeeId, key).then((res) => {
-                this.loadAddressData();
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('删除失败');
             });
@@ -342,7 +321,7 @@ export default class AddressTable extends Vue {
                         street: target.address,
                     },
                 }).then((res) => {
-                    this.loadAddressData();
+                    this.$emit('loadData');
                 }).catch((err) => {
                     message.error('新增失败');
                 });

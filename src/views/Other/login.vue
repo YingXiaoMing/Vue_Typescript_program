@@ -37,9 +37,13 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Form, Input, Row, Icon, Button, message, notification } from 'ant-design-vue';
-import { Auth } from 'aws-amplify';
-import { setToken } from '@/utils/auth';
+import Amplify, { Auth } from 'aws-amplify';
+import { setAccessToken } from '@/utils/auth';
 import config from '@/utils/config';
+import URLSearchParams from 'url-search-params';
+import awsConfig from '@/aws-exports';
+import CryptoJS from 'crypto-js';
+import _ from 'lodash';
 import './login.less';
 interface FormData {
     username: string;
@@ -63,6 +67,8 @@ export default class Login extends Vue {
     private loginBtn: boolean = false;
     private companyName: string = config.name;
     private companyLogo: string = config.logo;
+    private codeVerifier: string = '';
+    private stateCode: string = '';
     private form: any;
     private $form: any;
     private $store: any;
@@ -70,46 +76,84 @@ export default class Login extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
     }
+    private LoginFromAuthorizationEndPoint() {
+        const authorizationUrl = config.awsAuthDomain;
+        const param = new URLSearchParams();
+        this.generateCodeVerifier();
+        this.generateStateCode();
+        localStorage.setItem('stateCode', this.stateCode);
+        localStorage.setItem('codeVerifier', this.codeVerifier);
+        param.set('response_type', awsConfig.Auth.oauth.responseType);
+        param.set('client_id', awsConfig.aws_user_pools_web_client_id);
+        param.set('code_challenge_method', 'S256');
+        param.set('code_challenge', this.generateCodeChallenge(this.codeVerifier));
+        param.set('state', this.stateCode);
+        param.set('redirect_uri', awsConfig.Auth.oauth.redirectSignIn);
+        const newUrl = authorizationUrl + '?' + param.toString() + '&scope=' + _.join(awsConfig.Auth.oauth.scope, '+');
+        // 替换页面上的URL
+        window.location.assign(newUrl);
+    }
+    private generateStateCode() {
+        this.stateCode = this.generateRandomString(32);
+    }
+    private generateCodeVerifier() {
+        this.codeVerifier = this.generateRandomString(32);
+    }
+    private generateCodeChallenge(codeVerifier: string) {
+        return this.base64URL(CryptoJS.SHA256(codeVerifier));
+    }
+    private base64URL(num: any) {
+        return num.toString(CryptoJS.enc.Base64).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+    }
+    private generateRandomString(length: number) {
+        let text = '';
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < length; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    }
     private submitForm() {
-        this.form.validateFields((err: any, values: FormData) => {
-            if (!err) {
-                // this.$router.push('/home');
-                this.loginBtn = true;
-                Auth.signIn(values.username, values.password)
-                    .then((data: any) => {
-                        this.loginBtn = false;
-                        this.$store.dispatch('SetUsername', data.username);
-                        setToken(data.signInUserSession.accessToken);
-                        this.$router.push('/home');
-                        setTimeout(() => {
-                            notification.success({
-                                message: '欢迎',
-                                description: `${data.username}，欢迎回来`,
-                            });
-                        }, 1000);
-                    })
-                    .catch((err: any) => {
-                        switch (err.code) {
-                            case 'UserNotConfirmedException':
-                                message.error('用户尚未验证，请验证用户');
-                                break;
-                            case 'PasswordResetRequiredException':
-                                message.error('密码错误');
-                                break;
-                            case 'NotAuthorizedException':
-                                message.error('用户名尚未授权');
-                                break;
-                            case 'UserNotFoundException':
-                                message.error('用户名不存在');
-                                break;
-                            default:
-                                message.error(err.message);
-                                break;
-                        }
-                        this.loginBtn = false;
-                    });
-            }
-        });
+        this.LoginFromAuthorizationEndPoint();
+
+        // this.form.validateFields((err: any, values: FormData) => {
+        //     if (!err) {
+        //         this.loginBtn = true;
+        //         Auth.signIn(values.username, values.password)
+        //             .then((data: any) => {
+        //                 this.loginBtn = false;
+        //                 this.$store.dispatch('SetUsername', data.username);
+        //                 setToken(data.signInUserSession.accessToken);
+        //                 // this.$router.push('/home');
+        //                 // setTimeout(() => {
+        //                 //     notification.success({
+        //                 //         message: '欢迎',
+        //                 //         description: `${data.username}，欢迎回来`,
+        //                 //     });
+        //                 // }, 1000);
+        //             })
+        //             .catch((err: any) => {
+        //                 switch (err.code) {
+        //                     case 'UserNotConfirmedException':
+        //                         message.error('用户尚未验证，请验证用户');
+        //                         break;
+        //                     case 'PasswordResetRequiredException':
+        //                         message.error('密码错误');
+        //                         break;
+        //                     case 'NotAuthorizedException':
+        //                         message.error('用户名尚未授权');
+        //                         break;
+        //                     case 'UserNotFoundException':
+        //                         message.error('用户名不存在');
+        //                         break;
+        //                     default:
+        //                         message.error(err.message);
+        //                         break;
+        //                 }
+        //                 this.loginBtn = false;
+        //             });
+        //     }
+        // });
     }
 }
 </script>

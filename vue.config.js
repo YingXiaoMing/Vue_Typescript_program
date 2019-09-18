@@ -1,4 +1,5 @@
 module.exports = {
+    lintOnSave: false,
     chainWebpack: (config) => {
         'use strict';
         config.module 
@@ -7,6 +8,9 @@ module.exports = {
             .use("vue-jsx-hot-loader")
             .before("babel-loader")
             .loader("vue-jsx-hot-loader");
+    },
+    devServer: {
+        https: true,
     },
     css: {
         loaderOptions: {

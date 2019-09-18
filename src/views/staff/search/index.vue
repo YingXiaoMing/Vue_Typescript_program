@@ -111,7 +111,8 @@ export default class Search extends Vue {
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
         getEmployeeData(params).then((res) => {
-            this.tabData = _.map(res.data, (item) => {
+            const data = res.data;
+            this.tabData = _.map(data, (item) => {
                 const target: any = _.find(item.phoneNumbers, { isDefault: true });
                 const positionItem = _.map(item.positions, (te: any) => {
                     return {
@@ -148,7 +149,8 @@ export default class Search extends Vue {
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,

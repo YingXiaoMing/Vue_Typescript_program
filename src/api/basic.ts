@@ -1,5 +1,6 @@
 import request from '@/utils/request';
 
+
 export const getWorkLocation = () =>
     request({
         url: '/workingLocation',
@@ -81,7 +82,7 @@ export const getEmployeeEndJonType = () =>
     request({
         url: '/EmployeePositionChangeType/PositionEnded',
         method: 'get',
-    })
+    });
 
 // 证件类型
 export const getLegalIdentiticationTypeOption = () =>

@@ -223,7 +223,7 @@ export default class Baisc extends Vue {
                 isNew: true,
             });
             this.businessDataList = data;
-        })
+        });
     }
     private packBasicData(res: any, nums: number) {
         const data = this.transformValueData(res);

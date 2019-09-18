@@ -1,4 +1,7 @@
 import request from '@/utils/request';
+import t_request from '@/utils/t_request';
+
+
 // 员工调职操作
 export const employeeTransferPosition = (employeeId: string, param: any ) =>
     request.put('/employee/' + employeeId + '/EmployeePositionTransfer', param);
@@ -117,3 +120,10 @@ export const updateEmployeePositionReinstatedRecord = (employeeId: string, recor
 // 查询员工调职所需的职位
 export const getEmployeePositionTransferRecord = (employeeId: string, recordId: string) =>
     request.get('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/GetEmployeePositionForUpdatePositionTransferRrcord');
+
+
+export const getEmployeeToken = (url: string, param: any) =>
+    t_request.post(url, param);
+
+export const getEmployeeTokenByRrefreshToken = (url: string, param: any) =>
+    t_request.post(url, param);

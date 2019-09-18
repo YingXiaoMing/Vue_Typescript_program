@@ -55,6 +55,13 @@ interface TableData {
     isNew: boolean;
     [key: string]: any;
 }
+interface RemoteTableData {
+    name: string;
+    phoneNumber1: string;
+    phoneNumber2: string;
+    note: string;
+    relationshipId: string;
+}
 @Component({
     components: {
         'a-table': Table,
@@ -70,6 +77,7 @@ export default class PhoneTable extends Vue {
     @Prop({default : false}) private tloading!: boolean;
     @Prop({default : true}) private isNew!: boolean;
     @Prop({default: ''}) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private loading: boolean = this.tloading;
     private $store: any;
     private relationShipType: SelectValue[] = [];
@@ -109,11 +117,9 @@ export default class PhoneTable extends Vue {
     }];
     @Emit()
     private toggle(key: number) {
+        this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
             target.editable = !target.editable;
         }
     }
@@ -163,15 +169,35 @@ export default class PhoneTable extends Vue {
             if (this.isNew) {
                 this.saveNewData(target);
             } else {
-                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                const newData = this.deleteLast(_.cloneDeep(this.data));
+                const newValue = this.transformRemoteData(newData);
+                const oldValue = this.transformRemoteData(this.cacheOriginData);
+                const diff = this.compareNewAndOldValue(newValue, oldValue);
                 this.remoteUpdateEmployeeContactData(key, diff, target);
             }
         }
     }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
+    }
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                name: item.name,
+                phoneNumber1: item.tel1,
+                phoneNumber2: item.tel2,
+                note: item.remark,
+                relationshipId: item.relationship.key,
+            };
+        });
+        return newData;
+    }
      private remoteUpdateEmployeeContactData(key: string, diff: any, target: any) {
         if (diff.length > 0) {
-            putEmployeeContractData(this.employeeId, key, diff).then((res) => {
-                this.loadContractData();
+            putEmployeeContractData(this.employeeId, diff, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('更新失败');
             });
@@ -185,58 +211,10 @@ export default class PhoneTable extends Vue {
         newData.pop();
         this.$store.dispatch('ReplaceEmergencyContactsList', newData);
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            name: newValue.name,
-            phoneNumber1: newValue.tel1,
-            phoneNumber2: newValue.tel2,
-            note: newValue.remark,
-            relationshipId: newValue.relationship.key,
-        };
-        const oldValues = {
-            name: oldValue.name,
-            phoneNumber1: oldValue.tel1,
-            phoneNumber2: oldValue.tel2,
-            note: oldValue.remark,
-            relationshipId: oldValue.relationship.key,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
-    private loadContractData() {
-        this.loading = true;
-        getEmployeeContractData(this.employeeId).then((res: any) => {
-            const newData = _.map(res, (item) => {
-                const targetLegalType = _.find(this.relationShipType, { key: item.relationshipId});
-                return {
-                    name: item.name,
-                    tel1: item.phoneNumber1,
-                    tel2: item.phoneNumber2,
-                    remark: item.note,
-                    key: item.id,
-                    editable: false,
-                    relationship: targetLegalType ? targetLegalType : {key: '', label: ''},
-                    isNew: false,
-                };
-            });
-            this.data = newData;
-            this.data.push({
-                name: '',
-                tel1: '',
-                tel2: '',
-                remark: '',
-                key: '1',
-                editable: true,
-                relationship: this.relationShipType[0],
-                isNew: true,
-            });
-            this.loading = false;
-        }).catch((err) => {
-            this.loading = false;
-            message.error('加载数据失败，请联系管理员');
-        });
-    }
-    @Emit()
     private addRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target && this.isNullContact(target)) {
@@ -250,7 +228,7 @@ export default class PhoneTable extends Vue {
                     note: target.remark,
                     relationshipId: target.relationship.key,
                 }).then((res) => {
-                    this.loadContractData();
+                    this.$emit('loadData');
                 }).catch((err) => {
                     message.error('新增失败');
                 });
@@ -274,7 +252,6 @@ export default class PhoneTable extends Vue {
             key: index,
         });
     }
-    @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
             message.error('必须存在一条紧急联系人信息');
@@ -286,7 +263,7 @@ export default class PhoneTable extends Vue {
             this.$store.dispatch('RemoveEmergencyContactsList', key);
         } else {
             deleteEmployeeContractData(this.employeeId, key).then((res) => {
-                this.loadContractData();
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('删除失败');
             });

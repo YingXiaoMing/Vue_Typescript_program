@@ -454,25 +454,25 @@ export default class FormModal extends Vue {
     }
     private getBasicData() {
         getWorkLocation().then((res) => {
-            this.workplaceOption = this.transformSelectData(res);
+            this.workplaceOption = this.transformSelectData(res.data);
             this.searchData.workplace = this.workplaceOption[0].key;
         });
         getCredentialTypeOption().then((res) => {
-            this.credentialType = this.transformSelectData(res);
+            this.credentialType = this.transformSelectData(res.data);
             this.credentialType = _.fill(this.credentialType, {key: '证书全部', label: '全部'}, 0 , 1);
             this.searchData.credentialType = this.credentialType[0].key;
         });
         getContractTypeOption().then((res) => {
-            this.contractType = this.transformSelectData(res);
+            this.contractType = this.transformSelectData(res.data);
             this.contractType = _.fill(this.contractType, {key: '合同全部', label: '全部'}, 0 , 1);
             this.searchData.contractType = this.contractType[0].key;
         });
         getEducationLevelOption().then((res) => {
-            this.highEducation = this.transformSelectData(res);
+            this.highEducation = this.transformSelectData(res.data);
             this.searchData.highEducation = this.highEducation[0].key;
         });
         getEmployeeEndJonType().then((res) => {
-            this.endJobType = this.transformSelectData(res);
+            this.endJobType = this.transformSelectData(res.data);
             this.searchData.endJobType = this.endJobType[0].key;
         });
     }

@@ -76,6 +76,13 @@ interface TableData {
     key: string;
     [key: string]: any;
 }
+interface RemoteTableData {
+    isDefault: string;
+    typeId: string;
+    phoneNumber: {
+        number: string;
+    };
+}
 @Component({
     components: {
         'a-table': Table,
@@ -93,6 +100,7 @@ export default class PhoneTable extends Vue {
     @Prop({default : false}) private tloading!: boolean;
     @Prop({default : true}) private isNew!: boolean;
     @Prop({default : '' }) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private $store: any;
     private loading: boolean = this.tloading;
     private cacheOriginData: any = [];
@@ -120,33 +128,6 @@ export default class PhoneTable extends Vue {
         scopedSlots: { customRender: 'action' },
     }];
     private data: TableData[] = this.tabList;
-    private loadPhoneData() {
-        this.loading = true;
-        getEmployeePhoneData(this.employeeId).then((res: any) => {
-            // const targetPhoneType = _.find(this.phoneType, {key: item.typeId});
-            const newData = _.map((res), (item) => {
-                const targetLegalType = _.find(this.phoneType, { key: item.typeId});
-                return {
-                    phoneType: targetLegalType ? targetLegalType : {key: '', label: ''},
-                    phoneNum: item.phoneNumber.number,
-                    isRequired: item.isDefault ? 'true' : 'false',
-                    editable: false,
-                    key: item.id,
-                    isNew: false,
-                };
-            });
-            newData.push({
-                phoneType: this.phoneType[0],
-                phoneNum: '',
-                isRequired: 'false',
-                editable: true,
-                key: '1',
-                isNew: true,
-            });
-            this.data = newData;
-            this.loading = false;
-        });
-    }
     private transformSelectData(data: any) {
         return _.map(data, (item: BasicData) => {
             return {
@@ -167,15 +148,27 @@ export default class PhoneTable extends Vue {
     private loadingChange(value: any) {
         this.loading = value;
     }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
+    }
     @Emit()
-    private toggle(key: number) {
-        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
-            target.editable = !target.editable;
+    private toggle(key: string) {
+        this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
+        const targetRow = this.getEditableRow(this.data, key);
+        if (targetRow) {
+            targetRow.editable = !targetRow.editable;
+            // this.setOtherRowsDisabled(key, this.data, true);
         }
+    }
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
+    }
+    private getEditableRow(data: TableData[], key: string) {
+        return data.filter((item) => _.isEqual(item.key, key))[0];
     }
     @Emit()
     private cancel(key: number) {
@@ -199,7 +192,20 @@ export default class PhoneTable extends Vue {
     }
 
     private isExistMainPhoneNum() {
-        return _.some(this.data, {isRequired: 'true'});
+        return _.some(this.cacheOriginData, {isRequired: 'true'});
+    }
+
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                typeId: item.phoneType.key,
+                isDefault: item.isRequired,
+                phoneNumber: {
+                    number: item.phoneNum,
+                },
+            };
+        });
+        return newData;
     }
 
     @Emit()
@@ -229,48 +235,31 @@ export default class PhoneTable extends Vue {
             if (this.isNew) {
                 this.saveNewData(target, key);
             } else {
+                if (_.isEqual(target.isRequired, 'true')) {
+                    this.findAndReplaceRequired(this.data, key);
+                }
                 // 否则会更新数据
-                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                const newData = this.deleteLast(_.cloneDeep(this.data));
+                const newValue = this.transformRemoteData(newData);
+                const oldValue = this.transformRemoteData(this.cacheOriginData);
+                const diff = this.compareNewAndOldValue(newValue, oldValue);
                 this.remoteUpdateEmployeePhoneData(key, diff, target);
             }
         }
     }
-    private modifyEmployeeMainPhoneNum(key: string) {
-        replaceeEmployeeMainPhoneNum(this.employeeId, key).then((res) => {
-            this.loadPhoneData();
-        }).catch((err) => {
-            message.error('设置主号码失败,请重新设置。');
-        });
-    }
     private remoteUpdateEmployeePhoneData(key: string, diff: any, target: TableData) {
-        // 判断有没修改主号码
-        if (_.isEqual(target.isRequired, 'true')) {
-            this.modifyEmployeeMainPhoneNum(key);
-        }
         if (diff.length > 0) {
-            putEmployeePhoneData(this.employeeId, key, diff).then((res) => {
-                this.loadPhoneData();
-            }).catch((err) => {
-                message.error('更新失败');
+            putEmployeePhoneData(this.employeeId, diff, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
             });
         } else {
             target.editable = false;
         }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            typeId: newValue.phoneType.key,
-            phoneNumber: {
-                number: newValue.phoneNum,
-            },
-        };
-        const oldValues = {
-            typeId: oldValue.phoneType.key,
-            phoneNumber: {
-                number: oldValue.phoneNum,
-            },
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
     private saveNewData(target: TableData, key: string) {
@@ -303,12 +292,12 @@ export default class PhoneTable extends Vue {
                     const newId = res.id;
                     if (_.isEqual(target.isRequired, 'true') && target.isNew) {
                         replaceeEmployeeMainPhoneNum(this.employeeId, newId).then(() => {
-                            this.loadPhoneData();
+                            this.$emit('loadData');
                         }).catch((err) => {
                             message.error('设置主号码失败,请重新设置。');
                         });
                     } else {
-                        this.loadPhoneData();
+                        this.$emit('loadData');
                     }
                 }).catch((err) => {
                     message.error('新增失败');
@@ -346,7 +335,7 @@ export default class PhoneTable extends Vue {
             this.$store.dispatch('RemovePhoneNumberList', key);
         } else {
             deleteEmployeePhoneData(this.employeeId, key).then((res) => {
-                this.loadPhoneData();
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('删除失败');
             });

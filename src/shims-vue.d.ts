@@ -9,5 +9,6 @@ declare module 'vue/types/vue' {
     $store: any,
     $form: any,
     $parent: any,
+    message: any,
   }
 }

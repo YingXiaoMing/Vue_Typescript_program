@@ -12,10 +12,11 @@ import { Layout } from 'ant-design-vue';
 })
 export default class Sidebar extends Vue {
     private $store: any;
+    private globalClick: any;
     public created() {
         this.$store.dispatch('GetMenuData', asyncRouterMap);
     }
-    public render() {
+    private render() {
         return (
             <div class='side-bar sider ant-fixed-sidemenu'
             >

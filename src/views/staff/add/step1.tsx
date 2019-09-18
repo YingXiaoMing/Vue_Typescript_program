@@ -17,7 +17,7 @@ import { getWorkLocation, getEmploymentSource, getEmploymentTypeOption,
     getEducationLevelOption, getethnicGroupOption, getLegalIdentiticationTypeOption,
     getPhoneTypeOption, getAddressTypeOption, getRelationship, getBasicInfoAllOption } from '@/api/basic';
 import { uploadAvatar } from '@/api/upload';
-import { newEmployeeBasicData, getEmployeeBasicData, putEmployeeBasicData } from '@/api/staff';
+import { newEmployeeBasicData, getEmployeeBasicData, putEmployeeBasicData, getEmployeeLegalData } from '@/api/staff';
 import _ from 'lodash';
 import moment from 'moment';
 import jsonpatch from 'fast-json-patch';
@@ -174,6 +174,7 @@ class Step1 extends Vue {
     private addressTableData: AddressTableData[] = [];
     private contractTableData: EmergencyContractTableData[] = [];
     private positionTableData: PositionsTableData[] = [];
+    private legalIdETag: string = '';
     private basicFormItem: FormItem[] = [{
         type: 'input',
         label: '员工工号',
@@ -318,7 +319,6 @@ class Step1 extends Vue {
             positionId: '',
         }];
     }
-    @Emit()
     private created() {
         const { employeeId, employeeStatus } = this.$store.state.step;
         this.employeeId = employeeId;
@@ -342,13 +342,37 @@ class Step1 extends Vue {
                 this.contractTableLoading = true;
                 this.fetchData(() => {
                     this.remoteEmployeeBasicData();
+                    this.remoteEmployeeLegalData();
                 });
                 break;
         }
     }
+    // 获取员工身份证件数据
+    private remoteEmployeeLegalData() {
+        this.LeagalTableLoading = true;
+        getEmployeeLegalData(this.employeeId).then((res: any) => {
+            const data = res.data;
+            this.legalIdETag = res.headers.etag;
+            const newData = _.map(data, (item) => {
+                const targetLegalType = _.find(this.LegalTypeOption, { key: item.typeId });
+                return {
+                    legalType: targetLegalType ? targetLegalType : { key: '', label: '' },
+                    legalNum: item.idNumber,
+                    issueDate: moment(item.issueDate).format(this.dateFormat),
+                    expireDate: moment(item.expireDate).format(this.dateFormat),
+                    editable: false,
+                    isNew: false,
+                    key: item.id,
+                };
+            });
+            this.LegalIdTableData = [...[{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, key: '1'}], ...newData];
+            this.LeagalTableLoading = false;
+        });
+    }
+    // 编辑获取员工基础数据
     private remoteEmployeeBasicData() {
         getEmployeeBasicData(this.employeeId).then((response: any) => {
-            const res: RemoteBasicData = response;
+            const res: RemoteBasicData = response.data;
             // 员工基本资料
             const targetEmployeeOrigin = _.find(this.employeeOriginOption, {key:  res.employmentStartedInfo.employmentSourceId});
             const targetEmployeeWorkplace = _.find(this.workpalceOption, {key:  res.workingLocationId});
@@ -504,7 +528,8 @@ class Step1 extends Vue {
 // tslint:disable-next-line: ban-types
     private fetchData(callback: any) {
         const p1 = new Promise((resolve, reject) => {
-            getBasicInfoAllOption().then((response: any) => {
+            getBasicInfoAllOption().then((datas: any) => {
+                const response = datas.data;
                 this.highEducationOption = this.transformSelectData(response.educationLevels);
                 this.workpalceOption = this.transformSelectData(response.workingLocations);
                 this.employeeOriginOption = this.transformSelectData(response.employmentSources);
@@ -1027,8 +1052,9 @@ class Step1 extends Vue {
                         </a-spin>
                         <a-row>
                             <a-divider class='diliver_item requiredLine'>身份证件信息</a-divider>
-                            <a-legal-table options={this.LegalTypeOption} tabList={this.LegalIdTableData}
-                            isNew={this.isNew} employeeId={this.employeeId} tloading={this.LeagalTableLoading}></a-legal-table>
+                            {/* <a-legal-table options={this.LegalTypeOption} tabList={this.LegalIdTableData}
+                            isNew={this.isNew} employeeId={this.employeeId} tloading={this.LeagalTableLoading}
+                            legalTag={this.legalIdETag} okhandle={this.okCancel}></a-legal-table> */}
                             <a-divider class='diliver_item requiredLine'>联系电话</a-divider>
                             <a-phone-table options={this.phoneTypeOption} tabList={this.phoneNumTableData}
                             isNew={this.isNew} employeeId={this.employeeId} tloading={this.LeagalTableLoading}></a-phone-table>
@@ -1039,8 +1065,8 @@ class Step1 extends Vue {
                             <a-contact-table options={this.relationshipTypeOption} tabList={this.contractTableData}
                             isNew={this.isNew} employeeId={this.employeeId} tloading={this.LeagalTableLoading}></a-contact-table>
                             <a-divider class='diliver_item requiredLine'>职位信息</a-divider>
-                            <a-position-table tabList={this.positionTableData} isNew={this.isNew}
-                            employeeId={this.employeeId} tloading={this.LeagalTableLoading}></a-position-table>
+                            {/* <a-position-table tabList={this.positionTableData} isNew={this.isNew}
+                            employeeId={this.employeeId} tloading={this.LeagalTableLoading}></a-position-table> */}
                         </a-row>
                     </a-col>
                     <a-col xl={4} lg={24} md={24} sm={24} xs={24}>

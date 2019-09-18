@@ -1,5 +1,6 @@
 @import '../../../style/var.less';
-@headerHeight: 57px;
+// @headerHeight: 57px;
+@headerHeight: 65px;
 .header-wrap {
     height: @headerHeight;
     background: #fff;
@@ -19,6 +20,14 @@
     transition: .3s;
     &.sideLayout {
         padding-left: 56px;
+        height: 57px;
+        .header-left .header-bread {
+            height: 57px;
+            line-height: 50px;
+        }
+        .menu-btn {
+            line-height: 55px;
+        }
     }
     .menu-btn{
         line-height: @headerHeight;
@@ -38,8 +47,8 @@
         .header-bread {
             display: block;
             font-size: 14px;
-            height: 56px;
-            line-height: 56px;
+            height: 63px;
+            line-height: 63px;
         }
     }
     .header-menu {

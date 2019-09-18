@@ -8,6 +8,7 @@ import AppMain from '@/components/Layout/AppMain';
     },
 })
 export default class App extends Vue {
+    private globalClick: any;
     private render() {
         return (
             <div id='app' class='fillcontain'>

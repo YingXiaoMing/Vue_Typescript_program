@@ -24,6 +24,7 @@ export interface LegalTableData {
         label: string,
     };
     legalNum: string;
+    disable: boolean;
     issueDate: string | null;
     expireDate: string | null;
     editable: boolean;
@@ -126,6 +127,34 @@ export interface RemotePositionsTableData {
     positionFullPathIds: string[];
 }
 
+
+export interface EducationTableData {
+    key: string;
+    startedDate: string;
+    endDate: string;
+    major: string;
+    schoolName: string;
+    educationLevel: {
+        key: string;
+        label: string;
+    };
+    editable: boolean;
+}
+
+export interface WorkExperienceTableData {
+    key: string;
+    companyName: string;
+    positionName: string;
+    startedDate: string;
+    endedDate: string;
+    endedJobReason: string;
+    salary: string;
+    reference: string;
+    referencePhoneNumber: string;
+    editable: boolean;
+}
+
+
 export interface ColumnList {
     align?: 'left' | 'right' | 'center';
     dataIndex: string;
@@ -160,8 +189,16 @@ export interface CascderServerOption {
 }
 
 export interface SelectValue {
-    label: string;
     key: string;
+    label: string;
+}
+
+export interface BasicDataOption {
+    highEducationOption: SelectValue[];
+    employeeOriginOption: SelectValue[];
+    workpalceOption: SelectValue[];
+    employeeTypeOption: SelectValue[];
+    ethnicGroupOption: SelectValue[];
 }
 
 export interface SelectValues {

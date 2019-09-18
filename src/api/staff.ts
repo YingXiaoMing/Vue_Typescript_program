@@ -13,8 +13,8 @@ export const getEmployeeEducationHistory = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/employeeEducationHistory');
 
 // 更新员工教育经历
-export const putEmployeeEducationHistory = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/employeeEducationHistory/' + id, param);
+export const putEmployeeEducationHistory = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/employeeEducationHistory', param, {headers: headerObj});
 
 // 删除员工教育经历
 export const deleteEmployeeEducationHistory = (employeeId: string, id: string) =>
@@ -29,8 +29,8 @@ export const newEmployeeWorkExperience = (employeeId: string, params: any) =>
     request.post('/employee/' + employeeId + '/workExperience', params);
 
 // 更新员工工作经历
-export const putEmployeeWorkExperience = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/workExperience/' + id, param);
+export const putEmployeeWorkExperience = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/workExperience', param, { headers: headerObj });
 
 // 删除员工工作经历
 export const deleteEmployeeWorkExperience = (employeeId: string, id: string) =>
@@ -76,8 +76,8 @@ export const getEmployeeLegalData = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/legal_Id');
 
 // 更新员工身份证件资料
-export const putEmployeeLegalData = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/legal_Id/' + id, param);
+export const patchEmployeeLegalData = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/legal_Id', param, {headers: headerObj});
 
 // 新增员工身份证件资料
 export const newEmployeeLegalData = (employeeId: string, param: any) =>
@@ -92,8 +92,8 @@ export const getEmployeePhoneData = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/employeePhoneNumber');
 
 // 更新员工联系电话资料
-export const putEmployeePhoneData = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/employeePhoneNumber/' + id, param);
+export const putEmployeePhoneData = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/employeePhoneNumber', param, { headers: headerObj });
 
 // 新增员工联系电话资料
 export const newEmployeePhoneData = (employeeId: string, param: any) =>
@@ -112,8 +112,8 @@ export const getEmployeeContactAddressData = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/contactAddress');
 
 // 更新员工联系地址资料
-export const putEmployeeContactAddressData = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/contactAddress/' + id, param);
+export const putEmployeeContactAddressData = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/contactAddress', param, {headers: headerObj});
 
 // 新增员工联系地址资料
 export const newEmployeeContactAddressData = (employeeId: string, param: any) =>
@@ -128,8 +128,8 @@ export const getEmployeeContractData = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/emergencyContact');
 
 // 更新员工紧急联系人资料
-export const putEmployeeContractData = (employeeId: string, id: string, param: any) =>
-    request.patch('/employee/' + employeeId + '/emergencyContact/' + id, param);
+export const putEmployeeContractData = (employeeId: string, param: any, headerObj: any) =>
+    request.patch('/employee/' + employeeId + '/emergencyContact', param, {headers: headerObj });
 
 // 新增员工联系地址资料
 export const newEmployeeContractData = (employeeId: string, param: any) =>

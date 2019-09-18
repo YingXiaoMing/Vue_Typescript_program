@@ -25,13 +25,13 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeLegalDocumentRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeLegalDocumentRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="removeRow(record.key)">删除</a>
+                <a @click="removeRow(record.key)" :class="{'disabled-button': record.disable}">删除</a>
             </span>
         </template>
      </a-table>
@@ -40,11 +40,11 @@
 import Vue from 'vue';
 import { Table, Divider, Input, DatePicker, Select, message } from 'ant-design-vue';
 import Component from 'vue-class-component';
-import { ColumnList } from '@/interface';
+import { ColumnList, RemoteLegalTableData } from '@/interface';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import moment from 'moment';
 import { getLegalIdentiticationTypeOption } from '@/api/basic';
-import { getEmployeeLegalData, putEmployeeLegalData, newEmployeeLegalData, deleteEmployeeLegalData } from '@/api/staff';
+import { getEmployeeLegalData, patchEmployeeLegalData, newEmployeeLegalData, deleteEmployeeLegalData } from '@/api/staff';
 import { BasicData, SelectValue } from '@/interface';
 import _ from 'lodash';
 import jsonpatch from 'fast-json-patch';
@@ -57,9 +57,16 @@ interface TableData  {
     issueDate: string | null;
     expireDate: string | null;
     editable: boolean;
+    disable: boolean;
     isNew: boolean;
     key: string;
     [key: string]: any;
+}
+interface RemoteTableData {
+    typeId: string;
+    idNumber: string;
+    issueDate: string | null;
+    expireDate: string | null;
 }
 @Component({
     components: {
@@ -77,6 +84,7 @@ export default class LegalTable extends Vue {
     @Prop({default : true}) private isNew!: boolean;
     @Prop({default : false}) private tloading!: boolean;
     @Prop({default: ''}) private employeeId!: string;
+    @Prop({default: ''}) private ETag!: string;
     private LegalTypeOption: SelectValue[] = this.options;
     private $store: any;
     private cacheOriginData: any = [];
@@ -108,6 +116,7 @@ export default class LegalTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
+
     private dateFormat = 'YYYY-MM-DD';
     private data: TableData[] = this.tabList;
     private isNullLegal(target: TableData): boolean {
@@ -117,40 +126,11 @@ export default class LegalTable extends Vue {
         }
         return true;
     }
-    private loadLegalData() {
-        this.loading = true;
-        getEmployeeLegalData(this.employeeId).then((res: any) => {
-            const newData = _.map(res, (item) => {
-                const targetLegalType = _.find(this.LegalTypeOption, { key: item.typeId});
-                return {
-                    legalType: targetLegalType ? targetLegalType : {key: '', label: ''},
-                    legalNum: item.idNumber,
-                    issueDate: moment(item.issueDate).format(this.dateFormat),
-                    expireDate: moment(item.expireDate).format(this.dateFormat),
-                    editable: false,
-                    isNew: false,
-                    key: item.id,
-                };
-            });
-            this.data = newData;
-            this.data.push({
-                legalType: this.LegalTypeOption[0],
-                legalNum: '',
-                issueDate: null,
-                expireDate: null,
-                editable: true,
-                isNew: true,
-                key: '1',
-            });
-            this.loading = false;
-        }).catch((err) => {
-            this.loading = false;
-            message.error('加载数据失败，请联系管理员');
-        });
-    }
+
     private momentFromDate(date: string) {
         return moment(date, this.dateFormat);
     }
+
     @Watch('options')
     private optionChange(value: any) {
         this.LegalTypeOption = value;
@@ -163,54 +143,83 @@ export default class LegalTable extends Vue {
     private loadingChange(value: any) {
         this.loading = value;
     }
-    @Emit()
-    private toggle(key: string) {
-        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
-            target.editable = !target.editable;
+    private makeLegalDocumentRowEditable(key: string) {
+        this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
+        const targetRow = this.getEditableRow(this.data, key);
+        if (targetRow) {
+            targetRow.editable = !targetRow.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
-    @Emit()
-    private cancel(key: string) {
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
+    }
+    private getEditableRow(data: TableData[], key: string) {
+        return data.filter((item) => _.isEqual(item.key, key))[0];
+    }
+
+    private makeLegalDocumentRowNotEditable(key: string) {
         const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
+        const targetRow = this.getEditableRow(newData, key);
         if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
+            Object.assign(targetRow, this.cacheOriginData[key]);
             delete this.cacheOriginData[key];
             this.data = newData;
         }
-        target.editable = false;
+        targetRow.editable = false;
+        this.setOtherRowsDisabled(key, this.data, false);
     }
-    @Emit()
+    private created() {
+        console.log('身份证件的Table准备完成');
+    }
     private handleChange(value: any, key: string, name: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if ( !_.isEqual(name, 'legalNum')  && target.issueDate &&  !moment(value).isAfter(target.issueDate)) {
+            if ( !_.isEqual(name, 'legalNum')  && target.issueDate && target.expireDate && !moment(target.expireDate).isAfter(target.issueDate)) {
                 message.error('到期日期不能早于开始日期');
                 return;
             }
             target[name] = value;
         }
     }
-    @Emit()
     private saveRow(key: string) {
-        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const target = this.getEditableRow(this.data, key);
         if (target && this.isNullLegal(target)) {
             if (this.isNew) {
                 this.saveNewData(target);
             } else {
-                const diff = this.compareNewAndOldValue(target, this.cacheOriginData[key]);
+                const newData = this.deleteLast(_.cloneDeep(this.data));
+                const newDto = this.mapModelDataToDto(newData);
+                const oldDto = this.mapModelDataToDto(this.cacheOriginData);
+                const diff = this.compareNewAndOldValue(newDto, oldDto);
                 this.remoteUpdateEmployeeLegalData(key, diff, target);
             }
         }
     }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
+    }
+    private mapModelDataToDto(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                typeId: item.legalType.key,
+                idNumber: item.legalNum,
+                issueDate: item.issueDate,
+                expireDate: item.expireDate,
+            };
+        });
+        return newData;
+    }
     private remoteUpdateEmployeeLegalData(key: string, diff: any, target: any) {
         if (diff.length > 0) {
-            putEmployeeLegalData(this.employeeId, key, diff).then((res) => {
-                this.loadLegalData();
+            patchEmployeeLegalData(this.employeeId, diff, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('更新失败');
             });
@@ -218,20 +227,8 @@ export default class LegalTable extends Vue {
             target.editable = false;
         }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            typeId: newValue.legalType.key,
-            idNumber: newValue.legalNum,
-            issueDate: newValue.issueDate,
-            expireDate: newValue.expireDate,
-        };
-        const oldValues = {
-            typeId: oldValue.legalType.key,
-            idNumber: oldValue.legalNum,
-            issueDate: oldValue.issueDate,
-            expireDate: oldValue.expireDate,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
     private saveNewData(target: any) {
@@ -240,7 +237,6 @@ export default class LegalTable extends Vue {
         this.$store.dispatch('ReplaceLegalList', newData);
         target.editable = false;
     }
-    @Emit()
     private addRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target && this.isNullLegal(target)) {
@@ -253,7 +249,7 @@ export default class LegalTable extends Vue {
                     issueDate: target.issueDate,
                     expireDate: target.expireDate,
                 }).then((res) => {
-                    this.loadLegalData();
+                    this.$emit('loadData');
                 }).catch((err) => {
                     message.error('新增失败');
                 });
@@ -267,6 +263,7 @@ export default class LegalTable extends Vue {
             this.$store.dispatch('AddLegalList', target);
             this.data.push({
                 legalType: this.LegalTypeOption[0],
+                disable: false,
                 legalNum: '',
                 issueDate: null,
                 expireDate: null,
@@ -275,7 +272,6 @@ export default class LegalTable extends Vue {
                 key: index,
             });
     }
-    @Emit()
     private removeRow(key: string) {
         if (this.data.length === 2) {
             message.error('请至少保留一条身份证信息');
@@ -287,7 +283,7 @@ export default class LegalTable extends Vue {
             this.$store.dispatch('RemoveLegalList', key);
         } else {
             deleteEmployeeLegalData(this.employeeId, key).then((res) => {
-                this.loadLegalData();
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('删除失败');
             });

@@ -13,13 +13,7 @@
                 </span>
             </template>
             <span v-else>
-                <template v-if="record.mainPosition">
-                    <a-tooltip placement="top" title="系统必须保留一个主职位，如需删除主职位，请将其它号码设置为主职位"></a-tooltip>
-                    <a @click="toggle(record.key)">编辑</a>
-                </template>
-                <template v-else>
-                    <a @click="toggle(record.key)">编辑</a>
-                    <a-divider type="vertical"></a-divider>
+                <template v-if="!record.mainPosition">
                     <a @click="removeRow(record.key)">删除</a>
                 </template>
             </span>
@@ -96,19 +90,20 @@ export default class PhoneTable extends Vue {
     }];
     private created() {
         getOrginzationData().then((res: any) => {
+            const data = res.data;
             const Options: CascderOption[] = [];
             const TopParentNode: CascderOption = {
-                value: res.id,
-                label: res.name,
-                companyId: res.id,
+                value: data.id,
+                label: data.name,
+                companyId: data.id,
                 description: 'company',
                 children: [],
             };
-            if (res.subCompanies) {
-                this.traverseStepNodechilden(res.subCompanies, TopParentNode, 'company');
+            if (data.subCompanies) {
+                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
             }
-            if (res.departments) {
-                this.traverseStepNodechilden(res.departments, TopParentNode, 'department');
+            if (data.departments) {
+                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
@@ -175,12 +170,16 @@ export default class PhoneTable extends Vue {
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
         if (target && this.isNullPosition(target) && this.filterDuplicateData(target)) {
             target.editable = false;
             const newData = [...this.data];
             newData.pop();
             this.$store.dispatch('ReplacePositionList', newData);
         }
+    }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
     }
     @Emit()
     private onRadioChange(key: string) {
@@ -198,7 +197,7 @@ export default class PhoneTable extends Vue {
                 ];
             putEmployeeBasicData(this.employeeId, patch).then((res) => {
                 message.success('更换成功');
-                this.loadPostionTableData();
+                this.$emit('loadData');
             }).catch(() => {
                 message.error('更换主职位失败');
             });
@@ -242,41 +241,10 @@ export default class PhoneTable extends Vue {
                     departmentId: target.departmentId,
                     positionId: target.positionId,
                 }).then((res) => {
-                    this.loadPostionTableData();
+                    this.$emit('loadData');
                 });
             }
         }
-    }
-    private loadPostionTableData() {
-        this.loading = true;
-        getEmployeePositionData(this.employeeId).then((res: any) => {
-            const principalPositionId = res.principalPositionId;
-            const newPositionTableData: RemotePositionsTableData[] = res.positions;
-            this.data = _.map((newPositionTableData), (item) => {
-                return {
-                    position: item.positionFullPath,
-                    mainPosition: _.isEqual(item.id, principalPositionId),
-                    editable: false,
-                    key: item.id,
-                    isNew: false,
-                    selectOption: item.positionFullPathIds,
-                    positionId: item.id,
-                };
-            });
-            this.data.push({
-                position: '',
-                mainPosition: false,
-                editable: true,
-                key: '1',
-                isNew: true,
-                selectOption: [],
-                positionId: '',
-            });
-            this.loading = false;
-        }).catch((err) => {
-            message.error('加载数据失败，请联系管理员');
-        });
-
     }
     private firstAddRow(target: any, key: string) {
         const index = key + 1;
@@ -302,7 +270,7 @@ export default class PhoneTable extends Vue {
         return true;
     }
     private filterDuplicateData(target: TableData): boolean {
-        if (this.data.length > 1 && _.some(this.$store.state.step.positionList, {positionId: target.positionId })) {
+        if (this.data.length > 1 && _.some(this.cacheOriginData, {positionId: target.positionId })) {
             message.error('请勿添加重复职位');
             return false;
         }
@@ -320,7 +288,7 @@ export default class PhoneTable extends Vue {
             this.$store.dispatch('RemovePositionList', key);
         } else {
             deleteEmployeePostionData(this.employeeId, key).then((res) => {
-                this.loadPostionTableData();
+                this.$emit('loadData');
             }).catch((err) => {
                 message.error('删除失败');
             });

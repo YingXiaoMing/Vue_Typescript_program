@@ -8,6 +8,11 @@ import './AppMain.less';
 import '@/style/global.less';
 import config from '@/utils/config';
 import SkinToolBox from './SkinToolbox/index.vue';
+import jwt_decode from 'jwt-decode';
+import awsconfig from '@/aws-exports';
+import jsonpatch from 'fast-json-patch';
+import { getEmployeeToken } from '@/api/operation';
+import { setAccessToken, getAccessToken, setRefreshToken, getRefreshToken } from '../../utils/auth';
 @Component({
     components: {
         'a-tabs': Tabs,
@@ -23,6 +28,7 @@ export default class AppMain extends Vue {
     private $store: any;
     private $router: any;
     private $route: any;
+    private globalClick: any;
     @Watch('$route', { immediate: true, deep: true })
     public routeChange(to: any, from: any) {
         this.$store.dispatch('AddTabPane' , to.path);
@@ -47,12 +53,41 @@ export default class AppMain extends Vue {
             this.$store.dispatch('RemoveTab', targetKey);
         }
     }
+    private mounted() {
+        this.globalClick(() => {
+            const userToken = getAccessToken();
+            if (userToken) {
+                const decoded: any = jwt_decode(userToken);
+                const tokenDate = decoded.exp;
+                if (this.compareWithTokenDate(tokenDate)) {
+                    // 重新获取token
+                    const newUrl = config.awsTokenDomain;
+                    getEmployeeToken(newUrl, {
+                        grant_type: 'refresh_token',
+                        client_id: awsconfig.aws_user_pools_web_client_id,
+                        refresh_token: getRefreshToken(),
+                      }).then((res: any) => {
+                        setAccessToken(res.access_token);
+                      }).catch(() => {
+                        this.$router.push({
+                            name: 'login',
+                        });
+                      });
+                }
+            }
+        });
+    }
+    private compareWithTokenDate(tokenDate: number): boolean {
+        if ((new Date().getTime() / 1000 +  15 * 60) >= tokenDate) {
+            return true;
+        }
+        return false;
+    }
     private render() {
         const { sidebar: {opened} , tabList, tabActiveKey, keepList } = this.$store.state.app;
         this.onTabs = tabActiveKey;
         this.tabList = tabList;
         if (config.openPages.indexOf(this.$route.path) > -1) {
-            console.log('it is nine one');
             return (
                 <div class='app-one'>
                     <router-view></router-view>
