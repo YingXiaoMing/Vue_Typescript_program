@@ -106,13 +106,18 @@ export const getBasicInfoAllOption = () =>
         method: 'get',
     });
 
+export const getBasicDataTypeOption = (url: string) =>
+    request({
+        url,
+        method: 'get',
+    });
 
 
 export const newBasicData = (url: string, params: any) =>
     request.post(url, params);
 
-export const putBasicData = (url: string, params: any) =>
-    request.put(url, params);
+export const patchBasicData = (url: string, params: any, headerObj: any) =>
+    request.patch(url, params, { headers: headerObj });
 
 export const deleteBasicData = (url: string) =>
     request.delete(url);
