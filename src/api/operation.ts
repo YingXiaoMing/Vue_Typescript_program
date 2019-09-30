@@ -95,8 +95,8 @@ export const operateBusinessRecord = (employeeId: string, id: string, params: an
     request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + id, params);
 
 // 修改员工奖惩
-export const editPrizePenaltyRecord = (employeeId: string, id: string, params: any) =>
-    request.patch('/Employee/' + employeeId + '/PrizePenalty/' + id, params);
+export const editPrizePenaltyRecord = (employeeId: string, id: string, params: any, headerObj: any) =>
+    request.patch('/Employee/' + employeeId + '/PrizePenalty/' + id, params, { headers: headerObj });
 
 
 // 员工任职
