@@ -73,10 +73,11 @@ export default class Attach extends Vue {
             const formData = new FormData();
             formData.append('files[]', this.fileList[0]);
             newEmployeeAttachment(this.employeeId, this.employeePropertyId, this.pathName, formData).then((res: any) => {
+                const data = res.data;
                 const patch = [
                     { op: 'replace', path: '/description', value: this.fileDescription },
                 ];
-                this.updateFileDescription(this.employeeId, this.employeePropertyId, res[0].id, patch);
+                this.updateFileDescription(this.employeeId, this.employeePropertyId, data[0].id, patch);
             }).catch((err) => {
                 message.error('新增失败');
             });

@@ -25,7 +25,7 @@
                     <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination"></a-search-table>
                 </a-col>
             </a-row>
-            <a-form-modal :visible="visible" @cancel="cancelHandle"></a-form-modal>
+            <a-form-modal :visible="visible" @cancel="cancelHandle" @searchData="searchParamData"></a-form-modal>
         </div>
         
     </div>
@@ -104,13 +104,9 @@ export default class Search extends Vue {
     private handleCancel() {
         this.visible = false;
     }
-    private searchData(current: number, pageSize: number) {
+    private searchParamData(param: URLSearchParams) {
         this.searchLoading = true;
-        const params = new URLSearchParams();
-        params.set('SearchQuery', this.searchKey);
-        params.set('PageNumber', current.toString());
-        params.set('PageSize', pageSize.toString());
-        getEmployeeData(params).then((res) => {
+        getEmployeeData(param).then((res) => {
             const data = res.data;
             this.tabData = _.map(data, (item) => {
                 const target: any = _.find(item.phoneNumbers, { isDefault: true });
@@ -140,6 +136,13 @@ export default class Search extends Vue {
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
         });
+    }
+    private searchData(current: number, pageSize: number) {
+        const params = new URLSearchParams();
+        params.set('SearchQuery', this.searchKey);
+        params.set('PageNumber', current.toString());
+        params.set('PageSize', pageSize.toString());
+        this.searchParamData(params);
     }
     private handleChange(value: string) {
         this.fetch(value);

@@ -88,6 +88,7 @@ interface FormData {
 })
 export default class RewardModal extends Vue {
     @Prop({ default: false}) private visible!: boolean;
+    @Prop({default: ''}) private ETag!: string;
     @Prop({ default: () => ({num: '', name: '', solution: '', deal: '', type: ''}) }) private formData!: FormData;
     private dateForm: string = 'YYYY/MM/DD';
     private formModal: FormData = this.formData;
@@ -121,10 +122,12 @@ export default class RewardModal extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
         getPrizePenaltyTypePrize().then((res: any) => {
-            this.RewardType = this.transformSelectData(res);
+            const data = res.data;
+            this.RewardType = this.transformSelectData(data);
         });
         getPrizePenaltyTypePenalty().then((res: any) => {
-            this.PenaltyType = this.transformSelectData(res);
+            const data = res.data;
+            this.PenaltyType = this.transformSelectData(data);
         });
     }
     private momentDate(date: string) {
@@ -148,7 +151,9 @@ export default class RewardModal extends Vue {
                 values.effectiveDate = moment(values.effectiveDate).format(this.dateForm);
                 const puma = this.compareNewAndOldValue(values, compareTarget);
                 if (employeeId && id) {
-                    editPrizePenaltyRecord(employeeId, id, puma).then((res) => {
+                    editPrizePenaltyRecord(employeeId, id, puma, {
+                        'If-Match': this.ETag,
+                    }).then((res) => {
                         this.form.resetFields();
                         this.$emit('refreshTableData');
                     });

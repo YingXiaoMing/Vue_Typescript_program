@@ -593,7 +593,6 @@ class Step1 extends Vue {
                             uploadAvatar(id, formData);
                         }
                         this.$store.dispatch('ChangeEmployeeId', id);
-                        this.$store.dispatch('GetBasicData', this.basicData);
                         this.$store.dispatch('changeEmployeeStatus', 2);
                         this.$emit('nextStep');
                     }).catch(() => {

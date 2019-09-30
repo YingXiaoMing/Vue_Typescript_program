@@ -100,7 +100,8 @@ export default class Tab3 extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
         getOvertimeOptions().then((res: any) => {
-            this.options = this.transformSelectData(res);
+            const data = res.data;
+            this.options = this.transformSelectData(data);
         });
     }
     private transformSelectData(data: any) {

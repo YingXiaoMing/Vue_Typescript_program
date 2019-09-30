@@ -50,7 +50,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Divider, DatePicker, Input, Select, message, Modal } from 'ant-design-vue';
-import { ColumnList, SelectValue, RemoteAttachmentData, AttachmentData } from '@/interface';
+import { ColumnList, SelectValue, RemoteAttachmentData, AttachmentData, RemoteCredntialTableData } from '@/interface';
 import moment from 'moment';
 import jsonpatch from 'fast-json-patch';
 import Attach from '@/components/Attach/index.vue';
@@ -86,6 +86,7 @@ export default class CredentialTable extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop({ default: '' }) private employeeId!: string;
     @Prop({ default: false }) private loading!: boolean;
+    @Prop({default: ''}) private ETag!: string;
     private pathName: string = 'employeecredential';
     private employeePropertyId = '';
     private fileList: AttachmentData[] = [];
@@ -121,13 +122,16 @@ export default class CredentialTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
     private openAttachmentDialog(key: string, data: RemoteAttachmentData[]) {
         getEmployeeAttachmentById(this.employeeId, key, 'employeecredential').then((res: any) => {
             this.visible = true;
-            this.fileList  = _.map(res.employeeCredentialAttachments, (item) => {
+            // tslint:disable-next-line:no-shadowed-variable
+            const data = res.data;
+            this.fileList  = _.map(data.employeeCredentialAttachments, (item) => {
                 return {
                     key: item.id,
                     name: item.attachmentInfo.fileName,
@@ -162,54 +166,50 @@ export default class CredentialTable extends Vue {
     private toggle(key: string) {
         const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
+            this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
         }
     }
     private removeRow(key: string) {
         deleteEmployeeCredentialData(this.employeeId, key).then((res) => {
-            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
-            this.data = newData;
+            this.$emit('loadData');
         }).catch((err) => {
             message.error('删除失败');
         });
     }
     private cancel(key: string) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        target.editable = false;
+        this.data = _.cloneDeep(this.cacheOriginData);
     }
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeCredentialData(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const param = this.compareNewAndOldValue(newValue, oldValue);
+            putEmployeeCredentialData(this.employeeId, param, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            typeId: newValue.credentialType.key,
-            name: newValue.name,
-            issueDate: newValue.issueDate,
-            expireDate: newValue.expireDate,
-        };
-        const oldValues = {
-            typeId: oldValue.credentialType.key,
-            name: oldValue.name,
-            issueDate: oldValue.issueDate,
-            expireDate: oldValue.expireDate,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private transformRemoteData(remoteData: TableData[]): RemoteCredntialTableData[] {
+        const newData: RemoteCredntialTableData[] = _.map(remoteData, (item) => {
+            return {
+                typeId: item.credentialType.key,
+                name: item.name,
+                issueDate: item.issueDate,
+                expireDate: item.expireDate,
+            };
+        });
+        return newData;
+    }
+    private compareNewAndOldValue(newValue: RemoteCredntialTableData[], oldValue: RemoteCredntialTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
 }

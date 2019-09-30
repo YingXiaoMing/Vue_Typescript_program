@@ -9,7 +9,7 @@
             </template>
         </a-table>
         <a-reward-modal :visible="modalVisible" @cancel="cancelHandle" :formData="formData"
-        @refreshTableData="refreshTableData"></a-reward-modal>
+        @refreshTableData="refreshTableData" :ETag="etag"></a-reward-modal>
     </div>
     
 </template>
@@ -57,6 +57,7 @@ export default class Tab1Table extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop() private paginationData!: Pagination;
     private modalVisible: boolean = false;
+    private etag: string = '';
     private formData: FormData = {
         solution: '',
         situationDescription: '',

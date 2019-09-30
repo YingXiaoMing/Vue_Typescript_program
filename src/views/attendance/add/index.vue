@@ -87,7 +87,8 @@ export default class Add extends Vue {
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,

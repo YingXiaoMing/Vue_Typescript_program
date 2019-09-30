@@ -18,6 +18,64 @@ export interface FormItem {
     key: string;
 }
 
+
+export interface DocumentTableData {
+    key: string;
+    name: string;
+    description: string;
+    editable: boolean;
+}
+export interface RemoteDocumentTableData {
+    name: string;
+    description: string;
+}
+
+export interface BankTableData {
+    key: string;
+    bankType: {
+        key: string;
+        label: string;
+    };
+    accountOpenedBranch: string;
+    accountHolderName: string;
+    bankAccountNumber: string;
+    note: string;
+    editable: boolean;
+}
+
+export interface RemoteBankTableData {
+    bankNameId: string;
+    accountOpenedBranch: string;
+    bankAccountNumber: string;
+    accountHolderName: string;
+    note: string;
+}
+
+
+export interface ContractTableData {
+    key: string;
+    contractType: {
+        key: string;
+        label: string;
+    };
+    name: string;
+    contractNum: string;
+    note: string;
+    issueDate: string;
+    expireDate: string;
+    editable: boolean;
+}
+
+export interface RemoteContractTableData {
+    typeId: string;
+    name: string;
+    no: string;
+    issueDate: string;
+    expireDate: string;
+    note: string;
+}
+
+
 export interface LegalTableData {
     legalType: {
         key: string,
@@ -127,6 +185,26 @@ export interface RemotePositionsTableData {
     positionFullPathIds: string[];
 }
 
+
+export interface RemoteCredntialTableData {
+    typeId: string;
+    name: string;
+    issueDate: string;
+    expireDate: string;
+}
+
+export interface CredntialTableData {
+    key: string;
+    name: string;
+    credentialType: {
+        key: string;
+        label: string;
+    };
+    issueDate: string;
+    editable: boolean;
+    expireDate: string;
+    employeeCredentialAttachments: RemoteAttachmentData[];
+}
 
 export interface EducationTableData {
     key: string;
@@ -368,6 +446,45 @@ export interface PositionItem {
     selectOption: string[];
 }
 
+export interface BasicForm {
+    num: string;
+    first_name: string;
+    last_name: string;
+    nick_name: string;
+    birthOfDate: string | null;
+    isMarried: number;
+    highEducation: {
+        key: string;
+        label: string;
+    };
+    gender: number;
+    employeeDate: string | null;
+    employeeOrigin: {
+        key: string;
+        label: string;
+    };
+    employeeIntroducer: string;
+    workplace: {
+        key: string;
+        label: string;
+    };
+    employeeType: {
+        key: string;
+        label: string;
+    };
+    ethnicGroupId: {
+        key: string;
+        label: string;
+    };
+    employeeStatus: string;
+    personalAbilityDescription: string;
+    dueDate: {
+        check: boolean;
+        date: any;
+    };
+}
+
+
 export interface NewBasicForm {
     id?: string;
     first_name: string;
@@ -390,7 +507,7 @@ export interface NewBasicForm {
         key: string;
         label: string;
     };
-    workNature: {
+    employeeType: {
         key: string;
         label: string;
     };
@@ -403,6 +520,7 @@ export interface NewBasicForm {
         check: boolean;
         date: string | null;
     };
+    imageUrl: string;
 }
 
 export interface RemoteAttachmentData {

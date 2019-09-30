@@ -19,6 +19,7 @@ interface BasicForm {
     url: string;
     colName: string;
     tableList: any;
+    etag: string;
 }
 interface PrizeTableData {
     type: {
@@ -58,46 +59,57 @@ export default class Baisc extends Vue {
         url: '/workingLocation',
         colName: '工作地点',
         tableList: [],
+        etag: '',
     }, {
         url: '/addressType',
         colName: '联系人地址类型',
         tableList: [],
+        etag: '',
     }, {
         url: '/credentialType',
         colName: '员工证书类型',
         tableList: [],
+        etag: '',
     }, {
         url: '/bankName',
         colName: '银行名称',
         tableList: [],
+        etag: '',
     }, {
         url: '/contractType',
         colName: '合同类型',
         tableList: [],
+        etag: '',
     }, {
         url: '/educationLevel',
         colName: '学历',
         tableList: [],
+        etag: '',
     }, {
         url: '/ethnicGroup',
         colName: '国籍/民族',
         tableList: [],
+        etag: '',
     }, {
         url: '/employmentSource',
         colName: '入职来源',
         tableList: [],
+        etag: '',
     }, {
         url: '/legalIdentiticationType',
         colName: '证件类型',
         tableList: [],
+        etag: '',
     }, {
         url: '/relationship',
         colName: '紧急联系人关系',
         tableList: [],
+        etag: '',
     }, {
         url: '/employeePhoneType',
         colName: '紧急联系人电话类型',
         tableList: [],
+        etag: '',
     }];
     private created() {
         this.fetchData();
@@ -105,62 +117,62 @@ export default class Baisc extends Vue {
     private fetchData() {
         getWorkLocation().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 0);
+                this.packBasicData(res.data, 0);
             });
         });
         getAddressTypeOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 1);
+                this.packBasicData(res.data, 1);
             });
         });
         getCredentialTypeOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 2);
+                this.packBasicData(res.data, 2);
             });
         });
         getBankNameOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 3);
+                this.packBasicData(res.data, 3);
             });
         });
         getContractTypeOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 4);
+                this.packBasicData(res.data, 4);
             });
         });
         getEducationLevelOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 5);
+                this.packBasicData(res.data, 5);
             });
         });
         getethnicGroupOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 6);
+                this.packBasicData(res.data, 6);
             });
         });
         getEmploymentSource().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 7);
+                this.packBasicData(res.data, 7);
             });
         });
         getLegalIdentiticationTypeOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 8);
+                this.packBasicData(res.data, 8);
             });
         });
         getRelationship().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 9);
+                this.packBasicData(res.data, 9);
             });
         });
         getPhoneTypeOption().then((res) => {
             this.$nextTick(() => {
-                this.packBasicData(res, 10);
+                this.packBasicData(res.data, 10);
             });
         });
         getAllPrizePenaltyClassify().then((res) => {
             let data: PrizeTableData[] = [];
-            this.prizePenaltyClassifyType = _.map(res, (item: any) => {
+            this.prizePenaltyClassifyType = _.map(res.data, (item: any) => {
                 const newData =  _.map(item.prizePenaltyTypeDtos, (itm) => {
                     return {
                         type: {
@@ -193,7 +205,7 @@ export default class Baisc extends Vue {
         });
         getAllBusinessClassify().then((res) => {
             let data: PrizeTableData[] = [];
-            this.businessClassifyType = _.map(res, (item: any) => {
+            this.businessClassifyType = _.map(res.data, (item: any) => {
                 const newData = _.map(item.askforLeaveOvertimeBusinesstripTypeDtos, (itm: any) => {
                     return {
                         type: {
@@ -249,7 +261,7 @@ export default class Baisc extends Vue {
         return data.map((item: BasicForm, index: number) => {
             const num = (index + 1).toString();
             return <a-collapse-panel header={item.colName} key={num}>
-                        <a-basic-table tableList={item.tableList} colName={item.colName} url={item.url}/>
+                        <a-basic-table tableList={item.tableList} colName={item.colName} url={item.url} ETag={item.etag}/>
                     </a-collapse-panel>;
         });
     }

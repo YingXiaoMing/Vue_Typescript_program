@@ -120,7 +120,8 @@ export default class Tab2 extends Vue {
     }
     private getAllPrizePenaltyClassifyData() {
         getAllPrizePenaltyClassify().then((res) => {
-            this.prizePentalData = _.map(res, (item: any) => {
+            const data = res.data;
+            this.prizePentalData = _.map(data, (item: any) => {
                 return {
                     name: item.prizePenaltyTypeClassifyDisplayName,
                     id: item.prizePenaltyTypeClassifyValue,
@@ -131,18 +132,20 @@ export default class Tab2 extends Vue {
     }
     private getOrganizationData() {
         getCompanyOrganizationChart().then((res: any) => {
+            const data = res.data;
             const newData: TableData = {
-                label: res.name,
-                id: res.id,
+                label: data.name,
+                id: data.id,
                 description: 'company',
                 children: [],
             };
-            if (res.subCompanies) {
-                this.traverseStepNodeChild(res.subCompanies, newData, 'company');
+            if (data.subCompanies) {
+                this.traverseStepNodeChild(data.subCompanies, newData, 'company');
             }
             if (res.departments) {
-                this.traverseStepNodeChild(res.departments, newData, 'department');
+                this.traverseStepNodeChild(data.departments, newData, 'department');
             }
+            // 强行转换成数组
             this.treeData = _.castArray(newData);
         });
     }

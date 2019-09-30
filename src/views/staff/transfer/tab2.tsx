@@ -45,7 +45,8 @@ class Tab2 extends Vue {
     private endJobTypeOption: SelectValue[] = [];
     private created() {
         getEmployeeEndJonType().then((res: any) => {
-            this.endJobTypeOption = this.transformSelectData(res);
+            const data = res.data;
+            this.endJobTypeOption = this.transformSelectData(data);
         });
     }
     private transformSelectData(data: any) {

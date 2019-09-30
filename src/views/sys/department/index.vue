@@ -110,18 +110,19 @@ export default class Department extends Vue {
     }
     private getOrganizationData() {
         getCompanyOrganizationChart().then((res: any) => {
+            const data = res.data;
             const newData: TableData = {
-                name: res.name,
+                name: data.name,
                 description: 'company',
-                id: res.id,
-                key: res.id,
+                id: data.id,
+                key: data.id,
                 children: [],
             };
-            if (res.subCompanies) {
-                this.traverseStepNodeChildren(res.subCompanies, newData, 'company');
+            if (data.subCompanies) {
+                this.traverseStepNodeChildren(data.subCompanies, newData, 'company');
             }
-            if (res.departments) {
-                this.traverseStepNodeChildren(res.departments, newData, 'department');
+            if (data.departments) {
+                this.traverseStepNodeChildren(data.departments, newData, 'department');
             }
             this.data = newData;
         });

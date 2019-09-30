@@ -40,7 +40,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Divider, DatePicker, Input, Select, message } from 'ant-design-vue';
-import { SelectValue, ColumnList, RemoteAttachmentData, AttachmentData } from '@/interface';
+import { SelectValue, ColumnList, RemoteAttachmentData, AttachmentData, RemoteBankTableData } from '@/interface';
 import Attach from '@/components/Attach/index.vue';
 import jsonpatch from 'fast-json-patch';
 import moment from 'moment';
@@ -74,6 +74,7 @@ export default class ContractTable extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop({ default: [] }) private bankNameOption!: SelectValue[];
     @Prop({ default: false }) private loading!: boolean;
+    @Prop({default: ''}) private ETag!: string;
     private pathName = 'EmployeeBankAccount';
     private fileList: AttachmentData[] = [];
     private visible: boolean = false;
@@ -114,6 +115,7 @@ export default class ContractTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -156,38 +158,42 @@ export default class ContractTable extends Vue {
     }
     private removeRow(key: string) {
         deleteEmployeeBankData(this.employeeId, key).then((res) => {
-            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
-            this.data = newData;
+            this.$emit('loadData');
         }).catch((err) => {
             message.error('删除失败');
         });
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeBankData(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const param =  this.compareNewAndOldValue(newValue, oldValue);
+            putEmployeeBankData(this.employeeId, param, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            bankNameId: newValue.bankType.key,
-            accountOpenedBranch: newValue.accountOpenedBranch,
-            bankAccountNumber: newValue.bankAccountNumber,
-            accountHolderName: newValue.accountHolderName,
-            note: newValue.note,
-        };
-        const oldValues = {
-            bankNameId: oldValue.bankType.key,
-            accountOpenedBranch: oldValue.accountOpenedBranch,
-            bankAccountNumber: oldValue.bankAccountNumber,
-            accountHolderName: oldValue.accountHolderName,
-            note: oldValue.note,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteBankTableData[], oldValue: RemoteBankTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
+    }
+    private transformRemoteData(remoteData: TableData[]): RemoteBankTableData[] {
+        const newData: RemoteBankTableData[] = _.map(remoteData, (item) => {
+            return {
+                bankNameId: item.bankType.key,
+                accountOpenedBranch: item.accountOpenedBranch,
+                bankAccountNumber: item.bankAccountNumber,
+                accountHolderName: item.accountHolderName,
+                note: item.note,
+            };
+        });
+        return newData;
     }
     private handleChange(value: any, key: string, name: string) {
         const newData = [...this.data];
@@ -201,7 +207,7 @@ export default class ContractTable extends Vue {
         const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
             if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
+                this.cacheOriginData = _.cloneDeep(this.data);
             }
             target.editable = !target.editable;
         }

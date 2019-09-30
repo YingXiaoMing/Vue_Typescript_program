@@ -1,0 +1,193 @@
+<template>
+    <div>
+        <a-row class='basicData'>
+            <a-divider class='diliver_item'>银行账号</a-divider>
+            <a-form :form="form">
+                <a-row :gutter="24">
+                    <a-col :span="8">
+                        <a-form-item label="银行名称" v-bind="formItemLayout">
+                            <a-select labelInValue v-decorator="['bankType', {rules: [{ required: true, message: ' ' }], initialValue: bankNameTypeOption[0] }]">
+                                <a-select-option v-for="item in bankNameTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                            </a-select>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="8">
+                        <a-form-item label="开户行" v-bind="formItemLayout">
+                            <a-input v-decorator="['accountOpenedBranch', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="8">
+                        <a-form-item label="账户名" v-bind="formItemLayout">
+                            <a-input v-decorator="['accountHolderName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="8">
+                        <a-form-item label="账户" v-bind="formItemLayout">
+                            <a-input v-decorator="['bankAccountNumber', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="8">
+                        <a-form-item label="备注" v-bind="formItemLayout">
+                            <a-input v-decorator="['note']"></a-input>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="8">
+                        <a-form-item label="附件上传" v-bind="formItemLayout">
+                            <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
+                                <a-button>
+                                    <a-icon type="upload"></a-icon>
+                                    点击上传
+                                </a-button>
+                            </a-upload>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :span="24">
+                        <a-form-item class='rightBtn'>
+                            <a-button type="primary" @click="bankDataAdd">新增</a-button>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+            </a-form>
+            <a-row style="marginTop: 20px">
+              <a-bank-table :loading="bankLoading" :bankNameOption="bankNameTypeOption"
+              :employeeId="employeeId" :tabList="bankTableData" :ETag="etag" 
+              @loadData="loadBankData"></a-bank-table>
+            </a-row>
+        </a-row>
+    </div>
+</template>
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Emit } from 'vue-property-decorator';
+import { SelectValue, BasicData, BankTableData } from '@/interface';
+import { getBankNameOption } from '@/api/basic';
+import BankTable from '@/components/Step5/BankTable.vue';
+import { getEmployeeBankData, addEmployeeBankData, newEmployeeBankAttachment } from '@/api/staff';
+import _ from 'lodash';
+import { message } from 'ant-design-vue';
+interface NewValueForm {
+    bankType: {
+        key: string;
+        value: string;
+    };
+    accountOpenedBranch: string;
+    accountHolderName: string;
+    bankAccountNumber: string;
+    note: string;
+}
+@Component({
+    components: {
+        'a-bank-table': BankTable,
+    },
+})
+export default class Step5 extends Vue {
+    private form: any;
+    private $form: any;
+    private $store: any;
+    private employeeId: string = '';
+    private etag: string = '';
+    private bankLoading: boolean = false;
+    private bankNameTypeOption: SelectValue[] = [];
+    private bankTableData: BankTableData[] = [];
+    private formItemLayout = {
+        labelCol: { xs: {span: 24}, sm: {span: 10}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 14}},
+    };
+    private fileList: any = [];
+    private bankTypeOption: SelectValue[] = [];
+    private beforeUpload(file: any): boolean {
+        this.fileList = [...this.fileList, file];
+        return false;
+    }
+    private created() {
+        const { employeeId } = this.$store.state.step;
+        this.employeeId = employeeId;
+        this.form = this.$form.createForm(this);
+        this.fetchBankTypeData();
+    }
+    private fetchBankTypeData() {
+        getBankNameOption().then((res) => {
+            const data = res.data;
+            this.bankNameTypeOption = this.transformSelectData(data);
+            this.loadBankData();
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
+        });
+    }
+    private handleRemove(file: any) {
+        const index = this.fileList.indexOf(file);
+        const newFileList = this.fileList.slice();
+        newFileList.splice(index, 1);
+        this.fileList = newFileList;
+    }
+    private bankDataAdd() {
+        this.form.validateFields((err: any, values: any) => {
+            if (!err) {
+                const param = this.transformValueData(values);
+                addEmployeeBankData(this.employeeId, param).then((res: any) => {
+                    const data = res.data;
+                    const id = data.id;
+                    if (this.fileList.length > 0) {
+                        const formData = new FormData();
+                        this.fileList.forEach((file: any) => {
+                            formData.append('files[]', file);
+                        });
+                        newEmployeeBankAttachment(this.employeeId, id, formData).then(() => {
+                            this.clearFormData();
+                        }).catch(() => {
+                            message.error('新增失败');
+                        });
+                    } else {
+                        this.clearFormData();
+                    }
+                });
+            }
+        });
+    }
+    private clearFormData() {
+        this.form.resetFields();
+        this.fileList = [];
+        this.loadBankData();
+    }
+    private loadBankData() {
+        this.bankLoading = true;
+        getEmployeeBankData(this.employeeId).then((res) => {
+            const data = res.data;
+            this.etag = res.headers.etag;
+            const newData = _.map(data, (item) => {
+                const targetType = _.find(this.bankNameTypeOption, {key: item.bankNameId});
+                return {
+                    key: item.id,
+                    bankType: targetType ? targetType : { key: '', label: '' },
+                    accountOpenedBranch: item.accountOpenedBranch,
+                    accountHolderName: item.accountHolderName,
+                    bankAccountNumber: item.bankAccountNumber,
+                    note: item.note,
+                    editable: false,
+                };
+            });
+            this.bankTableData = newData;
+            this.bankLoading = false;
+        }).catch((err) => {
+            this.bankLoading = false;
+        });
+    }
+    private transformValueData(data: NewValueForm) {
+        return {
+            bankNameId: data.bankType.key,
+            accountOpenedBranch: data.accountOpenedBranch,
+            bankAccountNumber: data.bankAccountNumber,
+            accountHolderName: data.accountHolderName,
+            note:  data.note,
+        };
+    }
+
+}
+</script>
+

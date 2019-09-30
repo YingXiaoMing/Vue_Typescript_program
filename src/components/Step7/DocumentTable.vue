@@ -34,7 +34,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Divider, DatePicker, Input, Select, message } from 'ant-design-vue';
-import {  ColumnList, RemoteAttachmentData, AttachmentData } from '@/interface';
+import {  ColumnList, RemoteAttachmentData, AttachmentData, RemoteDocumentTableData } from '@/interface';
 import Attach from '@/components/Attach/index.vue';
 import jsonpatch from 'fast-json-patch';
 import { putEmployeeRelatedDocument, deleteEmployeeRelatedDocument, getEmployeeRelatedDocument, getEmployeeAttachmentById  } from '@/api/staff';
@@ -60,6 +60,7 @@ export default class ContractTable extends Vue {
     @Prop({ default: '' }) private employeeId!: string;
     @Prop() private tabList!: TableData[];
     @Prop({ default: false }) private loading!: boolean;
+    @Prop({default: ''}) private ETag!: string;
     private pathName = 'EmployeeRelatedDocument';
     private fileList: AttachmentData[] = [];
     private visible: boolean = false;
@@ -84,6 +85,7 @@ export default class ContractTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -131,23 +133,22 @@ export default class ContractTable extends Vue {
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeRelatedDocument(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const param = this.compareNewAndOldValue(newValue, oldValue);
+            putEmployeeRelatedDocument(this.employeeId, param, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            name: newValue.name,
-            description: newValue.description,
-        };
-        const oldValues = {
-            name: oldValue.name,
-            description: oldValue.description,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private compareNewAndOldValue(newValue: RemoteDocumentTableData[], oldValue: RemoteDocumentTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
     private handleChange(value: any, key: string, name: string) {
@@ -158,12 +159,19 @@ export default class ContractTable extends Vue {
             this.data = newData;
         }
     }
+    private transformRemoteData(remoteData: TableData[]): RemoteDocumentTableData[] {
+        const newData: RemoteDocumentTableData[] = _.map(remoteData, (item) => {
+            return {
+                name: item.name,
+                description: item.description,
+            };
+        });
+        return newData;
+    }
     private toggle(key: string) {
         const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
+            this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
         }
     }

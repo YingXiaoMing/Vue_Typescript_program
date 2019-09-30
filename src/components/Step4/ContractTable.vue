@@ -50,7 +50,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Divider, DatePicker, Input, Select, message } from 'ant-design-vue';
-import { SelectValue, ColumnList, RemoteAttachmentData, AttachmentData } from '@/interface';
+import { SelectValue, ColumnList, RemoteAttachmentData, AttachmentData, RemoteContractTableData } from '@/interface';
 import Attach from '@/components/Attach/index.vue';
 import jsonpatch from 'fast-json-patch';
 import moment from 'moment';
@@ -85,6 +85,7 @@ export default class ContractTable extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop({ default: [] }) private contractOption!: SelectValue[];
     @Prop({ default: false }) private loading!: boolean;
+    @Prop({default: ''}) private ETag!: string;
     private pathName = 'EmployeeContract';
     private fileList: AttachmentData[] = [];
     private visible: boolean = false;
@@ -130,6 +131,7 @@ export default class ContractTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 120,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -140,7 +142,8 @@ export default class ContractTable extends Vue {
     private openAttachmentDialog(key: string) {
         getEmployeeAttachmentById(this.employeeId, key, this.pathName).then((res: any) => {
             this.visible = true;
-            this.fileList  = _.map(res.employeeContractAttachments, (item) => {
+            const data = res.data;
+            this.fileList  = _.map(data.employeeContractAttachments, (item) => {
                 return {
                     key: item.id,
                     name: item.attachmentInfo.fileName,
@@ -172,39 +175,43 @@ export default class ContractTable extends Vue {
     }
     private removeRow(key: string) {
         deleteEmployeeContactData(this.employeeId, key).then((res) => {
-            const newData = this.data.filter((item) => !_.isEqual(key, item.key));
-            this.data = newData;
+            this.$emit('loadData');
         }).catch((err) => {
             message.error('删除失败');
         });
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        const params =  this.compareNewAndOldValue(target, this.cacheOriginData[key]);
-        putEmployeeContactData(this.employeeId, target.key, params).then((res) => {
-            target.editable = false;
-        }).catch((err) => {
-            message.error('更新失败');
-        });
+        if (target) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const params =  this.compareNewAndOldValue(newValue, oldValue);
+            console.log('qingnibua');
+            putEmployeeContactData(this.employeeId, params, {
+                'If-Match': this.ETag,
+            }).then((res) => {
+                this.$emit('loadData');
+            }).catch((err) => {
+                message.error('更新失败');
+            });
+        }
     }
-    private compareNewAndOldValue(newValue: TableData, oldValue: TableData) {
-        const newValues = {
-            typeId: newValue.contractType.key,
-            name: newValue.name,
-            no: newValue.contractNum,
-            issueDate: newValue.issueDate,
-            expireDate: newValue.expireDate,
-            note: newValue.note,
-        };
-        const oldValues = {
-            typeId: oldValue.contractType.key,
-            name: oldValue.name,
-            no: oldValue.contractNum,
-            issueDate: oldValue.issueDate,
-            expireDate: oldValue.expireDate,
-            note: oldValue.note,
-        };
-        const diff = jsonpatch.compare(oldValues, newValues);
+    private transformRemoteData(remoteData: TableData[]): RemoteContractTableData[] {
+        const newData: RemoteContractTableData[] = _.map(remoteData, (item) => {
+            return {
+                typeId: item.contractType.key,
+                name: item.name,
+                issueDate: item.issueDate,
+                expireDate: item.expireDate,
+                no: item.contractNum,
+                note: item.note,
+            };
+        });
+        return newData;
+    }
+    private compareNewAndOldValue(newValue: RemoteContractTableData[], oldValue: RemoteContractTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
     private handleChange(value: any, key: string, name: string) {
@@ -218,9 +225,7 @@ export default class ContractTable extends Vue {
     private toggle(key: string) {
         const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
+            this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
         }
     }

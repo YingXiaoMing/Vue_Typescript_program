@@ -85,7 +85,8 @@ export default class Dismiss extends Vue {
             this.employeeNum = item.id;
             getEmployeePositionData(item.value).then((res: any) => {
                 // tslint:disable-next-line:no-shadowed-variable
-                this.originPostions = _.map(res.positions, (item: any) => {
+                const data = res.data;
+                this.originPostions = _.map(data.positions, (item: any) => {
                     return {
                         key: item.id,
                         label: item.positionFullPath,
@@ -100,7 +101,8 @@ export default class Dismiss extends Vue {
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,

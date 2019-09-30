@@ -1,7 +1,9 @@
 <template>
     <div>
         <a-row>
-          <a-basic-table :options="baiscDataTypeOption" :basicDatas="basicData"></a-basic-table>   
+          <a-basic-table :options="baiscDataTypeOption" :basicDatas="basicData" ref="basciTable" 
+          @jump="linkToStep2" :isNew="isNew" @loadData="remoteEmployeeBasicData"
+          :employeeId="employeeId" :tloading="basicTableLoading" :ETag="basicETag"></a-basic-table>   
           <a-divider class='diliver_item requiredLine'>身份证件信息</a-divider>
           <a-legal-table :options="LegalTypeOption" :tabList="LegalIdTableData"
             :isNew="isNew" :employeeId="employeeId" :tloading="LeagalTableLoading"
@@ -19,6 +21,9 @@
           <a-divider class='diliver_item requiredLine'>职位信息</a-divider>
           <a-position-table :tabList="positionTableData" @loadData="remoteEmployeePositionData"
           :isNew="isNew" :employeeId="employeeId" :tloading="PositionTableLoading" :ETag="positionETag"></a-position-table>
+          <a-row class="bottom_button">
+            <a-button type="primary" @click="newEmployeeData">下一步</a-button>
+          </a-row>
         </a-row>
     </div>
 </template>
@@ -32,10 +37,11 @@ import ContactTable from '@/components/Step1/ContactTable.vue';
 import PhoneTable from '@/components/Step1/PhoneTable.vue';
 import PositionTable from '@/components/Step1/PositionTable.vue';
 import { SelectValue, LegalTableData, BasicData, AddressTableData, EmergencyContractTableData, PhoneNumTableData, PositionsTableData, BasicDataOption, NewBasicForm } from '@/interface';
-import { getEmployeeLegalData, getEmployeeContactAddressData, getEmployeeContractData, getEmployeePhoneData, getEmployeePositionData } from '@/api/staff';
+import { getEmployeeLegalData, getEmployeeContactAddressData, getEmployeeContractData, getEmployeePhoneData, getEmployeePositionData, getEmployeeBasicData } from '@/api/staff';
 import { getBasicInfoAllOption } from '@/api/basic';
 import moment from 'moment';
 import _ from 'lodash';
+import config from '@/utils/config';
 import './step1.less';
 @Component({
     components: {
@@ -48,6 +54,9 @@ import './step1.less';
     },
 })
 export default class Step1 extends Vue {
+    public $refs!: {
+        basciTable: HTMLFormElement,
+    };
     private LegalTypeOption: SelectValue[] = [];
     private AddressTypeOption: SelectValue[] = [];
     private relationTypeOption: SelectValue[] = [];
@@ -60,8 +69,9 @@ export default class Step1 extends Vue {
         ethnicGroupOption: [],
     };
     private dateFormat = 'YYYY-MM-DD';
+    private orginImageUrl: string = 'https://pictrue-1256199976.cos.ap-guangzhou.myqcloud.com/u929.jpg';
     private basicData: NewBasicForm = {
-        id: '12213123',
+        id: '',
         first_name: '',
         last_name: '',
         nick_name: '',
@@ -82,7 +92,7 @@ export default class Step1 extends Vue {
             key: '',
             label: '',
         },
-        workNature: {
+        employeeType: {
             key: '',
             label: '',
         },
@@ -95,12 +105,14 @@ export default class Step1 extends Vue {
             check: true,
             date: moment().add({ month: 3 }).format(this.dateFormat),
         },
+        imageUrl: this.orginImageUrl,
     };
     private LegalIdTableData: LegalTableData[] = [];
     private addressTableData: AddressTableData[] = [];
     private phoneTableData: PhoneNumTableData[] = [];
     private EmergyContactTableData: EmergencyContractTableData[] = [];
     private positionTableData: PositionsTableData[] = [];
+    private basicTableLoading: boolean = false;
     private LeagalTableLoading: boolean = false;
     private addressTableLoading: boolean = false;
     private EmergyContactLoading: boolean = false;
@@ -112,6 +124,7 @@ export default class Step1 extends Vue {
     private contactETag: string = '';
     private phoneETag: string = '';
     private positionETag: string = '';
+    private basicETag: string = '';
     private isNew: boolean = true;
     private $store: any;
     private created() {
@@ -125,6 +138,7 @@ export default class Step1 extends Vue {
                     // this.fullEmployeeData();
                     // 发布的时候打开这段代码
                     // this.fillEmptyEmployeeData()
+                    this.fullEmployeeTableData();
                 });
                 break;
             default:
@@ -136,7 +150,7 @@ export default class Step1 extends Vue {
                 // this.addressTableLoading = true;
                 // this.contractTableLoading = true;
                 this.fetchData(() => {
-                    // this.remoteEmployeeBasicData();
+                    this.remoteEmployeeBasicData();
                     this.remoteEmployeeLegalData();
                     this.remoteEmployeeAddressData();
                     this.remoteEmployeeEmergyContractData();
@@ -146,6 +160,57 @@ export default class Step1 extends Vue {
                 break;
         }
     }
+    // 新建员工
+    private newEmployeeData() {
+        this.$refs.basciTable.newBasicEmployeeData();
+    }
+
+    // 填入员工Table的数据
+    private fullEmployeeTableData() {
+        this.positionTableData = [{ position: '', mainPosition: true, editable: true, key: '1', isNew: true,  selectOption: [], positionId: ''}];
+        this.phoneTableData = [{ phoneType: this.phoneTypeOption[0], phoneNum: '', isRequired: 'false', editable: true, key: '1', isNew: true }];
+        this.addressTableData = [{addressType: this.AddressTypeOption[0], province: '', area: '', city: '', address: '', key: '1', editable: true, isNew: true}];
+        this.EmergyContactTableData = [{name: '', tel1: '', tel2: '', remark: '', key: '1', editable: true, relationship: this.relationTypeOption[0], isNew: true }];
+        this.LegalIdTableData = [{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, disable: false, key: '1'}];
+    }
+
+    // 获取员工的基本资料
+    private remoteEmployeeBasicData() {
+        this.basicTableLoading = true;
+        getEmployeeBasicData(this.employeeId).then((response: any) => {
+            this.basicTableLoading = false;
+            this.basicETag = response.headers.etag;
+            const data = response.data;
+            const targetEmployeeOrigin = _.find(this.baiscDataTypeOption.employeeOriginOption, { key: data.employmentStartedInfo.employmentSourceId });
+            const targetEmployeeWorkplace = _.find(this.baiscDataTypeOption.workpalceOption, { key: data.workingLocationId });
+            const targetEmployeeType = _.find(this.baiscDataTypeOption.employeeTypeOption, { key: data.employmentStartedInfo.employmentTypeId});
+            const targetEthnicGroupId = _.find(this.baiscDataTypeOption.ethnicGroupOption, { key: data.ethnicGroupId });
+            const targetHightEducationId = _.find(this.baiscDataTypeOption.highEducationOption, { key: data.highestEducationId });
+            this.basicData = Object.assign({}, this.basicData, {
+                id: data.employeeStringID ? data.employeeStringID : '',
+                first_name: data.firstName,
+                last_name: data.lastName,
+                nick_name: data.nickName,
+                birthOfDate: moment(data.dateOfBirth).format(this.dateFormat),
+                isMarried: data.marriageStateValue,
+                highEducation: targetHightEducationId,
+                gender: data.genderValue,
+                employeeDate: moment(data.employmentStartedInfo.employmentStartedDate).format(this.dateFormat),
+                employeeOrigin: targetEmployeeOrigin,
+                employeeIntroducer: data.employmentStartedInfo.referencePerson,
+                workplace: targetEmployeeWorkplace,
+                employeeType: targetEmployeeType,
+                ethnicGroupId: targetEthnicGroupId,
+                personalAbilityDescription: data.personalAbilityDescription,
+                dueDate: {
+                    check: data.employmentProbrationInfo.probrationEndedDate ? true : false,
+                    date: data.employmentProbrationInfo.probrationEndedDate ? moment(data.employmentProbrationInfo.probrationEndedDate).format(this.dateFormat) : null,
+                },
+                imageUrl: data.isHasPortrait ? config.baseUrl + '/employee/' + this.employeeId + '/PortraitImage' : this.orginImageUrl,
+            });
+        });
+    }
+
     private fetchData(callback: any) {
         const p1 = new Promise((resolve, reject) => {
             getBasicInfoAllOption().then((datas: any) => {
@@ -171,19 +236,13 @@ export default class Step1 extends Vue {
                     this.basicData = Object.assign({}, this.basicData, {
                         workplace: this.baiscDataTypeOption.workpalceOption[0],
                         employeeOrigin: this.baiscDataTypeOption.employeeOriginOption[0],
-                        workNature: this.baiscDataTypeOption.employeeTypeOption[0],
+                        employeeType: this.baiscDataTypeOption.employeeTypeOption[0],
                         highEducation: this.baiscDataTypeOption.highEducationOption[0],
                         ethnicGroupId: this.baiscDataTypeOption.ethnicGroupOption[0],
+                        isMarried: 1,
                     });
                     break;
                 default:
-                    this.basicData = Object.assign({}, this.basicData, {
-                        workplace: this.baiscDataTypeOption.workpalceOption[0],
-                        employeeOrigin: this.baiscDataTypeOption.employeeOriginOption[0],
-                        workNature: this.baiscDataTypeOption.employeeTypeOption[0],
-                        highEducation: this.baiscDataTypeOption.highEducationOption[0],
-                        ethnicGroupId: this.baiscDataTypeOption.ethnicGroupOption[0],
-                    });
                     break;
             }
             callback();
@@ -196,6 +255,9 @@ export default class Step1 extends Vue {
                 label: item.name,
             };
         });
+    }
+    private linkToStep2() {
+        this.$emit('nextStep');
     }
     // 获取员工职位数据
     private remoteEmployeePositionData() {

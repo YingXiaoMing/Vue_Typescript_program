@@ -106,7 +106,8 @@ export default class Tab2 extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
         getBusinessOptions().then((res: any) => {
-            this.options = this.transformSelectData(res);
+            const data = res.data;
+            this.options = this.transformSelectData(data);
         });
     }
     private transformSelectData(data: any) {

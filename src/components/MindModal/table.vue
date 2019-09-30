@@ -83,10 +83,11 @@ export default class VTable extends Vue {
     }
     private loadPositionData() {
         getPosition(this.companyId, this.departmentId).then((res) => {
-            this.data = _.map(res, (item) => {
+            const newData = res.data;
+            this.data = _.map(newData, (item) => {
                 return {
                     key: item.id,
-                    name: item.positionFullPath,
+                    name: item.name,
                     parentCompanyId: this.companyId,
                     parentDepartmentId: item.departmentId,
                     id: item.id,

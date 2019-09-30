@@ -72,6 +72,7 @@ export default class AttachmentTable extends Vue {
     }, {
         title: '操作',
         dataIndex: 'action',
+        width: 160,
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
@@ -117,7 +118,8 @@ export default class AttachmentTable extends Vue {
     private loadData() {
         this.loading = true;
         getEmployeeAttachmentById(this.employeeId, this.employeePropertyId, this.pathName).then((res: any) => {
-            this.data = _.map(res[this.keyName], (item) => {
+            const data = res.data;
+            this.data = _.map(data[this.keyName], (item) => {
                 return {
                     key: item.id,
                     name: item.attachmentInfo.fileName,

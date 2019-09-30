@@ -58,22 +58,24 @@ class Tab1 extends Vue {
     }
     private created() {
         getEmployeePositionChangeType().then((res: any) => {
-            this.transferTypeOption = this.transformSelectData(res);
+            const data = res.data;
+            this.transferTypeOption = this.transformSelectData(data);
         });
         getOrginzationData().then((res: any) => {
+            const data = res.data;
             const Options: CascderOption[] = [];
             const TopParentNode: CascderOption = {
-                value: res.id,
-                label: res.name,
-                companyId: res.id,
+                value: data.id,
+                label: data.name,
+                companyId: data.id,
                 description: 'company',
                 children: [],
             };
-            if (res.subCompanies) {
-                this.traverseStepNodechilden(res.subCompanies, TopParentNode, 'company');
+            if (data.subCompanies) {
+                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
             }
-            if (res.departments) {
-                this.traverseStepNodechilden(res.departments, TopParentNode, 'department');
+            if (data.departments) {
+                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;

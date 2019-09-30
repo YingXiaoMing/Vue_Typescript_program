@@ -46,7 +46,8 @@ class Tab1 extends Vue {
     private Form: any;
     private created() {
         getPrizePenaltyTypePrize().then((res: any) => {
-            this.RewardType = this.transformSelectData(res);
+            const data = res.data;
+            this.RewardType = this.transformSelectData(data);
         });
     }
     private transformSelectData(data: any) {

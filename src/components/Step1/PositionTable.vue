@@ -270,11 +270,20 @@ export default class PhoneTable extends Vue {
         return true;
     }
     private filterDuplicateData(target: TableData): boolean {
-        if (this.data.length > 1 && _.some(this.cacheOriginData, {positionId: target.positionId })) {
+        if (this.data.length > 1 && this.filterDoublePosition(target)) {
             message.error('请勿添加重复职位');
             return false;
         }
         return true;
+    }
+    private filterDoublePosition(target: any) {
+        if (this.isNew) {
+            const newData = [...this.data];
+            newData.pop();
+            return _.some(newData, { positionId: target.positionId });
+        } else {
+            return _.some(this.cacheOriginData, { positionId: target.positionId });
+        }
     }
     @Emit()
     private removeRow(key: string) {

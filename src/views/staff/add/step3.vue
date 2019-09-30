@@ -1,0 +1,194 @@
+<template>
+    <div>
+        <a-row :gutter="24" class="basicData"> 
+          <a-divider class='diliver_item'>证件资料</a-divider>
+          <a-row :gutter="24">
+            <a-form :form="form">
+                <a-col :span="8">
+                    <a-form-item label="证件/证书类型" v-bind="formItemLayout">
+                        <a-select labelInValue v-decorator="['credentialType', {rules: [{ required: true, message: ' ' }], initialValue: credentialTypeOption[0] }]">
+                            <a-select-option v-for="item in credentialTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="证件/证书名称" v-bind="formItemLayout">
+                        <a-input v-decorator="['credentialName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="颁发日期" v-bind="formItemLayout">
+                        <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="有效日期" v-bind="formItemLayout">
+                        <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: { value: '0', date: '9999-12-31'}}]"></a-radio-date>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item label="证件上传" v-bind="formItemLayout">
+                        <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
+                            <a-button>
+                                <a-icon type="upload"></a-icon>
+                                点击上传
+                            </a-button>
+                        </a-upload>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                    <a-form-item class='rightBtn'>
+                        <a-button type="primary" @click="credntialDataAdd">新增</a-button>
+                    </a-form-item>
+                </a-col>
+            </a-form>
+          </a-row>
+          <a-row style="marginTop:20px">
+              <a-credentialTable :credentialOption="credentialTypeOption"
+                    :loading="credentialLoading" :tabList="credntialTableData"
+                    :employeeId="employeeId" @loadData="loadCredentialData" :ETag="etag"></a-credentialTable>
+          </a-row>
+        </a-row>
+    </div>
+</template>
+<script lang="ts">
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import RadioDate from '@/components/RadioDate/index.vue';
+import { getCredentialTypeOption } from '@/api/basic';
+import { SelectValues, BasicData, CredntialTableData } from '@/interface';
+import CredentialTable from '@/components/Step3/CredentialTable.vue';
+import moment from 'moment';
+import { getEmployeeCredentialData, newEmployeeCredential, newEmployeeCredentialAttachment } from '@/api/staff';
+import { message } from 'ant-design-vue';
+import _ from 'lodash';
+interface NewValueForm {
+    credentialType: {
+        key: string;
+        value: string;
+    };
+    credentialName: string;
+    issueDate: any;
+    expireDate: {
+        date: string;
+    };
+}
+@Component({
+    components: {
+        'a-radio-date': RadioDate,
+        'a-credentialTable': CredentialTable,
+    },
+})
+export default class Step3 extends Vue {
+    private form: any;
+    private $form: any;
+    private $store: any;
+    private employeeId: string = '';
+    private dateFormat = 'YYYY-MM-DD';
+    private fileList: any = [];
+    private etag: string = '';
+    private credentialLoading: boolean = false;
+    private credentialTypeOption: SelectValues[] = [];
+    private credntialTableData: CredntialTableData[] = [];
+    private formItemLayout = {
+        labelCol: { xs: {span: 24}, sm: {span: 10}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 14}},
+    };
+    private created() {
+        const { employeeId } = this.$store.state.step;
+        this.fetchCredentialTypeData();
+        this.form = this.$form.createForm(this);
+        this.employeeId = employeeId;
+    }
+    private beforeUpload(file: any): boolean {
+        this.fileList = [...this.fileList, file];
+        return false;
+    }
+    private handleRemove(file: any) {
+        const index = this.fileList.indexOf(file);
+        const newFileList = this.fileList.slice();
+        newFileList.splice(index, 1);
+        this.fileList = newFileList;
+    }
+    private credntialDataAdd() {
+        this.form.validateFields((err: any, values: any) => {
+            if (!err) {
+                const param = this.transformValueData(values);
+                if (moment(param.issueDate).isAfter(param.expireDate)) {
+                    message.error('有效日期不能早于颁发日期');
+                    return;
+                }
+                newEmployeeCredential(this.employeeId, param).then((res: any) => {
+                    const data = res.data;
+                    const  id = data.id;
+                    if (this.fileList.length > 0) {
+                        const formData = new FormData();
+                        this.fileList.forEach((file: any) => {
+                            formData.append('files[]', file);
+                        });
+                        newEmployeeCredentialAttachment(this.employeeId, id, formData).then(() => {
+                            this.clearFormData();
+                        }).catch(() => {
+                            message.error('新增失败');
+                        });
+                    } else {
+                        this.clearFormData();
+                    }
+                });
+            }
+        });
+    }
+    private clearFormData() {
+        this.form.resetFields();
+        this.fileList = [];
+        this.loadCredentialData();
+    }
+    private fetchCredentialTypeData() {
+        getCredentialTypeOption().then((res) => {
+            const data = res.data;
+            this.credentialTypeOption = this.transformSelectData(data);
+            this.loadCredentialData();
+        });
+    }
+    private loadCredentialData() {
+        this.credentialLoading = true;
+        getEmployeeCredentialData(this.employeeId).then((res) => {
+            const data = res.data;
+            this.etag = res.headers.etag;
+            const newData = _.map(data, (item) => {
+                const targetType = _.find(this.credentialTypeOption, {key: item.typeId});
+                return {
+                    key: item.id,
+                    name: item.name,
+                    credentialType: targetType ? targetType : { key: '', label: '' },
+                    issueDate: moment(item.issueDate).format(this.dateFormat),
+                    editable: false,
+                    expireDate: moment(item.expireDate).format(this.dateFormat),
+                    employeeCredentialAttachments: item.employeeCredentialAttachments,
+                };
+            });
+            this.credntialTableData = newData;
+            this.credentialLoading = false;
+        }).catch((err) => {
+            this.credentialLoading = false;
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
+        });
+    }
+    private transformValueData(data: NewValueForm) {
+        return {
+            typeId: data.credentialType.key,
+            name: data.credentialName,
+            issueDate:  moment(data.issueDate).format(this.dateFormat),
+            expireDate: data.expireDate.date,
+        };
+    }
+}
+</script>
+

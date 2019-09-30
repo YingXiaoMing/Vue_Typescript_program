@@ -22,7 +22,6 @@ import moment from 'moment';
     },
 })
 class Tab2 extends Vue {
-    private dateFormat = 'YYYY-MM-DD';
     private basicItemLayout = {
         lg: {span: 8},
         md: {span: 12},
@@ -47,7 +46,8 @@ class Tab2 extends Vue {
     private Form: any;
     private created() {
         getPrizePenaltyTypePenalty().then((res) => {
-            this.punishType = this.transformSelectData(res);
+            const data = res.data;
+            this.punishType = this.transformSelectData(data);
         });
     }
     private rewardClick() {

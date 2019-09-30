@@ -81,14 +81,16 @@ class Step3 extends Vue {
     }
     private fetchCredentialTypeData() {
         getCredentialTypeOption().then((res) => {
-            this.credentialTypeOption = this.transformSelectData(res);
+            const data = res.data;
+            this.credentialTypeOption = this.transformSelectData(data);
             this.loadCredentialData();
         });
     }
     private loadCredentialData() {
         this.credentialLoading = true;
         getEmployeeCredentialData(this.employeeId).then((res) => {
-            const newData = _.map(res, (item) => {
+            const data = res.data;
+            const newData = _.map(data, (item) => {
                 return {
                     key: item.id,
                     name: item.name,
@@ -145,7 +147,8 @@ class Step3 extends Vue {
                     return;
                 }
                 newEmployeeCredential(this.employeeId, param).then((res: any) => {
-                    const id = res.id;
+                    const data = res.data;
+                    const id = data.id;
                     if (this.fileList.length > 0) {
                         const formData = new FormData();
                         this.fileList.forEach((file: any) => {

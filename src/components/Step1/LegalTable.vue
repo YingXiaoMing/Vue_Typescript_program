@@ -173,17 +173,21 @@ export default class LegalTable extends Vue {
         targetRow.editable = false;
         this.setOtherRowsDisabled(key, this.data, false);
     }
-    private created() {
-        console.log('身份证件的Table准备完成');
-    }
     private handleChange(value: any, key: string, name: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if ( !_.isEqual(name, 'legalNum')  && target.issueDate && target.expireDate && !moment(target.expireDate).isAfter(target.issueDate)) {
+            if ( !_.isEqual(name, 'legalNum')  && target.issueDate && target.expireDate && this.compareWithIssueDateAndExpireDate(value, target, name)) {
                 message.error('到期日期不能早于开始日期');
                 return;
             }
             target[name] = value;
+        }
+    }
+    private compareWithIssueDateAndExpireDate(value: string, target: any , name: string) {
+        if (_.isEqual(name, 'issueDate')) { // 开始日期
+            return moment(value).isAfter(target.expireDate);
+        } else if (_.isEqual(name, 'expireDate')) { // 到期日期
+            return moment(value).isBefore(target.issueDate);
         }
     }
     private saveRow(key: string) {
@@ -261,16 +265,7 @@ export default class LegalTable extends Vue {
             target.editable = false;
             target.isNew = false;
             this.$store.dispatch('AddLegalList', target);
-            this.data.push({
-                legalType: this.LegalTypeOption[0],
-                disable: false,
-                legalNum: '',
-                issueDate: null,
-                expireDate: null,
-                editable: true,
-                isNew: true,
-                key: index,
-            });
+            this.data = [...[target], ...[{legalType: this.LegalTypeOption[0], disable: false, legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, key: index}]];
     }
     private removeRow(key: string) {
         if (this.data.length === 2) {

@@ -1,7 +1,7 @@
 <template>
     <a-col :span="8" style="margin:10px 0;">
         <a-table bordered :columns="column" size="small"
-        :dataSource="data" :pagination="false">
+        :dataSource="data" :pagination="false" :loading="loading">
             <template slot="name" slot-scope="text, record">
                 <a-input v-if="record.editable" :value="text"
                 @change="e => handleChange(e.target.value, record.key, 'name')"></a-input>
@@ -33,7 +33,8 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Col, Divider, Input } from 'ant-design-vue';
 import { ColumnList } from '@/interface';
-import { newBasicData, putBasicData, deleteBasicData } from '@/api/basic';
+import { newBasicData, patchBasicData, deleteBasicData, getBasicDataTypeOption } from '@/api/basic';
+import jsonpatch from 'fast-json-patch';
 import _ from 'lodash';
 interface TableData {
     name: string;
@@ -41,6 +42,9 @@ interface TableData {
     editable: boolean;
     isNew: boolean;
     [key: string]: any;
+}
+interface RemoteTableData {
+    name: string;
 }
 @Component({
     components: {
@@ -53,8 +57,12 @@ interface TableData {
 export default class BasicTable extends Vue {
     @Prop() private tableList!: TableData[];
     @Prop() private colName!: string;
+    @Prop({default: ''}) private ETag!: string;
     private data: TableData[] = this.tableList;
-    private cacheOriginData: { [key: string]: any } = {};
+    private etag: string = this.ETag;
+
+    private loading: boolean = false;
+    private cacheOriginData: any = [];
     private column: ColumnList[] = [{
         title: this.colName,
         dataIndex: 'name',
@@ -77,33 +85,59 @@ export default class BasicTable extends Vue {
     private tableDataChange(value: any) {
         this.data = value;
     }
-    private created() {
-        // this.data = [...this.data, ...[{
-        //     editable: true,
-        //     name: '',
-        //     key: 'new_01',
-        //     isNew: true,
-        // }]];
-    }
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         // 与之前的值进行比较
-        if (this.cacheOriginData[key] && !_.isEqual(this.cacheOriginData[key].name, target.name)) {
-            putBasicData(this.url + '/' + key, { name: target.name }).then((res) => {
-                const newData = [...this.data];
-                target.editable = false;
+        if (!_.find(this.cacheOriginData, { name: target.name })) {
+            const newData = _.cloneDeep(this.data);
+            const newValue = this.transformRemoteData(newData);
+            const oldValue = this.transformRemoteData(this.cacheOriginData);
+            const param = this.compareNewAndOldValue(newValue, oldValue);
+            patchBasicData(this.url, param, {
+                'If-Match': this.etag,
+            }).then((res) => {
+                this.loadData();
+                console.log('加载数据');
             });
         } else {
             const newData = [...this.data];
             target.editable = false;
         }
     }
+    private loadData() {
+        this.loading = true;
+        getBasicDataTypeOption(this.url).then((res) => {
+            const data = res.data;
+            this.etag = res.headers.etag;
+            this.loading = false;
+            this.data = this.packBasicData(data);
+        });
+    }
+    private packBasicData(res: any) {
+        const data = this.transformValueData(res);
+        data.push({
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+        });
+        return  data;
+    }
+    private transformValueData(data: any) {
+        return _.map(data, (item) => {
+            return {
+                name: item.name,
+                key: item.id,
+                editable: false,
+                isNew: false,
+            };
+        });
+    }
     @Emit()
     private removeRow(key: string) {
         deleteBasicData(this.url + '/' + key).then((res) => {
-            const newData = this.data.filter((item) => !_.isEqual(item.key, key));
-            this.data = newData;
+            this.loadData();
         });
     }
     @Emit()
@@ -111,7 +145,7 @@ export default class BasicTable extends Vue {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
+                this.cacheOriginData = _.cloneDeep(this.data);
             }
             target.editable = !target.editable;
         }
@@ -153,6 +187,18 @@ export default class BasicTable extends Vue {
                 key: 'new_id_1',
             });
         });
+    }
+    private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
+        const newData: RemoteTableData[] = _.map(remoteData, (item) => {
+            return {
+                name: item.name,
+            };
+        });
+        return newData;
+    }
+    private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
+        const diff = jsonpatch.compare(oldValue, newValue);
+        return diff;
     }
 }
 </script>

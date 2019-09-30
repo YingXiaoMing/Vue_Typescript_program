@@ -26,15 +26,6 @@
                     </a-form-item>
                 </a-col>
             </a-row>
-            <a-row :gutter="24">
-              <a-col :lg="8" :md="12" :sm="24">
-                  <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工">
-                      <a-select mode="multiple" :defaultValue="['小茗','小花']">
-                        <a-icon type="user" slot="suffixIcon"></a-icon>
-                      </a-select>
-                  </a-form-item>
-              </a-col>
-            </a-row>
             <a-row>
                 <a-tabs-com :employeeId="employeeId" @clearEmployeeDatas="clearEmployeeDatas"></a-tabs-com>
             </a-row>
@@ -98,7 +89,8 @@ export default class Add extends Vue {
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,

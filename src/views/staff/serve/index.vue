@@ -55,12 +55,11 @@
                 <a-row>
                     <a-col :lg="20" :md="24" :sm="24">
                         <a-form-item :labelCol="labelCol2" :wrapperCol="wrapperCol2" label="任职原因">
-                            <a-textarea v-decorator="['reason']"></a-textarea>
+                            <a-textarea v-decorator="['reason']" :rows="4"></a-textarea>
                         </a-form-item>
                     </a-col>
                 </a-row>
             </a-form>
-            
             <a-row class='bottom_button'>
                 <a-button type="primary" @click="save">保存</a-button>
             </a-row>
@@ -127,19 +126,20 @@ export default class Serve extends Vue {
         this.form = this.$form.createForm(this);
         this.fetch('');
         getOrginzationData().then((res: any) => {
+            const data = res.data;
             const Options: CascderOption[] = [];
             const TopParentNode: CascderOption = {
-                value: res.id,
-                label: res.name,
-                companyId: res.id,
+                value: data.id,
+                label: data.name,
+                companyId: data.id,
                 description: 'company',
                 children: [],
             };
-            if (res.subCompanies) {
-                this.traverseStepNodechilden(res.subCompanies, TopParentNode, 'company');
+            if (data.subCompanies) {
+                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
             }
-            if (res.departments) {
-                this.traverseStepNodechilden(res.departments, TopParentNode, 'department');
+            if (data.departments) {
+                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
@@ -192,7 +192,7 @@ export default class Serve extends Vue {
         }
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                newEmployeePositionDelegated(this.employeeId,{
+                newEmployeePositionDelegated(this.employeeId, {
                     companyId: this.companyId,
                     departmentId: this.departmentId,
                     positionId: this.positionId,
@@ -227,7 +227,8 @@ export default class Serve extends Vue {
     }
     private searchEmployeePositionData(employeeId: string) {
         getEmployeePositionData(employeeId).then((res: any) => {
-            this.OriginPostionOptions = _.map(res.positions, (item: any) => {
+            const data = res.data;
+            this.OriginPostionOptions = _.map(data.positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,
@@ -243,7 +244,8 @@ export default class Serve extends Vue {
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,

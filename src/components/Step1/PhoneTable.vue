@@ -192,7 +192,11 @@ export default class PhoneTable extends Vue {
     }
 
     private isExistMainPhoneNum() {
-        return _.some(this.cacheOriginData, {isRequired: 'true'});
+        if (this.isNew) {
+            return _.some(this.data, { isRequired: 'true' });
+        } else {
+            return _.some(this.cacheOriginData, {isRequired: 'true'});
+        }
     }
 
     private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
