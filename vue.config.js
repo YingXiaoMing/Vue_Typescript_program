@@ -10,7 +10,7 @@ module.exports = {
             .loader("vue-jsx-hot-loader");
     },
     devServer: {
-        https: true,
+        https: false,  // 暂时设置为false
     },
     css: {
         loaderOptions: {

@@ -121,6 +121,36 @@ export const updateEmployeePositionReinstatedRecord = (employeeId: string, recor
 export const getEmployeePositionTransferRecord = (employeeId: string, recordId: string) =>
     request.get('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/GetEmployeePositionForUpdatePositionTransferRrcord');
 
+// 查询员工更新调职记录的职位
+export const getEmployeePositionForUpdatePositionTransferRrcord = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/GetEmployeePositionForUpdatePositionTransferRrcord');
+
+// 修改员工调职记录
+export const updateEmployeePositionTransferRecord = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/UpdateEmployeePositionTransferRecord', param);
+
+
+// 查询员工更新撤职记录的职位
+export const getEmployeePositionForUpdatePositionDismissedRecord = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/GetEmployeePositionForUpdatePositionDismissedRecord');
+
+// 修改员工撤职记录
+export const updateEmployeePositionDismissedRecord = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/UpdateEmployeePositionDismissedRecord', param);
+
+
+
+// 更新员工加班请假出差记录
+export const patchAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, recordId: string, param: any) =>
+    request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId, param);
+
+// 更新员工离职记录
+export const UpdatePositionEnded = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/PositionEnded/' + recordId + '/UpdatePositionEnded', param);
+
+
+
+
 
 export const getEmployeeToken = (url: string, param: any) =>
     t_request.post(url, param);

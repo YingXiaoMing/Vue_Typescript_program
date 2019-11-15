@@ -5,7 +5,7 @@
             <a-col :lg="6" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工姓名(工号)">
                     <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                    @search="handleChange" @select="onSelect">
+                    @search="handleChange" @select="onSelect" v-decorator="['query']">
                         <template slot="dataSource">
                             <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                         </template>
@@ -32,7 +32,7 @@
             </a-form>
             <a-divider class="diliver_item">查询结果</a-divider>
             <a-table1 :tabList="tabData" :loading="searchLoading" :paginationData="pagination"
-            @refreshData="refreshData"></a-table1>
+            @refreshData="refreshData" @tableChange="pageChange"></a-table1>
         </a-row>
     </div>
 </template>
@@ -83,8 +83,12 @@ export default class Tab1 extends Vue {
     private pagination: Pagination = {
         pageSize: 0,
         total: 0,
+        current: 0,
         onChange: this.pageChange,
-    }
+        pageSizeOptions: ['5', '10', '15'],
+        showSizeChanger: true,
+        showTotal: this.showTotal,
+    };
     private created() {
         this.form = this.$form.createForm(this);
         this.fetch('');
@@ -94,7 +98,11 @@ export default class Tab1 extends Vue {
     }
     private pageChange(current: number, pageSize: number) {
         this.param.set('PageNumber', current.toString());
+        this.param.set('PageSize', pageSize.toString());
         this.loadData(this.param);
+    }
+    private showTotal(total: string, range: any) {
+        return  `总记录数: ${total}条`;
     }
     private fetch(value: string) {
         const params = new URLSearchParams();
@@ -104,7 +112,7 @@ export default class Tab1 extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
+                    value: item.fullName,
                     text: item.employeeStringID + '-' + item.fullName,
                     id: item.employeeStringID,
                     name: item.fullName,
@@ -123,24 +131,24 @@ export default class Tab1 extends Vue {
     }
     private searchClick() {
         this.form.validateFields((err: any, values: any) => {
-                this.searchLoading = true;
                 const params = new URLSearchParams();
-                if (!_.isEqual(this.searchKey, '')) {
-                    params.set('SearchQuery', this.searchKey);
-                }
                 params.set('PageNumber', '1');
-                params.set('PageSize', '5');
+                params.set('PageSize', '10');
                 if (values.startDateTime) {
                     params.set('FilterProperties.EffectiveDateStartValue', moment(values.startDateTime).format(this.dateFormat));
                 }
                 if (values.endDateTime) {
                     params.set('FilterProperties.EffectiveDateEndValue', moment(values.endDateTime).format(this.dateFormat));
                 }
+                if (values.query) {
+                    params.set('SearchQuery', values.query);
+                }
                 this.param = params;
                 this.loadData(params);
         });
     }
     private loadData(param: URLSearchParams) {
+        this.searchLoading = true;
         searchPrizePenaltyRecord(param).then((res) => {
             const data = res.data;
             this.tabData = _.map(res.data, (item) => {
@@ -163,6 +171,7 @@ export default class Tab1 extends Vue {
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         });
     }
 }

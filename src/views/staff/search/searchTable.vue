@@ -1,8 +1,12 @@
 <template>
-    <a-table :columns="column" :bordered="true" size="small" :loading="loading" :dataSource="data" :pagination="pagination">
+    <a-table :columns="column" :bordered="true" size="small" :loading="loading" :dataSource="data" :pagination="pagination"
+    @change="tableChange">
+        <template slot="Index" slot-scope="text,record, index">
+            <span>{{ index + 1 }}</span>
+        </template>
         <template slot="action" slot-scope="text,record">
             <span>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeEmployeeDataEditable(record.key)">编辑</a>
                 <a-divider type="vertical"></a-divider>
                 <a @click="transfer(record.key)">调职</a>
             </span>
@@ -15,7 +19,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Emit, Prop, Watch } from 'vue-property-decorator';
+import { Emit, Prop, Watch, Provide } from 'vue-property-decorator';
+import { setEmployeeID } from '@/utils/cookie';
 import _ from 'lodash';
 import { Table, Divider, Tag } from 'ant-design-vue';
 import { ColumnList, Pagination } from '@/interface';
@@ -52,10 +57,10 @@ export default class SearchTable extends Vue {
     private $router: any;
     private $store: any;
     private column: ColumnList[] = [{
-        title: '员工ID',
-        dataIndex: 'num',
+        title: '序号',
+        dataIndex: 'Index',
         align: 'center',
-        scopedSlots: { customRender: 'num' },
+        scopedSlots: { customRender: 'Index' },
     }, {
         title: '员工工号',
         dataIndex: 'id',
@@ -107,6 +112,7 @@ export default class SearchTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
+
     @Watch('tabList')
     private tableDataChange(value: any) {
         this.data = value;
@@ -115,10 +121,19 @@ export default class SearchTable extends Vue {
     private paginationDataChange(value: any) {
         this.pagination = value;
     }
-    private toggle(key: string) {
+    private tableChange(pagination: any, filters: any, sorter: any) {
+        const pageSize = pagination.pageSize;
+        const pageNum = pagination.current;
+        this.$emit('tableChange', pageNum, pageSize);
+    }
+    private makeEmployeeDataEditable(key: string) {
         this.$store.dispatch('changeEmployeeStatus', 3);
-        this.$store.dispatch('ChangeEmployeeId', key);
-        this.$router.push('/staff/edit');
+        this.$store.dispatch('ChangeEditEmployeeId', key);
+        setEmployeeID(key);
+        this.$router.replace({
+            path: '/staff/edit',
+        });
+        // this.$router.push('/staff/edit');
     }
     private transfer(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];

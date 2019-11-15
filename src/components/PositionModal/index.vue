@@ -23,10 +23,7 @@
               <a-row>
                 <a-col :span="18">
                     <a-form-item label="原职位" v-bind="formItemLayout2">
-                        <a-select v-decorator="['positionId', {initialValue: formData1.selectOption.length > 0 ? formData1.selectOption[0].key: ''}]">
-                            <a-select-option v-for="(item, index) in formData1.selectOption"
-                            :key="index" :value="item.key">{{ item.label }}</a-select-option>
-                        </a-select>
+                        <a-input disabled value="新感觉有限公司->乐从分公司->研发部->研发主管"></a-input>
                     </a-form-item>
                 </a-col>
               </a-row>
@@ -34,6 +31,7 @@
                 <a-col :span="12">
                     <a-form-item label="调职类型" v-bind="formItemLayout">
                         <a-select>
+                            <a-select-option value="平调"></a-select-option>
                         </a-select>
                     </a-form-item>
                 </a-col>
@@ -216,19 +214,19 @@ export default class PositionModal extends Vue {
             case 1:
                 this.formData1 = _.assign(this.formData1, value);
                 getEmployeePositionTransferRecord(this.formData1.employeeId, this.formData1.id).then((res) => {
-                    this.formData1.selectOption = this.transformPositionDataSelectData(res);
+                    this.formData1.selectOption = this.transformPositionDataSelectData(res.data);
                 });
                 break;
             case 3: // 撤职
                 this.formData3 = _.assign(this.formData3, value);
                 getEmployeePositionDismissedRecord(this.formData3.employeeId, this.formData3.id).then((res) => {
-                    this.formData3.selectOption =  this.transformPositionDataSelectData(res);
+                    this.formData3.selectOption =  this.transformPositionDataSelectData(res.data);
                 });
                 break;
             case 4: // 复职
                 this.formData4 = _.assign(this.formData4, value);
                 getEmployeePositionReinstatedRecord(this.formData4.employeeId, this.formData4.id).then((res) => {
-                    this.formData4.selectOption = this.transformPositionDataSelectData(res);
+                    this.formData4.selectOption = this.transformPositionDataSelectData(res.data);
                 });
                 break;
             default:

@@ -7,7 +7,7 @@
             <template v-else>{{text}}</template>
         </template>
         <template v-for="(col,u) in ['issueDate','expireDate']" :slot="col" slot-scope="text, record">
-            <a-date-picker v-if="record.editable" :value="text?momentFromDate(text):text" :format="dateFormat"
+            <a-date-picker v-if="record.editable" :value="momentFromDate(text)" :format="dateFormat"
             @change="(date,dateString) => handleChange(dateString, record.key, col)"></a-date-picker>
             <template v-else>{{ text }}</template>
         </template>
@@ -54,8 +54,8 @@ interface TableData  {
         label: string,
     };
     legalNum: string;
-    issueDate: string | null;
-    expireDate: string | null;
+    issueDate: string;
+    expireDate: string;
     editable: boolean;
     disable: boolean;
     isNew: boolean;
@@ -88,6 +88,7 @@ export default class LegalTable extends Vue {
     private LegalTypeOption: SelectValue[] = this.options;
     private $store: any;
     private cacheOriginData: any = [];
+    private etag: string = this.ETag;
     private loading: boolean = this.tloading;
     private column: ColumnList[] = [{
         title: '证件类型',
@@ -116,21 +117,19 @@ export default class LegalTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'action' },
     }];
-
     private dateFormat = 'YYYY-MM-DD';
     private data: TableData[] = this.tabList;
     private isNullLegal(target: TableData): boolean {
-        if (target.legalNum === '' || target.expireDate === null || target.issueDate === null) {
+        if (_.isEmpty(target.legalNum) || _.isEmpty(target.expireDate) || _.isEmpty(target.issueDate)) {
             message.error('身份证件信息不完整');
             return false;
         }
         return true;
     }
-
     private momentFromDate(date: string) {
-        return moment(date, this.dateFormat);
+         if (_.isEmpty(date)) { return null; }
+         return moment(date, this.dateFormat);
     }
-
     @Watch('options')
     private optionChange(value: any) {
         this.LegalTypeOption = value;
@@ -142,6 +141,10 @@ export default class LegalTable extends Vue {
     @Watch('tloading')
     private loadingChange(value: any) {
         this.loading = value;
+    }
+    @Watch('ETag')
+    private ETagChange(value: string) {
+        this.etag = value;
     }
     private makeLegalDocumentRowEditable(key: string) {
         this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
@@ -163,38 +166,22 @@ export default class LegalTable extends Vue {
     }
 
     private makeLegalDocumentRowNotEditable(key: string) {
-        const newData = [...this.data];
-        const targetRow = this.getEditableRow(newData, key);
-        if (this.cacheOriginData[key]) {
-            Object.assign(targetRow, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        targetRow.editable = false;
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
         this.setOtherRowsDisabled(key, this.data, false);
     }
     private handleChange(value: any, key: string, name: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            if ( !_.isEqual(name, 'legalNum')  && target.issueDate && target.expireDate && this.compareWithIssueDateAndExpireDate(value, target, name)) {
-                message.error('到期日期不能早于开始日期');
-                return;
-            }
             target[name] = value;
-        }
-    }
-    private compareWithIssueDateAndExpireDate(value: string, target: any , name: string) {
-        if (_.isEqual(name, 'issueDate')) { // 开始日期
-            return moment(value).isAfter(target.expireDate);
-        } else if (_.isEqual(name, 'expireDate')) { // 到期日期
-            return moment(value).isBefore(target.issueDate);
         }
     }
     private saveRow(key: string) {
         const target = this.getEditableRow(this.data, key);
-        if (target && this.isNullLegal(target)) {
+        if (target && this.isNullLegal(target) && this.compareStartedDateAndEndDate(target.issueDate, target.expireDate)) {
             if (this.isNew) {
-                this.saveNewData(target);
+                this.saveNewData(target, key);
             } else {
                 const newData = this.deleteLast(_.cloneDeep(this.data));
                 const newDto = this.mapModelDataToDto(newData);
@@ -203,6 +190,17 @@ export default class LegalTable extends Vue {
                 this.remoteUpdateEmployeeLegalData(key, diff, target);
             }
         }
+    }
+    private compareStartedDateAndEndDate(startedDate: string, endDate: string) {
+        if (moment(startedDate).isAfter(moment().format(this.dateFormat))) {
+            message.error('开始日期不能迟于当前日期');
+            return false;
+        }
+        if (moment(startedDate).isAfter(endDate)) {
+            message.error('开始日期不能迟于到期日期');
+            return false;
+        }
+        return true;
     }
     private deleteLast(arr: any) {
         return arr.slice(0, arr.length - 1);
@@ -221,7 +219,7 @@ export default class LegalTable extends Vue {
     private remoteUpdateEmployeeLegalData(key: string, diff: any, target: any) {
         if (diff.length > 0) {
             patchEmployeeLegalData(this.employeeId, diff, {
-                'If-Match': this.ETag,
+                'If-Match': this.etag,
             }).then((res) => {
                 this.$emit('loadData');
             }).catch((err) => {
@@ -235,15 +233,16 @@ export default class LegalTable extends Vue {
         const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }
-    private saveNewData(target: any) {
+    private saveNewData(target: any, key: string) {
         const newData = [...this.data];
         newData.pop();
         this.$store.dispatch('ReplaceLegalList', newData);
         target.editable = false;
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     private addRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        if (target && this.isNullLegal(target)) {
+        if (target && this.isNullLegal(target) && this.compareStartedDateAndEndDate(target.issueDate, target.expireDate)) {
             if (this.isNew) {
                 this.firstAddRow(target, key);
             } else {
@@ -261,11 +260,21 @@ export default class LegalTable extends Vue {
         }
     }
     private firstAddRow(target: any, key: string) {
-            const index = key + 1;
-            target.editable = false;
-            target.isNew = false;
-            this.$store.dispatch('AddLegalList', target);
-            this.data = [...[target], ...[{legalType: this.LegalTypeOption[0], disable: false, legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, key: index}]];
+        const index = key + 1;
+        const newData = [...this.data];
+        target.editable = false;
+        target.isNew = false;
+        this.$store.dispatch('ReplaceLegalList', newData);
+        this.data.push({
+            legalType: this.LegalTypeOption[0],
+            disable: false,
+            legalNum: '',
+            issueDate: '',
+            expireDate: '',
+            editable: true,
+            isNew: true,
+            key: index,
+        });
     }
     private removeRow(key: string) {
         if (this.data.length === 2) {

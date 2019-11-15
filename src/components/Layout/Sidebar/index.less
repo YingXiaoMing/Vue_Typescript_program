@@ -1,3 +1,4 @@
+@headerHeight: 65px;
 .side-bar {
     max-width: 230px;
     min-width: 230px;
@@ -7,7 +8,7 @@
     max-height: 100vh;
     transition: .3s all ease-in-out;
     .ant-menu-inline-collapsed {
-        width: 54px;
+        width: 56px;
     }
     .ant-menu-inline-collapsed > .ant-menu-item, 
     .ant-menu-inline-collapsed > .ant-menu-item-group > .ant-menu-item-group-list > .ant-menu-item, .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
@@ -17,21 +18,22 @@
         }
     }
     .logo-wrap {
+        height: 65px;
         display: flex;
-        text-align: center;
-        padding: 10px 0;
-        
+        justify-content: center;
+        align-items: center;   
         img {
             width: 36px;
             height: 36px;
-            // display: inline;
             display: block;
             margin-left: 10px;
         }
         h1 {
+            margin-bottom: 0;
             font-size: 18px;
             color: #666;
             padding-left: 8px;
+            display: inline-block;
             font-weight: 600;
             font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
             line-height: 36px;

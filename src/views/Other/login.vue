@@ -114,8 +114,16 @@ export default class Login extends Vue {
         return text;
     }
     private submitForm() {
-        this.LoginFromAuthorizationEndPoint();
-
+        // this.LoginFromAuthorizationEndPoint();
+        setAccessToken('123123');
+        this.$store.dispatch('SetUsername', 'Admin');
+        this.$router.push('/home');
+        setTimeout(() => {
+            notification.success({
+                message: '欢迎',
+                description: 'Admin, 欢迎回来',
+            });
+        }, 1000);
         // this.form.validateFields((err: any, values: FormData) => {
         //     if (!err) {
         //         this.loginBtn = true;

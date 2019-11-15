@@ -2,7 +2,7 @@
     <div>
         <a-row>
           <a-basic-table :options="baiscDataTypeOption" :basicDatas="basicData" ref="basciTable" 
-          @jump="linkToStep2" :isNew="isNew" @loadData="remoteEmployeeBasicData"
+          @jump="linkToStep2" :isNew="isNew" @loadData="remoteEmployeeBasicData" @nextStep="nextStep"
           :employeeId="employeeId" :tloading="basicTableLoading" :ETag="basicETag"></a-basic-table>   
           <a-divider class='diliver_item requiredLine'>身份证件信息</a-divider>
           <a-legal-table :options="LegalTypeOption" :tabList="LegalIdTableData"
@@ -21,7 +21,7 @@
           <a-divider class='diliver_item requiredLine'>职位信息</a-divider>
           <a-position-table :tabList="positionTableData" @loadData="remoteEmployeePositionData"
           :isNew="isNew" :employeeId="employeeId" :tloading="PositionTableLoading" :ETag="positionETag"></a-position-table>
-          <a-row class="bottom_button">
+          <a-row class="bottom_button" v-if="employeeStatus !== 3">
             <a-button type="primary" @click="newEmployeeData">下一步</a-button>
           </a-row>
         </a-row>
@@ -30,6 +30,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
 import BasicDataTable from '@/components/Step1/BasicDataTable.vue';
 import LegalTable from '@/components/Step1/LegalTable.vue';
 import AddressTable from '@/components/Step1/AddressTable.vue';
@@ -57,6 +58,7 @@ export default class Step1 extends Vue {
     public $refs!: {
         basciTable: HTMLFormElement,
     };
+    @Prop({default: ''}) private employeePropId!: string;
     private LegalTypeOption: SelectValue[] = [];
     private AddressTypeOption: SelectValue[] = [];
     private relationTypeOption: SelectValue[] = [];
@@ -119,6 +121,7 @@ export default class Step1 extends Vue {
     private PhoneTableLoading: boolean = false;
     private PositionTableLoading: boolean = false;
     private employeeId: string = '';
+    private employeeStatus: number = 1;
     private legalIdETag: string = '';
     private addressETag: string = '';
     private contactETag: string = '';
@@ -128,50 +131,70 @@ export default class Step1 extends Vue {
     private isNew: boolean = true;
     private $store: any;
     private created() {
-        const { employeeId, employeeStatus } = this.$store.state.step;
-        this.employeeId = employeeId;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        this.employeeStatus = employeeStatus;
         switch (employeeStatus) {
             case 1:
                 this.isNew = true;
                 this.fetchData(() => {
-                    // this.clearBasicData();
-                    // this.fullEmployeeData();
-                    // 发布的时候打开这段代码
-                    // this.fillEmptyEmployeeData()
                     this.fullEmployeeTableData();
                 });
+                this.$store.dispatch('clearEmployeeDataList');
+                break;
+            case 2:
+                this.employeeId = newEmployeeId;
+                this.isNew = false;
+                this.loadRemoteData();
                 break;
             default:
                 this.isNew = false;
-                // this.loading = true;
-                this.LeagalTableLoading = true;
-                // this.phoneTableLoading = true;
-                // this.positionTableLoading = true;
-                // this.addressTableLoading = true;
-                // this.contractTableLoading = true;
-                this.fetchData(() => {
-                    this.remoteEmployeeBasicData();
-                    this.remoteEmployeeLegalData();
-                    this.remoteEmployeeAddressData();
-                    this.remoteEmployeeEmergyContractData();
-                    this.remoteEmployeePhoneData();
-                    this.remoteEmployeePositionData();
-                });
+                this.employeeId = this.employeePropId;
+                this.loadRemoteData();
                 break;
         }
     }
+    @Watch('employeePropId')
+    private employeeIdChange(value: string) {
+        if (!_.isEmpty(value)) {
+            this.employeeId = value;
+            this.loadRemoteData();
+        }
+    }
+    private activated() {
+        if (!this.isNew) {
+            this.loadRemoteData();
+        }
+    }
+    private loadRemoteData() {
+        this.fetchData(() => {
+            this.remoteEmployeeBasicData();
+            this.remoteEmployeeLegalData();
+            this.remoteEmployeeAddressData();
+            this.remoteEmployeeEmergyContractData();
+            this.remoteEmployeePhoneData();
+            this.remoteEmployeePositionData();
+        });
+    }
     // 新建员工
     private newEmployeeData() {
-        this.$refs.basciTable.newBasicEmployeeData();
+        if (_.isEqual(this.employeeStatus, 1)) {
+            this.$refs.basciTable.newBasicEmployeeData();
+        } else {
+            this.nextStep();
+        }
     }
-
+    // 跳转到下一步
+    private nextStep() {
+        this.$store.dispatch('changeEmployeeStatus', 2);
+        this.$emit('nextStep');
+    }
     // 填入员工Table的数据
     private fullEmployeeTableData() {
         this.positionTableData = [{ position: '', mainPosition: true, editable: true, key: '1', isNew: true,  selectOption: [], positionId: ''}];
-        this.phoneTableData = [{ phoneType: this.phoneTypeOption[0], phoneNum: '', isRequired: 'false', editable: true, key: '1', isNew: true }];
+        this.phoneTableData = [{ phoneType: this.phoneTypeOption[0], phoneNum: '', isRequired: 'true', editable: true, key: '1', isNew: true }];
         this.addressTableData = [{addressType: this.AddressTypeOption[0], province: '', area: '', city: '', address: '', key: '1', editable: true, isNew: true}];
         this.EmergyContactTableData = [{name: '', tel1: '', tel2: '', remark: '', key: '1', editable: true, relationship: this.relationTypeOption[0], isNew: true }];
-        this.LegalIdTableData = [{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, disable: false, key: '1'}];
+        this.LegalIdTableData = [{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: '', expireDate: '', editable: true, isNew: true, disable: false, key: '1'}];
     }
 
     // 获取员工的基本资料
@@ -273,11 +296,12 @@ export default class Step1 extends Vue {
                     editable: false,
                     key: item.id,
                     isNew: false,
+                    disable: false,
                     selectOption: item.positionFullPathIds,
                     positionId: item.id,
                 };
             });
-            this.positionTableData = [...newData, ...[{ position: '', mainPosition: false, editable: true, key: '1', isNew: true,  selectOption: [], positionId: ''}]]
+            this.positionTableData = [...newData, ...[{ position: '', mainPosition: false, editable: true, key: '1', isNew: true,  selectOption: [], positionId: '', disable: false}]]
             this.PositionTableLoading = false;
         });
     }
@@ -296,11 +320,12 @@ export default class Step1 extends Vue {
                     phoneNum: item.phoneNumber.number,
                     isRequired: item.isDefault ? 'true' : 'false',
                     editable: false,
+                    disable: false,
                     key: item.id,
                     isNew: false,
                 };
             });
-            this.phoneTableData = [...newData, ...[{ phoneType: this.phoneTypeOption[0], phoneNum: '', isRequired: 'false', editable: true, key: '1', isNew: true }]]
+            this.phoneTableData = [...newData, ...[{ phoneType: this.phoneTypeOption[0], phoneNum: '', isRequired: 'false', editable: true, key: '1', isNew: true, disable: false }]]
             this.PhoneTableLoading = false;
         });
     }
@@ -320,11 +345,12 @@ export default class Step1 extends Vue {
                     city: item.address.city,
                     address: item.address.street,
                     key: item.id,
+                    disable: false,
                     editable: false,
                     isNew: false,
                 };
             });
-            this.addressTableData = [...newData, ...[{addressType: this.AddressTypeOption[0], province: '', area: '', city: '', address: '', key: '1', editable: true, isNew: true}]];
+            this.addressTableData = [...newData, ...[{addressType: this.AddressTypeOption[0], province: '', area: '', city: '', address: '', key: '1', editable: true, isNew: true, disable: false}]];
             this.addressTableLoading = false;
         });
     }
@@ -344,11 +370,12 @@ export default class Step1 extends Vue {
                     tel2: item.phoneNumber2,
                     remark: item.note,
                     key: item.id,
+                    disable: false,
                     editable: false,
                     isNew: false,
                 };
             });
-            this.EmergyContactTableData = [...newData, ...[{name: '', tel1: '', tel2: '', remark: '', key: '1', editable: true, relationship: this.relationTypeOption[0], isNew: true }]];
+            this.EmergyContactTableData = [...newData, ...[{name: '', tel1: '', tel2: '', remark: '', key: '1', editable: true, relationship: this.relationTypeOption[0], isNew: true, disable: false }]];
             this.EmergyContactLoading = false;
         });
     }
@@ -373,7 +400,7 @@ export default class Step1 extends Vue {
                     key: item.id,
                 };
             });
-            this.LegalIdTableData = [...newData , ...[{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: null, expireDate: null, editable: true, isNew: true, disable: false, key: '1'}]];
+            this.LegalIdTableData = [...newData , ...[{legalType: this.LegalTypeOption[0], legalNum: '', issueDate: '', expireDate: '', editable: true, isNew: true, disable: false, key: '1'}]];
             this.LeagalTableLoading = false;
         });
     }

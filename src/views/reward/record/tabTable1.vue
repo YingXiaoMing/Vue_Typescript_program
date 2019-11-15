@@ -1,10 +1,13 @@
 <template>
     <div>
         <a-table :columns="column" bordered size="small" :loading="loading"
-        :dataSource="data" :pagination="pagination">
+        :dataSource="data" :pagination="pagination" @change="tableChange">
+            <template slot="Index" slot-scope="text,record, index">
+                <span>{{ index + 1 }}</span>
+            </template>
             <template slot="action" slot-scope="text, record">
                 <span>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeTableRowEditable(record.key)">编辑</a>
                 </span>
             </template>
         </a-table>
@@ -41,7 +44,10 @@ interface FormData {
     effectiveDate: string;
     name: string;
     num: string;
-    prizePenaltyTypeId: string;
+    prizePenaltyTypeId: {
+        key: string;
+        label: string;
+    };
     id: string;
     employeeId: string;
     type: number;
@@ -64,7 +70,10 @@ export default class Tab1Table extends Vue {
         effectiveDate: '',
         name: '',
         num: '',
-        prizePenaltyTypeId: '',
+        prizePenaltyTypeId: {
+            key: '',
+            label: '',
+        },
         id: '',
         employeeId: '',
         type: 0,
@@ -72,6 +81,11 @@ export default class Tab1Table extends Vue {
     private data: TableData[] = this.tabList;
     private pagination: Pagination = this.paginationData;
     private column: ColumnList[] = [{
+        title: '序号',
+        dataIndex: 'Index',
+        align: 'center',
+        scopedSlots: { customRender: 'Index' },
+    }, {
         title: '员工工号',
         dataIndex: 'num',
         align: 'center',
@@ -115,7 +129,12 @@ export default class Tab1Table extends Vue {
     private paginationDataChange(value: any) {
         this.pagination = value;
     }
-    private toggle(key: string) {
+    private tableChange(pagination: any, filters: any, sorter: any) {
+        const pageSize = pagination.pageSize;
+        const pageNum = pagination.current;
+        this.$emit('tableChange', pageNum, pageSize);
+    }
+    private makeTableRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         let type = 0;
         if (_.isEqual(target.isReward, '奖励类')) {
@@ -127,7 +146,10 @@ export default class Tab1Table extends Vue {
             effectiveDate: target.date,
             situationDescription: target.situationDescription,
             solution: target.solution,
-            prizePenaltyTypeId: target.typeId,
+            prizePenaltyTypeId: {
+                key: target.typeId,
+                label: target.rewardType,
+            },
             employeeId: target.employeeId,
             id: target.id,
             type,

@@ -2,22 +2,29 @@
     <div class='wrapper'>
         <div class='staff-head'>
             <a-row :gutter="24">
-                <a-col :lg="6" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                        @search="handleChange" @select="onSelect">
-                            <template slot="dataSource">
-                                <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
-                            </template>
-                             <a-input @change="e => valueChange(e.target.value)"></a-input>
-                        </a-auto-complete>
-                    </a-form-item>
-                </a-col>
-                <a-col :lg="6" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-button type="primary" @click="fastQuery">快速查询</a-button>
-                    </a-form-item>
-                </a-col>
+                <a-form :form="form">
+                    <a-col :lg="6" :md="12" :sm="24">
+                        <a-form-item>
+                            <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                            @search="handleChange" @select="onSelect">
+                                <template slot="dataSource">
+                                    <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
+                                </template>
+                                <a-input @change="e => valueChange(e.target.value)"></a-input>
+                            </a-auto-complete>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="3" :md="12" :sm="24">
+                        <a-form-item>
+                            <a-checkbox v-decorator="['IsIncludeTerminated', { valuePropName: 'checked', initialValue: false }]">包含离职员工</a-checkbox>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="6" :md="12" :sm="24">
+                        <a-form-item>
+                            <a-button type="primary" @click="fastQuery">快速查询</a-button>
+                        </a-form-item>
+                    </a-col>
+                </a-form>
             </a-row>
             <a-row :gutter="24">
                 <a-col :span="24">
@@ -38,6 +45,7 @@ import { RemotePostionChangeRecord } from '@/interface';
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import { Pagination } from '@/interface';
 import { Row, Col, Form, AutoComplete, Select, Button, Input, message } from 'ant-design-vue';
 interface EmployeeData {
     value: string;
@@ -73,18 +81,30 @@ export default class Record extends Vue {
     private searchKey: string = '';
     private recordData: TableData[] = [];
     private loading: boolean = false;
+    private form: any;
+    private $form: any;
     private created() {
+        this.form = this.$form.createForm(this, {
+            IsIncludeTerminated: false,
+        });
         this.fetch('');
     }
     private handleChange(value: string) {
         this.fetch(value);
     }
+    private changeDataToParamas(params: URLSearchParams, data: boolean, paramName: string) {
+        if (data) {
+            params.set(paramName, data.toString());
+        }
+    }
     private fetch(value: string) {
         const params = new URLSearchParams();
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
+        this.changeDataToParamas(params, this.form.getFieldValue('IsIncludeTerminated'), 'FilterProperties.IsIncludeTerminated');
         searchEmployeeData(params.toString()).then((res) => {
-            this.employeeDataList = _.map(res, (item) => {
+            const data = res.data;
+            this.employeeDataList = _.map(data, (item) => {
                 return {
                     value: item.id,
                     text: item.employeeStringID + '-' + item.fullName,
@@ -108,7 +128,7 @@ export default class Record extends Vue {
         this.loading = true;
         getEmployeeModificationRecord(this.searchKey).then((res: any) => {
             this.loading = false;
-            const records: RemotePostionChangeRecord[] = res;
+            const records: RemotePostionChangeRecord[] = res.data;
             this.recordData = _.map(records, (item) => {
                 return {
                     key: item.id,
@@ -121,6 +141,12 @@ export default class Record extends Vue {
                     lastOperatorDateTime: moment(item.effectiveDate).format(this.dateFormat),
                     reason: item.reason ? item.reason : '',
                     employeeId: item.employeeId,
+                    employeePositionChangeTypeId: item.employeePositionChangeTypeId,
+                    effectiveDate: item.effectiveDate,
+                    recordStateValue: item.recordStateValue,
+                    recordStateName: item.recordStateName,
+                    workOrderNumber: item.workOrderNumber,
+                    isAllowModification: item.isAllowModification,
                 };
             });
         });

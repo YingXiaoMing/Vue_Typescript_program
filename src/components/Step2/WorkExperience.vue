@@ -64,6 +64,7 @@ import Component from 'vue-class-component';
 import _ from 'lodash';
 import moment from 'moment';
 import { message } from 'ant-design-vue';
+import { getEmployeeID } from '@/utils/cookie';
 import WorkExperienceTable from './WorkExperienceTable.vue';
 import { WorkExperienceTableData } from '@/interface';
 interface ValueData {
@@ -95,8 +96,18 @@ export default class WorkExperience extends Vue {
     private workExperienceTableData: WorkExperienceTableData[] = [];
     private workExperienceTag: string = '';
     private created() {
-        const { employeeId } = this.$store.state.step;
-        this.employeeId = employeeId;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        switch (employeeStatus) {
+            case 3:
+                const employeeId = getEmployeeID();
+                if (employeeId) {
+                    this.employeeId = employeeId;
+                }
+                break;
+            default:
+                this.employeeId = newEmployeeId;
+                break;
+        }
         this.form = this.$form.createForm(this);
         this.remoteEmployeeWorkExperienceData();
     }
@@ -114,6 +125,7 @@ export default class WorkExperience extends Vue {
                     startedDate: moment(item.startedDate).format(this.dateFormat),
                     endedDate: moment(item.endedDate).format(this.dateFormat),
                     endedJobReason: item.endedJobReason,
+                    disable: false,
                     salary: item.salary,
                     reference: item.reference,
                     referencePhoneNumber: item.referencePhoneNumber,
@@ -145,9 +157,9 @@ export default class WorkExperience extends Vue {
                 }).then((res) => {
                     this.form.resetFields();
                     this.remoteEmployeeWorkExperienceData();
-                }).catch((err) => {
-                    message.error('新增失败');
                 });
+            } else {
+                message.error('工作经历请填写完整');
             }
         });
     }

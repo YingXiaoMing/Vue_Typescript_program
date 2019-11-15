@@ -27,7 +27,7 @@
                 </a-col>
             </a-row>
             <a-row>
-                <a-tab-component :orginData="originPostions" :employeeId="employeeId" :dismissData="dismissPositions"></a-tab-component>
+                <a-tab-component ref="tabs" :orginData="originPostions" :employeeIds="employeeId" :dismissData="dismissPositions"></a-tab-component>
             </a-row>
         </div>
     </div>
@@ -60,6 +60,9 @@ interface EmployeeData {
     },
 })
 export default class Dismiss extends Vue {
+    public $refs!: {
+        tabs: HTMLFormElement,
+    };
     private labelCol = { xs: {span: 24}, sm: {span: 8}};
     private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
     private employeeDataList: EmployeeData[] = [];
@@ -83,16 +86,10 @@ export default class Dismiss extends Vue {
         if (item) {
             this.employeeName = item.name;
             this.employeeNum = item.id;
-            getEmployeePositionData(item.value).then((res: any) => {
-                // tslint:disable-next-line:no-shadowed-variable
-                const data = res.data;
-                this.originPostions = _.map(data.positions, (item: any) => {
-                    return {
-                        key: item.id,
-                        label: item.positionFullPath,
-                    };
-                });
-                this.employeeId = item.value;
+            this.employeeId = item.value;
+            this.$nextTick(() => {
+                this.$refs.tabs.getEmployeePostionData();
+                this.$refs.tabs.getEmployeeDismissPositionData();
             });
         }
     }

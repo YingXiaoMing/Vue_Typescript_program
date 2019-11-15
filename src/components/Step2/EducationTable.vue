@@ -6,11 +6,10 @@
             <template v-else>{{ text }}</template>
         </template>
         <template v-for="(col,u) in ['startedDate','endDate']" :slot="col" slot-scope="text, record">
-            <a-date-picker v-if="record.editable" :defaultValue="text?momentFromDate(text):text" :format="dateFormat"
+            <a-date-picker v-if="record.editable" :value="momentFromDate(text)" :format="dateFormat"
             @change="(date,dateString) => handleChange(dateString, record.key, col)"></a-date-picker>
             <template v-else>{{ text }}</template>
         </template>
-        
         <template slot="educationLevel" slot-scope="text,record">
             <a-select labelInValue  v-if="record.editable" :value="text" @change="e => handleChange(e,record.key, 'educationLevel')">
                 <a-select-option v-for="(item,index) in educationLevelOption" :key="index" :value="item.key">{{ item.label }}</a-select-option>
@@ -23,13 +22,13 @@
                 <span>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeEducationRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeEducationRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="removeRow(record.key)">删除</a>
+                <a @click="removeRow(record.key)" :class="{'disabled-button': record.disable}">删除</a>
             </span>
         </template>
     </a-table>
@@ -56,6 +55,7 @@ interface TableData {
     endDate: string;
     key: string;
     editable: boolean;
+    disable: boolean;
     [key: string]: any;
 }
 interface RemoteTableData {
@@ -121,6 +121,7 @@ export default class EducationTable extends Vue {
         this.data = value;
     }
     private momentFromDate(date: string) {
+        if (_.isEmpty(date)) { return null; }
         return moment(date, this.dateFormat);
     }
     private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
@@ -130,30 +131,38 @@ export default class EducationTable extends Vue {
                 schoolName: item.schoolName,
                 major: item.major,
                 startedDate: item.startedDate,
-                endedDate: item.endedDate,
+                endedDate: item.endDate,
             };
         });
         return newData;
     }
     @Emit()
-    private toggle(key: string) {
+    private makeEducationRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
-    @Emit()
-    private cancel(key: string) {
-        this.data = _.cloneDeep(this.cacheOriginData);
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
+    }
+    private makeEducationRowNotEditable(key: string) {
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     @Emit()
     private handleChange(value: any, key: number, name: string) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
+        const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             target[name] = value;
-            this.data = newData;
         }
     }
     @Emit()
@@ -164,10 +173,21 @@ export default class EducationTable extends Vue {
             message.error('删除失败');
         });
     }
+    private isNullEducation(target: TableData): boolean {
+        if (_.isEmpty(target.schoolName) || _.isEmpty(target.major) || _.isEmpty(target.startedDate) || _.isEmpty(target.endDate)) {
+            message.error('教育经历信息不完整');
+            return false;
+        }
+        return true;
+    }
     @Emit()
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        if (target) {
+        if (target && this.isNullEducation(target)) {
+            if (this.compareStartDateAndEndDate(target.startedDate, target.endDate)) {
+                message.error('结束日期不能早于开始日期');
+                return;
+            }
             const newData = _.cloneDeep(this.data);
             const newValue = this.transformRemoteData(newData);
             const oldValue = this.transformRemoteData(this.cacheOriginData);
@@ -175,11 +195,13 @@ export default class EducationTable extends Vue {
             putEmployeeEducationHistory(this.employeeId, params, {
                 'If-Match': this.ETag,
             }).then((res) => {
+                message.success('更新成功');
                 this.$emit('loadData');
-            }).catch((err) => {
-                message.error('更新失败');
             });
         }
+    }
+    private compareStartDateAndEndDate(startDate: string, endDate: string) {
+        return moment(startDate).isAfter(endDate);
     }
     private compareNewAndOldValue(newValue: RemoteTableData[], oldValue: RemoteTableData[]) {
         const diff = jsonpatch.compare(oldValue, newValue);

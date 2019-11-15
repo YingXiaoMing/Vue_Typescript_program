@@ -1,19 +1,24 @@
 <template>
     <div>
         <a-table :columns="column" bordered size="small"
-        :loading="loading" :dataSource="data" :pagination="pagination">
+        :loading="loading" :dataSource="data" :pagination="pagination" @change="tableChange">
+            <template slot="Index" slot-scope="text,record, index">
+                <span>{{ index + 1 }}</span>
+            </template>
             <template slot="isWithSalary" slot-scope="text,record">
                 <span v-if="text === true">是</span>
                 <span v-else>否</span>
             </template>
             <template slot="action" slot-scope="text,record">
                 <span>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeTableRowEditable(record.key)">编辑</a>
                 </span>
             </template>
         </a-table>
-        <a-attend-modal :visible="modalVisible" @cancel="cancelHandle"
-        :formData="formData" @refreshTableData="refreshTableData" :type="type"></a-attend-modal>
+        <a-modal :visible="dialog.visible" :title="dialog.title"
+        @cancel="cancelHandle" :width="928" @ok="okHandle" class="attendModal">
+            <component :is="dialog.name" ref="dialog" :data="dialog.data"></component>
+        </a-modal>
     </div>
 </template>
 <script lang="ts">
@@ -23,6 +28,9 @@ import { Table } from 'ant-design-vue';
 import { ColumnList, Pagination } from '@/interface';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import AttendModal from '@/components/AttendModal/index.vue';
+import Vacate from '@/components/AttendModal/vacate.vue';
+import Business from '@/components/AttendModal/business.vue';
+import Overtime from '@/components/AttendModal/overtime.vue';
 import _ from 'lodash';
 interface TableData {
     key: string;
@@ -59,9 +67,15 @@ interface FormData {
     components: {
         'a-table': Table,
         'a-attend-modal': AttendModal,
+        'a-vacate': Vacate,
+        'a-business': Business,
+        'a-overtime': Overtime,
     },
 })
 export default class RecordTable extends Vue {
+    public $refs!: {
+        dialog: HTMLFormElement,
+    };
     @Prop({ default: false }) private loading!: boolean;
     @Prop() private tabList!: TableData[];
     @Prop() private paginationData!: Pagination;
@@ -69,6 +83,12 @@ export default class RecordTable extends Vue {
     private type: number = 0;
     private pagination: Pagination = this.paginationData;
     private modalVisible: boolean = false;
+    private dialog = {
+        visible: false,
+        name: '',
+        title: '',
+        data: {},
+    };
     private formData: FormData = {
         timeoffOvertimeBusinesstripTypeId: '',
         startDateTime: '',
@@ -84,6 +104,11 @@ export default class RecordTable extends Vue {
         num: '',
     }
     private column: ColumnList[] = [{
+        title: '序号',
+        dataIndex: 'Index',
+        align: 'center',
+        scopedSlots: { customRender: 'Index' },
+    }, {
         title: '员工工号',
         dataIndex: 'num',
         align: 'center',
@@ -142,37 +167,91 @@ export default class RecordTable extends Vue {
     private paginationDataChange(value: any) {
         this.pagination = value;
     }
-    private toggle(key: string) {
+    private tableChange(pagination: any, filters: any, sorter: any) {
+        const pageSize = pagination.pageSize;
+        const pageNum = pagination.current;
+        this.$emit('tableChange', pageNum, pageSize);
+    }
+    private makeTableRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (_.isEqual(target.type, '出差')) {
-            this.type = 2;
+            this.dialog = {
+                name: 'a-business',
+                title: '出差记录',
+                visible: true,
+                data: {
+                    startDateTime: target.startTime,
+                    endedDateTime: target.endTime,
+                    isWithSalary: target.isWithSalary,
+                    totalHours: target.totalHours,
+                    id: target.key,
+                    businesstripLocaltion: target.businesstripLocaltion,
+                    employeeId: target.employeeId,
+                    reason: target.reason,
+                    note: target.note,
+                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
+                    name: target.name,
+                    num: target.num,
+                },
+            };
         } else if (_.isEqual(target.type, '请假')) {
-            this.type = 1;
+            this.dialog = {
+                name: 'a-vacate',
+                title: '请假记录',
+                visible: true,
+                data: {
+                    startDateTime: target.startTime,
+                    endedDateTime: target.endTime,
+                    isWithSalary: target.isWithSalary,
+                    totalHours: target.totalHours,
+                    id: target.key,
+                    businesstripLocaltion: target.businesstripLocaltion,
+                    employeeId: target.employeeId,
+                    reason: target.reason,
+                    note: target.note,
+                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
+                    name: target.name,
+                    num: target.num,
+                },
+            };
         } else if (_.isEqual(target.type, '加班')) {
-            this.type = 3;
+            this.dialog = {
+                name: 'a-overtime',
+                title: '加班记录',
+                visible: true,
+                data: {
+                    startDateTime: target.startTime,
+                    endedDateTime: target.endTime,
+                    isWithSalary: target.isWithSalary,
+                    totalHours: target.totalHours,
+                    id: target.key,
+                    businesstripLocaltion: target.businesstripLocaltion,
+                    employeeId: target.employeeId,
+                    reason: target.reason,
+                    note: target.note,
+                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
+                    name: target.name,
+                    num: target.num,
+                },
+            };
         }
-        this.formData = {
-            startDateTime: target.startTime,
-            endedDateTime: target.endTime,
-            isWithSalary: target.isWithSalary,
-            totalHours: target.totalHours,
-            id: target.key,
-            businesstripLocaltion: target.businesstripLocaltion,
-            employeeId: target.employeeId,
-            reason: target.reason,
-            note: target.note,
-            timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
-            name: target.name,
-            num: target.num,
-        };
-        this.modalVisible = true;
     }
     private cancelHandle() {
-        this.modalVisible = false;
+        this.dialog = {
+            visible: false,
+            name: '',
+            title: '',
+            data: {},
+        };
     }
-    private refreshTableData() {
-        this.$emit('refreshData');
-        this.modalVisible = false;
+    private okHandle() {
+        this.$refs.dialog.sumbitData((run: boolean) => {
+            if (run) {
+                this.cancelHandle();
+                this.$emit('refreshData');
+                return;
+            }
+        });
     }
 }
 </script>

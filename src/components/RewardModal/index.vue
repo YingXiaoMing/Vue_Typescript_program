@@ -15,7 +15,7 @@
             </a-col>
             <a-col :span="12">
                 <a-form-item label="奖励类型" v-bind="formItemLayout" v-if="formModal.type === 1">
-                    <a-select v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
+                    <a-select labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in RewardType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
                 </a-form-item>
@@ -65,7 +65,10 @@ interface FormData {
     effectiveDate: string;
     name: string;
     num: string;
-    prizePenaltyTypeId: string;
+    prizePenaltyTypeId: {
+        key: string;
+        label: string;
+    };
     id?: string;
     employeeId?: string;
     type?: number;
@@ -146,22 +149,32 @@ export default class RewardModal extends Vue {
             if (!err) {
                 const employeeId = this.formModal.employeeId;
                 const id = this.formModal.id;
-                this.formModal.effectiveDate = moment(this.formModal.effectiveDate).format(this.dateForm);
-                const compareTarget = _.omit(this.formModal, ['id', 'employeeId', 'type']);
-                values.effectiveDate = moment(values.effectiveDate).format(this.dateForm);
-                const puma = this.compareNewAndOldValue(values, compareTarget);
-                if (employeeId && id) {
+                const oldValue = this.transformCompareData(this.formModal);
+                const newValue = this.transformCompareData(values);
+                const puma = this.compareNewAndOldValue(newValue, oldValue);
+                if (employeeId && id && puma.length > 0) {
                     editPrizePenaltyRecord(employeeId, id, puma, {
                         'If-Match': this.ETag,
                     }).then((res) => {
                         this.form.resetFields();
                         this.$emit('refreshTableData');
                     });
+                } else {
+                    this.form.resetFields();
+                    this.$emit('refreshTableData');
                 }
             }
         });
     }
-    private compareNewAndOldValue(newValue: FormData, oldValue: FormData) {
+    private transformCompareData(oldValue: FormData) {
+        return {
+            solution: oldValue.solution,
+            situationDescription: oldValue.situationDescription,
+            effectiveDate: moment(oldValue.effectiveDate).format(this.dateForm),
+            prizePenaltyTypeId: oldValue.prizePenaltyTypeId.key,
+        };
+    }
+    private compareNewAndOldValue(newValue: any, oldValue: any) {
         const diff = jsonpatch.compare(oldValue, newValue);
         return diff;
     }

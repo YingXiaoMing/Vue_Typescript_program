@@ -19,13 +19,13 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeWorkExperienceRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeWorkExperienceRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="removeRow(record.key)">删除</a>
+                <a @click="removeRow(record.key)" :class="{'disabled-button': record.disable}">删除</a>
             </span>
         </template>
     </a-table>
@@ -50,6 +50,7 @@ interface TableData {
     referencePhoneNumber: string;
     endedJobReason: string;
     key: string;
+    disable: boolean;
     editable: boolean;
     [key: string]: any;
 }
@@ -133,24 +134,26 @@ export default class WorkExperienceTable extends Vue {
     private tableDataChange(value: any) {
         this.data = value;
     }
-    @Emit()
-    private toggle(key: string) {
+    private makeWorkExperienceRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
             this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
-    @Emit()
-    private cancel(key: string) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        target.editable = false;
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
+    }
+    private makeWorkExperienceRowNotEditable(key: string) {
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     @Emit()
     private handleChange(value: any, key: string, name: string) {
@@ -174,6 +177,10 @@ export default class WorkExperienceTable extends Vue {
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target) {
+            if (this.compareStartDateAndEndDate(target.startedDate, target.endedDate)) {
+                message.error('离职日期不能早于入职日期');
+                return;
+            }
             const newData = _.cloneDeep(this.data);
             const newValue = this.transformRemoteData(newData);
             const oldValue = this.transformRemoteData(this.cacheOriginData);
@@ -181,9 +188,13 @@ export default class WorkExperienceTable extends Vue {
             putEmployeeWorkExperience(this.employeeId, params, {
                 'If-Match': this.ETag,
             }).then((res) => {
+                message.success('更新成功');
                 this.$emit('loadData');
             });
         }
+    }
+    private compareStartDateAndEndDate(startDate: string, endDate: string) {
+        return moment(startDate).isAfter(endDate);
     }
     private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
         const newData: RemoteTableData[] = _.map(remoteData, (item) => {

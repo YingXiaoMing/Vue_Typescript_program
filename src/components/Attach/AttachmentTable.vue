@@ -11,15 +11,15 @@
                 <span>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeAttachRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeAttachRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="donwloadFile(record.key)">下载</a>
+                <a @click="donwloadFile(record.key)" :class="{'disabled-button': record.disable}">下载</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="removeRow(record.key)" class="red">删除</a>
+                <a @click="removeRow(record.key)" :class="[{'disabled-button': record.disable}, 'red']">删除</a>
             </span>
         </template>
     </a-table>
@@ -40,6 +40,7 @@ interface TableData {
     key: string;
     description: string;
     editable: boolean;
+    disable: boolean;
     [key: string]: any;
 }
 @Component({
@@ -80,7 +81,7 @@ export default class AttachmentTable extends Vue {
     private dataOnChange(value: AttachmentData[]) {
         this.data = value;
     }
-    private toggle(key: string) {
+    private makeAttachRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
@@ -104,7 +105,7 @@ export default class AttachmentTable extends Vue {
             message.error('删除失败');
         });
     }
-    private cancel(key: string) {
+    private makeAttachRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {
@@ -125,6 +126,7 @@ export default class AttachmentTable extends Vue {
                     name: item.attachmentInfo.fileName,
                     description: item.description,
                     editable: false,
+                    disable: false,
                 };
             });
             this.loading = false;

@@ -35,6 +35,16 @@
                 <a-document-table :loading="documentLoading" :employeeId="employeeId"
                 :ETag="etag"  :tabList="documentTableData" @loadData="loadDocumentData"></a-document-table>
             </a-row>
+            <a-row v-if="employeeStatus !== 3">
+                <a-col v-bind="botttomLayout" style="marginTop: 20px">
+                    <a-col v-bind="bottomLayoutBtn">
+                        <a-button type="primary" @click="preStep">上一步</a-button>
+                    </a-col>
+                    <a-col v-bind="bottomLayoutBtn">
+                        <a-button type="primary" @click="complete">完成</a-button>
+                    </a-col>
+                </a-col>
+            </a-row>
         </a-row>
     </div>
 </template>
@@ -43,6 +53,7 @@ import Vue from 'vue';
 import { Component, Emit } from 'vue-property-decorator';
 import { DocumentTableData } from '@/interface';
 import DocumentTable from '@/components/Step7/DocumentTable.vue';
+import { getEmployeeID } from '@/utils/cookie';
 import { addEmployeeRelatedDocumentData, newEmployeeRelatedDocumentAttachment, getEmployeeRelatedDocument } from '@/api/staff';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
@@ -62,15 +73,37 @@ export default class Step7 extends Vue {
     private employeeId: string = '';
     private etag: string = '';
     private documentLoading: boolean = false;
+    private employeeStatus: number = 1;
     private documentTableData: DocumentTableData[] = [];
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 10}},
         wrapperCol: { xs: {span: 24}, sm: {span: 14}},
     };
+    private botttomLayout = {
+        lg: {span: 12, offset: 8},
+        md: {span: 24, offset: 14},
+        sm: {span: 24, offset: 14},
+    };
+    private bottomLayoutBtn = {
+        lg: {span: 12},
+        md: {span: 24},
+        sm: {span: 24},
+    };
     private fileList: any = [];
     private created() {
-        const { employeeId } = this.$store.state.step;
-        this.employeeId = employeeId;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        this.employeeStatus = employeeStatus;
+        switch (employeeStatus) {
+            case 3:
+                const employeeId = getEmployeeID();
+                if (employeeId) {
+                    this.employeeId = employeeId;
+                }
+                break;
+            default:
+                this.employeeId = newEmployeeId;
+                break;
+        }
         this.form = this.$form.createForm(this);
         this.loadDocumentData();
     }
@@ -101,6 +134,8 @@ export default class Step7 extends Vue {
                         this.clearFormData();
                     }
                 });
+            } else {
+                message.error('关联文档请填写完整');
             }
         });
     }
@@ -120,6 +155,7 @@ export default class Step7 extends Vue {
                     key: item.id,
                     description: item.description,
                     editable: false,
+                    disable: false,
                 };
             });
             this.documentTableData = newData;
@@ -139,6 +175,12 @@ export default class Step7 extends Vue {
             name: data.name,
             description: data.description,
         };
+    }
+    private preStep() {
+        this.$emit('preStep');
+    }
+    private complete() {
+        this.$emit('nextStep');
     }
 }
 </script>

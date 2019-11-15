@@ -1,6 +1,6 @@
 <template>
     <a-modal :visible="isVisible" title="加班/请假/出差记录"
-     :width="928" @ok="confirmHandle" @cancel="cancelHandle" class="attendModal">
+     :width="928" @ok="confirmHandle" @cancel="cancelHandle" class="attendModal" :destroyOnClose="true">
             <template>
                 <a-row>
                   <a-col :span="12">
@@ -206,8 +206,8 @@ interface FormData {
     employeeId?: string;
     reason?: string;
     note: string;
-    name: string;
-    num: string;
+    name?: string;
+    num?: string;
 }
 @Component({
     components: {
@@ -273,7 +273,7 @@ export default class AttendModal extends Vue {
                 this.formData.endedDateTime = moment(this.formData.endedDateTime).format(this.dateForm);
                 values.startDateTime = moment(values.startDateTime).format(this.dateForm);
                 values.endedDateTime = moment(values.endedDateTime).format(this.dateForm);
-                const compareTarget = _.omit(this.formData, ['id', 'employeeId', 'businesstripLocaltion']);
+                const compareTarget = _.omit(this.formData, ['id', 'employeeId', 'businesstripLocaltion', 'name', 'num']);
                 const puma = this.compareNewAndOldValue(values, compareTarget);
                 if (employeeId && id) {
                     operateBusinessRecord(employeeId, id, puma).then((res) => {
@@ -281,7 +281,7 @@ export default class AttendModal extends Vue {
                     });
                 }
             }
-        })
+        });
     }
     private handleBusinessValues() {
         this.form2.validateFields((err: any, values: FormData) => {
@@ -292,7 +292,7 @@ export default class AttendModal extends Vue {
                  this.formData.endedDateTime = moment(this.formData.endedDateTime).format(this.dateForm);
                  values.startDateTime = moment(values.startDateTime).format(this.dateForm);
                  values.endedDateTime = moment(values.endedDateTime).format(this.dateForm);
-                 const compareTarget = _.omit(this.formData, ['id', 'employeeId']);
+                 const compareTarget = _.omit(this.formData, ['id', 'employeeId', 'name', 'num']);
                  const puma = this.compareNewAndOldValue(values, compareTarget);
                  if (employeeId && id) {
                         operateBusinessRecord(employeeId, id, puma).then((res) => {
@@ -311,7 +311,7 @@ export default class AttendModal extends Vue {
                 this.formData.endedDateTime = moment(this.formData.endedDateTime).format(this.dateForm);
                 values.startDateTime = moment(values.startDateTime).format(this.dateForm);
                 values.endedDateTime = moment(values.endedDateTime).format(this.dateForm);
-                const compareTarget = _.omit(this.formData, ['id', 'employeeId', 'reason', 'businesstripLocaltion']);
+                const compareTarget = _.omit(this.formData, ['id', 'employeeId', 'reason', 'businesstripLocaltion', 'name', 'num']);
                 const puma = this.compareNewAndOldValue(values, compareTarget);
                 if (employeeId && id) {
                     operateBusinessRecord(employeeId, id, puma).then((res) => {
@@ -355,13 +355,16 @@ export default class AttendModal extends Vue {
         this.form2 = this.$form.createForm(this);
         this.form3 = this.$form.createForm(this);
         getOvertimeOptions().then((res: any) => {
-            this.overtimeType = this.transformSelectData(res);
+            const data = res.data;
+            this.overtimeType = this.transformSelectData(data);
         });
         getLeaveOptions().then((res: any) => {
-            this.leaveType = this.transformSelectData(res);
+            const data = res.data;
+            this.leaveType = this.transformSelectData(data);
         });
         getBusinessOptions().then((res: any) => {
-            this.businessType = this.transformSelectData(res);
+            const data = res.data;
+            this.businessType = this.transformSelectData(data);
         });
 
     }

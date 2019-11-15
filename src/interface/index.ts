@@ -202,7 +202,7 @@ export interface CredntialTableData {
     };
     issueDate: string;
     editable: boolean;
-    expireDate: string;
+    expireDate: any;
     employeeCredentialAttachments: RemoteAttachmentData[];
 }
 
@@ -451,7 +451,7 @@ export interface BasicForm {
     first_name: string;
     last_name: string;
     nick_name: string;
-    birthOfDate: string | null;
+    birthOfDate: string;
     isMarried: number;
     highEducation: {
         key: string;
@@ -537,12 +537,18 @@ export interface AttachmentData {
     name: string;
     description: string;
     editable: boolean;
+    disable: boolean;
 }
 
 export interface Pagination {
     pageSize: number;
     total: number;
-    onChange: any;
+    current: number;
+    onChange?: any;
+    showSizeChanger?: boolean;
+    pageSizeOptions?: string[];
+    showSizeChange?: any;
+    showTotal?: any;
 }
 
 export interface RemotePostionChangeRecord {
@@ -557,6 +563,11 @@ export interface RemotePostionChangeRecord {
     reason: string;
     employeeId: string;
     effectiveDate: string;
+    employeePositionChangeTypeId: string;
+    recordStateValue: number;
+    recordStateName: string;
+    workOrderNumber: string;
+    isAllowModification: boolean;
 }
 
 export interface PositionReinstatedRecordData {

@@ -13,11 +13,11 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeRowEditable(record.key)">编辑</a>
                 <a-divider type="vertical"></a-divider>
                 <a class="red" @click="deleteRow(record.key)">删除</a>
             </span>
@@ -70,7 +70,7 @@ export default class VTable extends Vue {
     private dataChange(value: any) {
         this.data = value;
     }
-    private toggle(key: string) {
+    private makeRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
@@ -117,7 +117,7 @@ export default class VTable extends Vue {
             });
         }
     }
-    private cancel(key: string) {
+    private makeRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {

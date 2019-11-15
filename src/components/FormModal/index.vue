@@ -1,10 +1,10 @@
 <template>
-    <a-modal :visible="isVisible" @cancel="cancelHandle" okText="查询" width="1040px" @ok="okHandle">
+    <a-modal :visible="isVisible" @cancel="cancelHandle" okText="查询" width="1040px" @ok="okHandle" :destroyOnClose="true">
         <a-form :form="form">
             <a-row :gutter="24">
                 <a-col :span="8">
                     <a-form-item v-bind="formItemLayout" label="查询关键字">
-                        <a-input></a-input>
+                        <a-input v-decorator="['keyword']"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -14,58 +14,58 @@
                             <legend>基本信息条件</legend>
                             <a-form-item v-bind="formItemLayout2" label="员工状态">
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox  :checked="employeeStatusCheckAll"
-                                    @change="onEmployeeStatusCheckAllChange" v-decorator="['employeeStatusCheckAll']">全部</a-checkbox>
+                                    <a-checkbox
+                                    @change="onEmployeeStatusCheckAllChange" v-decorator="['employeeStatusCheckAll', {valuePropName:'checked',initialValue: false}]">全部</a-checkbox>
                                 </a-form-item>
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox-group v-decorator="['employeeStatusCheckedList']" :options="employeeStatusOptions"
+                                    <a-checkbox-group v-decorator="['employeeStatusCheckedList', {initialValue: []}]" :options="employeeStatusOptions"
                                     @change="onEmployeeStatusChange">
                                     </a-checkbox-group>
                                 </a-form-item>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="工作性质">
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox :checked="employeeTypeCheckAll"
-                                    @change="onEmployeeTypeCheckAllChange" v-decorator="['employeeTypeCheckAll']">全部</a-checkbox>
+                                    <a-checkbox
+                                    @change="onEmployeeTypeCheckAllChange" v-decorator="['employeeTypeCheckAll', {valuePropName:'checked',initialValue: false}]">全部</a-checkbox>
                                 </a-form-item>
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox-group v-decorator="['employeeTypeCheckedList']" :options="employeeTypeOptions"
+                                    <a-checkbox-group v-decorator="['employeeTypeCheckedList', {initialValue: []}]" :options="employeeTypeOptions"
                                     @change="onEmployeeTypeChange"></a-checkbox-group>
                                 </a-form-item>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="性别">
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox :checked="employeeGenderCheckAll"
-                                    @change="onEmployeeGenderCheckAllChange" v-decorator="['employeeGenderCheckAll']">全部</a-checkbox>
+                                    <a-checkbox 
+                                    @change="onEmployeeGenderCheckAllChange" v-decorator="['employeeGenderCheckAll', {valuePropName:'checked',initialValue: false}]">全部</a-checkbox>
                                 </a-form-item>
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox-group v-decorator="['employeeGenderCheckedList']" :options="employeeGenderOptions"
+                                    <a-checkbox-group v-decorator="['employeeGenderCheckedList', {initialValue: []}]" :options="employeeGenderOptions"
                                     @change="onEmployeeGenderChange">
                                     </a-checkbox-group>
                                 </a-form-item>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="婚否">
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox :checked="employeeMarryStatusCheckAll" v-decorator="['employeeMarryStatusCheckAll']"
+                                    <a-checkbox v-decorator="['employeeMarryStatusCheckAll', {valuePropName:'checked',initialValue: false}]"
                                     @change="onEmployeeMarryStatusCheckAllChange">全部</a-checkbox>
                                 </a-form-item>
                                 <a-form-item class='form-inline'>
-                                    <a-checkbox-group v-decorator="['employeeMarryStatusCheckedList']" :options="employeeMarryStatusOptions"
+                                    <a-checkbox-group v-decorator="['employeeMarryStatusCheckedList', { initialValue: [] }]" :options="employeeMarryStatusOptions"
                                     @change="onEmployeeMarryStatusChange"></a-checkbox-group>
                                 </a-form-item>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="学历">
-                                <a-checkbox-group v-decorator="['highEducation']">
+                                <a-checkbox-group v-decorator="['highEducation', {initialValue: []}]">
                                     <a-checkbox v-for="item in highEducation" :value="item.key">{{item.label}}</a-checkbox>
                                 </a-checkbox-group>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="工作地点">
-                                <a-checkbox-group v-decorator="['workplace']">
+                                <a-checkbox-group v-decorator="['workplace', {initialValue: []}]">
                                     <a-checkbox v-for="item in workplaceOption" :value="item.key">{{item.label}}</a-checkbox>
                                 </a-checkbox-group>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="离职类型">
-                                <a-select mode="multiple"  v-decorator="['endJobType']">
+                                <a-select mode="multiple"  v-decorator="['endJobType', {initialValue: []}]">
                                   <a-select-option v-for="item in endJobType" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
@@ -75,7 +75,7 @@
                         <fieldset>
                             <legend>员工联系地址条件</legend>
                             <a-form-item v-bind="formItemLayout2" label="地址类型">
-                                <a-select v-decorator="['addressType', {initialValue: addressTypeOption[0].key}]">
+                                <a-select v-decorator="['addressType', {initialValue: addressTypeOption.length > 0 ? addressTypeOption[0].key : ''}]">
                                   <a-select-option v-for="item in addressTypeOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
@@ -107,17 +107,17 @@
                         <fieldset>
                             <legend>入职离职日期范围</legend>
                             <a-form-item v-bind="formItemLayout2" label="入职日期">
-                                <a-range-picker v-decorator="['employeeDate']" format="YYYY-MM-DD">
+                                <a-range-picker v-decorator="['employeeDate', {initialValue: []}]" format="YYYY-MM-DD">
                                     <a-icon slot="suffixIcon" type="smile"></a-icon>
                                 </a-range-picker>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="离职日期">
-                                <a-range-picker v-decorator="['endJobDate']" format="YYYY-MM-DD">
+                                <a-range-picker v-decorator="['endJobDate', {initialValue: []}]" format="YYYY-MM-DD">
                                     <a-icon slot="suffixIcon" type="smile"></a-icon>
                                 </a-range-picker>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="生日日期">
-                                <a-range-picker v-decorator="['birthRange']" format="YYYY-MM-DD">
+                                <a-range-picker v-decorator="['birthRange', {initialValue: []}]" format="YYYY-MM-DD">
                                     <a-icon slot="suffixIcon" type="smile"></a-icon>
                                 </a-range-picker>
                             </a-form-item>
@@ -132,7 +132,7 @@
                         <fieldset>
                             <legend>证书合同日期范围</legend>
                             <a-form-item v-bind="formItemLayout2" label="证书类型">
-                                <a-select v-decorator="['credentialType']">
+                                <a-select v-decorator="['credentialType', { initialValue: credentialType.length > 0 ? credentialType[0].key : '' }]">
                                   <a-select-option v-for="item in credentialType" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
@@ -142,7 +142,7 @@
                                 </a-range-picker>
                             </a-form-item>
                             <a-form-item v-bind="formItemLayout2" label="合同类型">
-                                <a-select v-decorator="['contractType', {initialValue: contractType[0].key}]">
+                                <a-select v-decorator="['contractType', {initialValue: contractType.length > 0 ? contractType[0].key : ''}]">
                                   <a-select-option v-for="item in contractType" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
@@ -275,10 +275,6 @@ export default class FormModal extends Vue {
         key: '12',
         label: '十二月',
     }];
-    private employeeStatusCheckAll: boolean = false;
-    private employeeTypeCheckAll: boolean = false;
-    private employeeGenderCheckAll: boolean = false;
-    private employeeMarryStatusCheckAll: boolean = false;
     private employeeStatusOptions = ['正式员工', '试用期员工', '离职员工'];
     private employeeTypeOptions: TypeOption[] = [];
     private employeeGenderOptions = [{
@@ -316,18 +312,23 @@ export default class FormModal extends Vue {
     }
     private created() {
         this.form = this.$form.createForm(this);
-        this.provinceOption = _.fill(provinceData, '全部', 0, 1);
-        this.province = '广东省';
-        this.cityOption = cityData.广东省;
+        this.initialAdressData();
+        this.getBasicData();
+        this.getOrganizationData();
+    }
+    private initialAdressData() {
+        const newProvinceData = _.cloneDeep(provinceData);
+        const newCityData = _.cloneDeep(cityData);
+        this.provinceOption = _.fill(newProvinceData, '全部', 0, 1);
+        this.province = '全部';
         this.cityOption = _.fill(this.cityOption, '全部', 0, 1);
         this.city = '全部';
         this.area = '全部';
-        this.getBasicData();
-        this.getOrganizationData();
     }
     private okHandle() {
         this.form.validateFields((err: any, values: any) => {
             const  param = new URLSearchParams();
+            this.changeValueToParamas(param, values.keyword, 'SearchQuery');
             this.changeListDataToParams(param, values.employeeGenderCheckedList, 'FilterProperties.GenderValues');
             this.changeListDataToParams(param, values.employeeMarryStatusCheckedList, 'FilterProperties.MarriageStateValues');
             this.changeListDataToParams(param, values.highEducation, 'FilterProperties.HighestEducationIds');
@@ -339,16 +340,31 @@ export default class FormModal extends Vue {
             this.changeBetweenDateToParams(param, values.birthRange, 'FilterProperties.DateOfBirthStartValue', 'FilterProperties.DateOfBirthEndValue');
             this.changeBetweenDateToParams(param, values.contractDate, 'FilterProperties.ContractIssueStartValue', 'FilterProperties.ContractIssueEndValue');
             this.changeBetweenDateToParams(param, values.credentialDate, 'FilterProperties.CredentialIssueStartValue', 'FilterProperties.CredentialIssueEndValue');
-            this.changeDataToParamas(param, values.province, 'FilterProperties.ContactAddressProvinceOrState');
-            this.changeDataToParamas(param, values.city, 'FilterProperties.ContactAddressCity');
-            this.changeDataToParamas(param, values.area, 'FilterProperties.ContactAddressStreet');
+            this.changeDataToParamas(param, values.province, 'FilterProperties.ContactAddressProvinceOrStates');
+            this.changeDataToParamas(param, values.city, 'FilterProperties.ContactAddressCities');
+            this.changeDataToParamas(param, values.area, 'FilterProperties.ContactAddressStreets');
             this.changeDataToParamas(param, values.birthMonth, 'FilterProperties.BirthMonth');
             this.changeDataToParamas(param, values.credentialType, 'FilterProperties.CredentialTypeId');
             this.changeDataToParamas(param, values.contractType, 'FilterProperties.ContractTypeId');
+            this.changeDataToParamas(param, values.addressType, 'FilterProperties.ContactAddressTypeId');
             this.$emit('searchData', param);
-            console.log(param.toString());
+            this.resetData();
+
         });
     }
+    private resetData() {
+        this.form.resetFields();
+        this.initialAdressData();
+        this.getBasicData();
+        this.getOrganizationData();
+    }
+    // 单独处理字段
+    private changeValueToParamas(params: URLSearchParams, data: string, paramName: string) {
+        if (data && !_.isEmpty(data)) {
+            params.append(paramName, data);
+        }
+    }
+
     // 单独处理省市区
     private changeDataToParamas(params: URLSearchParams, data: string, paramName: string) {
         if (data && !_.isEqual(data, '全部')) {
@@ -371,68 +387,54 @@ export default class FormModal extends Vue {
     }
 
     private onEmployeeStatusCheckAllChange(e: any) {
-        Object.assign(this, {
-            employeeStatusCheckedList: e.target.checked ? this.employeeStatusOptions : [],
-            employeeStatusCheckAll: e.target.checked,
-        });
         this.form.setFieldsValue({
             employeeStatusCheckAll: e.target.checked,
             employeeStatusCheckedList: e.target.checked ? this.employeeStatusOptions : [],
         });
     }
     private onEmployeeStatusChange(checkedList: string[]) {
-        this.employeeStatusCheckAll = checkedList.length === this.employeeStatusOptions.length;
+        const employeeStatusCheckAll = checkedList.length === this.employeeStatusOptions.length;
         this.form.setFieldsValue({
-            employeeStatusCheckAll: checkedList.length === this.employeeStatusOptions.length,
+            employeeStatusCheckAll,
         });
     }
     private onEmployeeTypeCheckAllChange(e: any) {
         const newAllCheckOptions = _.map(this.employeeTypeOptions, 'value');
-        Object.assign(this, {
-            employeeTypeCheckedList: e.target.checked ? newAllCheckOptions : [],
-            employeeTypeCheckAll: e.target.checked,
-        });
         this.form.setFieldsValue({
             employeeTypeCheckAll: e.target.checked,
             employeeTypeCheckedList: e.target.checked ? newAllCheckOptions : [],
         });
     }
     private onEmployeeTypeChange(checkedList: string[]) {
-        this.employeeTypeCheckAll = checkedList.length === this.employeeTypeOptions.length;
+        const employeeTypeCheckAll = checkedList.length === this.employeeTypeOptions.length;
         this.form.setFieldsValue({
-            employeeTypeCheckAll: this.employeeTypeCheckAll,
+            employeeTypeCheckAll,
         });
     }
     private onEmployeeGenderCheckAllChange(e: any) {
         const newAllCheckOptions = _.map(this.employeeGenderOptions, 'value');
-        Object.assign(this, {
+        this.form.setFieldsValue({
             employeeGenderCheckedList: e.target.checked ? newAllCheckOptions : [],
             employeeGenderCheckAll: e.target.checked,
         });
-        this.form.setFieldsValue({
-            employeeGenderCheckedList: e.target.checked ? newAllCheckOptions : [],
-        });
     }
     private onEmployeeGenderChange(checkedList: string[]) {
-        this.employeeGenderCheckAll = checkedList.length === this.employeeGenderOptions.length;
+        const genderAllChecked = checkedList.length === this.employeeGenderOptions.length;
         this.form.setFieldsValue({
-            employeeGenderCheckAll: this.employeeGenderCheckAll,
+            employeeGenderCheckAll: genderAllChecked,
         });
     }
     private onEmployeeMarryStatusCheckAllChange(e: any) {
         const newAllCheckOptions = _.map(this.employeeMarryStatusOptions, 'value');
-        Object.assign(this, {
+        this.form.setFieldsValue({
             employeeMarryStatusCheckedList: e.target.checked ? newAllCheckOptions : [],
             employeeMarryStatusCheckAll: e.target.checked,
         });
-        this.form.setFieldsValue({
-            employeeMarryStatusCheckedList: e.target.checked ? newAllCheckOptions : [],
-        });
     }
     private onEmployeeMarryStatusChange(checkedList: string[]) {
-        this.employeeMarryStatusCheckAll = checkedList.length === this.employeeMarryStatusOptions.length;
+        const employeeMarryStatusCheckAll = checkedList.length === this.employeeMarryStatusOptions.length;
         this.form.setFieldsValue({
-            employeeMarryStatusCheckedList: this.employeeMarryStatusCheckAll,
+            employeeMarryStatusCheckAll,
         });
     }
     private getOrganizationData() {

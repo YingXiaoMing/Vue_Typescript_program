@@ -24,6 +24,16 @@
             <a-checkbox>开通企业钉钉</a-checkbox>
         </a-col>
         <a-col :span="16" class='red'>*需要有效的手机号码</a-col>
+        <a-row v-if="employeeStatus !== 3">
+          <a-col v-bind="botttomLayout" style="marginTop: 20px">
+              <a-col v-bind="bottomLayoutBtn">
+                  <a-button type="primary" @click="preStep">上一步</a-button>
+              </a-col>
+              <a-col v-bind="bottomLayoutBtn">
+                  <a-button type="primary" @click="nextStep">下一步</a-button>
+              </a-col>
+          </a-col>
+        </a-row>
     </div>
 </template>
 <script lang="ts">
@@ -33,7 +43,28 @@ import { Component, Emit } from 'vue-property-decorator';
     components: {},
 })
 export default class Step6 extends Vue {
-
+    private $store: any;
+    private employeeStatus: number = 1;
+    private bottomLayoutBtn = {
+        lg: {span: 12},
+        md: {span: 24},
+        sm: {span: 24},
+    };
+    private botttomLayout = {
+        lg: {span: 12, offset: 8},
+        md: {span: 24, offset: 14},
+        sm: {span: 24, offset: 14},
+    };
+    private created() {
+        const { employeeStatus } = this.$store.state.step;
+        this.employeeStatus = employeeStatus;
+    }
+    private nextStep() {
+        this.$emit('nextStep');
+    }
+    private preStep() {
+        this.$emit('preStep');
+    }
 }
 </script>
 

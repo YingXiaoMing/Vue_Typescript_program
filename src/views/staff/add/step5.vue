@@ -53,6 +53,16 @@
               :employeeId="employeeId" :tabList="bankTableData" :ETag="etag" 
               @loadData="loadBankData"></a-bank-table>
             </a-row>
+            <a-row v-if="employeeStatus !== 3">
+                <a-col v-bind="botttomLayout" style="marginTop: 20px">
+                    <a-col v-bind="bottomLayoutBtn">
+                        <a-button type="primary" @click="preStep">上一步</a-button>
+                    </a-col>
+                    <a-col v-bind="bottomLayoutBtn">
+                        <a-button type="primary" @click="nextStep">下一步</a-button>
+                    </a-col>
+                </a-col>
+            </a-row>
         </a-row>
     </div>
 </template>
@@ -62,6 +72,7 @@ import { Component, Emit } from 'vue-property-decorator';
 import { SelectValue, BasicData, BankTableData } from '@/interface';
 import { getBankNameOption } from '@/api/basic';
 import BankTable from '@/components/Step5/BankTable.vue';
+import { getEmployeeID } from '@/utils/cookie';
 import { getEmployeeBankData, addEmployeeBankData, newEmployeeBankAttachment } from '@/api/staff';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
@@ -84,6 +95,7 @@ export default class Step5 extends Vue {
     private form: any;
     private $form: any;
     private $store: any;
+    private employeeStatus: number = 1;
     private employeeId: string = '';
     private etag: string = '';
     private bankLoading: boolean = false;
@@ -93,6 +105,16 @@ export default class Step5 extends Vue {
         labelCol: { xs: {span: 24}, sm: {span: 10}},
         wrapperCol: { xs: {span: 24}, sm: {span: 14}},
     };
+    private bottomLayoutBtn = {
+        lg: {span: 12},
+        md: {span: 24},
+        sm: {span: 24},
+    };
+    private botttomLayout = {
+        lg: {span: 12, offset: 8},
+        md: {span: 24, offset: 14},
+        sm: {span: 24, offset: 14},
+    };
     private fileList: any = [];
     private bankTypeOption: SelectValue[] = [];
     private beforeUpload(file: any): boolean {
@@ -100,8 +122,19 @@ export default class Step5 extends Vue {
         return false;
     }
     private created() {
-        const { employeeId } = this.$store.state.step;
-        this.employeeId = employeeId;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        this.employeeStatus = employeeStatus;
+        switch (employeeStatus) {
+            case 3:
+                const employeeId = getEmployeeID();
+                if (employeeId) {
+                    this.employeeId = employeeId;
+                }
+                break;
+            default:
+                this.employeeId = newEmployeeId;
+                break;
+        }
         this.form = this.$form.createForm(this);
         this.fetchBankTypeData();
     }
@@ -147,6 +180,8 @@ export default class Step5 extends Vue {
                         this.clearFormData();
                     }
                 });
+            } else {
+                message.error('银行账号请填写完整');
             }
         });
     }
@@ -170,6 +205,7 @@ export default class Step5 extends Vue {
                     bankAccountNumber: item.bankAccountNumber,
                     note: item.note,
                     editable: false,
+                    disable: false,
                 };
             });
             this.bankTableData = newData;
@@ -186,6 +222,12 @@ export default class Step5 extends Vue {
             accountHolderName: data.accountHolderName,
             note:  data.note,
         };
+    }
+    private nextStep() {
+        this.$emit('nextStep');
+    }
+    private preStep() {
+        this.$emit('preStep');
     }
 
 }

@@ -33,7 +33,8 @@ export default class ProbationForm extends Vue {
             this.checked = newValue.check;
         }
     }
-    private momentDate(date: string) {
+    private momentDate(date: any) {
+        if (!date) { return null; }
         return moment(date, this.dateFormat);
     }
     private handleChange(e: any) {

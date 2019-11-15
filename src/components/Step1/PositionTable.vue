@@ -9,7 +9,7 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makePositionRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
@@ -20,7 +20,7 @@
         </template>
         <template slot="position" slot-scope="text,record">
             <a-cascader style='width:100%' :options="cascderOption"
-             v-if="record.editable" :value="record.selectOption"
+             v-if="record.editable" :value="record.selectOption" placeholder="请选择职位"
              @change="(value,selectOption) => onChange(value,selectOption,'position',record.key)"
              :displayRender="({labels, selectedOptions}) => labels.join('->')">
              </a-cascader>
@@ -195,7 +195,7 @@ export default class PhoneTable extends Vue {
             const patch = [
                     { op: 'replace', path: '/principalPositionId', value: target.key },
                 ];
-            putEmployeeBasicData(this.employeeId, patch).then((res) => {
+            putEmployeeBasicData(this.employeeId, patch, {}).then((res) => {
                 message.success('更换成功');
                 this.$emit('loadData');
             }).catch(() => {
@@ -208,7 +208,7 @@ export default class PhoneTable extends Vue {
         this.data = value;
     }
     @Emit()
-    private toggle(key: string) {
+    private makePositionRowNotEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         const str = target.position;
         if (target) {
@@ -219,7 +219,7 @@ export default class PhoneTable extends Vue {
         }
     }
     @Emit()
-    private cancel(key: string) {
+    private makePositionRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {

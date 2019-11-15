@@ -2,6 +2,8 @@ import types from '../mutation-types';
 import { RouterItem } from '@/interface';
 import { routeToArray } from '@/utils';
 import router from '@/router';
+import _ from 'lodash';
+
 
 function findMenu(
     data: any,
@@ -138,7 +140,12 @@ const app = {
                 if (item.name === name) {
                     resultData.tabActiveKey = index ? tabList[index - 1].name : tabList[index + 1].name;
                     context.dispatch('RemoveKeep', name);
-                    router.push({name: resultData. tabActiveKey});
+                    if (_.isEqual(resultData.tabActiveKey, 'staffadd')) {
+                        context.dispatch('changeEmployeeStatus', 1);
+                    } else if (_.isEqual(resultData.tabActiveKey, 'staff-edit')) {
+                        context.dispatch('changeEmployeeStatus', 2);
+                    }
+                    router.push({name: resultData.tabActiveKey});
                     return false;
                 }
                 return true;

@@ -42,7 +42,7 @@
                     <a-col :lg="10" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="任职职位">
                             <a-cascader :options="cascderOption" style="width:100%" v-decorator="['newPosition']"
-                            :displayRender="({labels, selectedOptions}) => labels.join('->')"
+                            :displayRender="({labels, selectedOptions}) => labels.join('->')" placeholder="请选择职位"
                             @change="(value, selectOption) => onChange(value, selectOption)"></a-cascader>
                         </a-form-item>
                     </a-col>

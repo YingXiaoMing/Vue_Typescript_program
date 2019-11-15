@@ -244,6 +244,7 @@ export default class Baisc extends Vue {
             key: 'new_id_1',
             isNew: true,
             editable: true,
+            disable: false,
         });
         this.basicList[nums].tableList = data;
     }
@@ -254,6 +255,7 @@ export default class Baisc extends Vue {
                 key: item.id,
                 editable: false,
                 isNew: false,
+                disable: false,
             };
         });
     }

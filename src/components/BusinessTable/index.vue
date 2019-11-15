@@ -22,11 +22,11 @@
                     <span v-else>
                         <a @click="saveRow(record.key)">保存</a>
                         <a-divider type="vertical"></a-divider>
-                        <a @click="cancel(record.key)">取消</a>
+                        <a @click="makeBusinessRowNotEditable(record.key)">取消</a>
                     </span>
                 </template>
                 <span v-else>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeBusinessRowEditable(record.key)">编辑</a>
                     <a-divider type="vertical"></a-divider>
                     <a @click="removeRow(record.key)">删除</a>
                 </span>
@@ -101,7 +101,7 @@ export default class PrizeTable extends Vue {
             target.name = value;
         }
     }
-    private toggle(key: string) {
+    private makeBusinessRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
@@ -165,7 +165,7 @@ export default class PrizeTable extends Vue {
         }
         return true;
     }
-    private cancel(key: string) {
+    private makeBusinessRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {

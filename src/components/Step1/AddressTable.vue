@@ -33,13 +33,13 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makeAddressRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
-                <a @click="toggle(record.key)">编辑</a>
+                <a @click="makeAddressRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="removeRow(record.key)">删除</a>
+                <a @click="removeRow(record.key)" :class="{'disabled-button': record.disable}">删除</a>
             </span>
         </template>
         <template slot="address" slot-scope="text,record">
@@ -71,6 +71,7 @@ interface TableData {
     area: string;
     address: string;
     key: string;
+    disable: boolean;
     editable: boolean;
     isNew: boolean;
     [key: string]: any;
@@ -162,14 +163,13 @@ export default class AddressTable extends Vue {
         this.loading = value;
     }
     private isNullAddress(target: TableData): boolean {
-        if (target.province === '' || target.city === '' || target.area === '' || target.address === '') {
+        if (_.isEmpty(target.province) || _.isEmpty(target.city) || _.isEmpty(target.area) || _.isEmpty(target.address)) {
             message.error('联系地址信息请填写完整');
             return false;
         }
         return true;
     }
-    // 编辑按钮点击
-    private toggle(key: number) {
+    private makeAddressRowEditable(key: string) {
         this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
@@ -179,18 +179,22 @@ export default class AddressTable extends Vue {
             this.city = target.city;
             this.area = target.area;
             target.editable = !target.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
+    }
     @Emit()
-    private cancel(key: number) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data  = newData;
-        }
-        target.editable = false;
+    private makeAddressRowNotEditable(key: string) {
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     @Emit()
     private handleChange(value: any, key: number, name: string) {
@@ -206,7 +210,7 @@ export default class AddressTable extends Vue {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
         if (target && this.isNullAddress(target)) {
             if (this.isNew) {
-                this.saveNewData(target);
+                this.saveNewData(target, key);
             } else {
                 const newData = this.deleteLast(_.cloneDeep(this.data));
                 const newValue = this.transformRemoteData(newData);
@@ -229,11 +233,12 @@ export default class AddressTable extends Vue {
             target.editable = false;
         }
     }
-    private saveNewData(target: any) {
-        target.editable = false;
+    private saveNewData(target: any, key: string) {
         const newData = [...this.data];
         newData.pop();
         this.$store.dispatch('ReplaceContactAddressList', newData);
+        target.editable = false;
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     private deleteLast(arr: any) {
         return arr.slice(0, arr.length - 1);
@@ -343,6 +348,7 @@ export default class AddressTable extends Vue {
             key: index,
             editable: true,
             isNew: true,
+            disable: false,
         });
     }
 }

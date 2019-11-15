@@ -53,13 +53,14 @@ import { getEducationLevelOption } from '@/api/basic';
 import EducationTable from './EducationTable.vue';
 import { getEmployeeEducationHistory, newEmployeeEducationHistory } from '@/api/staff';
 import { message } from 'ant-design-vue';
+import { getEmployeeID } from '@/utils/cookie';
 import moment from 'moment';
 import _ from 'lodash';
 interface ValueData {
     major: string;
     schoolName: string;
     startedDate: string;
-    endDate: string;
+    endedDate: string;
     educationLevel: {
         key: string;
         label: string;
@@ -85,8 +86,18 @@ export default class Education extends Vue {
         wrapperCol: { xs: {span: 24}, sm: {span: 14}},
     };
     private created() {
-        const { employeeId } = this.$store.state.step;
-        this.employeeId = employeeId;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        switch (employeeStatus) {
+            case 3:
+                const employeeId = getEmployeeID();
+                if (employeeId) {
+                    this.employeeId = employeeId;
+                }
+                break;
+            default:
+                this.employeeId = newEmployeeId;
+                break;
+        }
         this.form = this.$form.createForm(this);
         this.fetchData();
     }
@@ -110,6 +121,7 @@ export default class Education extends Vue {
                     endDate: moment(item.endedDate).format(this.dateFormat),
                     major: item.major,
                     schoolName: item.schoolName,
+                    disable: false,
                     educationLevel: targetEducationType ? targetEducationType : { key: '', label: '' },
                     editable: false,
                 };
@@ -121,7 +133,7 @@ export default class Education extends Vue {
     private addEducationData() {
         this.form.validateFields((err: any, values: ValueData) => {
             if (!err) {
-                if (moment(values.startedDate).isAfter(values.endDate)) {
+                if (moment(values.startedDate).isAfter(values.endedDate)) {
                     message.error('结束日期不能早于开始日期');
                     return;
                 }
@@ -130,13 +142,13 @@ export default class Education extends Vue {
                     schoolName: values.schoolName,
                     major: values.major,
                     startedDate: moment(values.startedDate).format(this.dateFormat),
-                    endedDate: moment(values.endDate).format(this.dateFormat),
+                    endedDate: moment(values.endedDate).format(this.dateFormat),
                 }).then((res) => {
                     this.form.resetFields();
                     this.remoteEmployeeEducationData();
-                }).catch((err) => {
-                    message.error('新增失败');
                 });
+            } else {
+                message.error('教育经历请填写完整');
             }
         });
     }

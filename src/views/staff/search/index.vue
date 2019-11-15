@@ -1,31 +1,42 @@
 <template>
     <div class='wrapper'>
         <div class='staff-head'>
-            <a-row :gutter="24">
-                <a-col :lg="8" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                        @search="handleChange" @select="onSelect">
-                            <template slot="dataSource">
-                                <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
-                            </template>
-                                <a-input @change="e => valueChange(e.target.value)"></a-input>
-                        </a-auto-complete>
-                    </a-form-item>
-                </a-col>
-                <a-col :lg="6" :md="12" :sm="24">
-                    <a-form-item>
-                        <a-button type="primary" @click="search">快速查询</a-button>
-                        <a-button type="primary" style='marginLeft:15px' @click="detailSearch">高级查询</a-button>
-                    </a-form-item>
-                </a-col>
-            </a-row>
+                <a-row :gutter="24">
+                    <a-form :form="form">
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item>
+                            <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                            @search="handleChange" @select="onSelect">
+                                <template slot="dataSource">
+                                    <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
+                                </template>
+                                    <a-input @change="e => valueChange(e.target.value)"></a-input>
+                            </a-auto-complete>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="3">
+                        <a-form-item>
+                            <a-checkbox v-decorator="['IsIncludeTerminated', { valuePropName: 'checked', initialValue: false }]">包含离职员工</a-checkbox>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="13" :md="12" :sm="24">
+                        <a-form-item>
+                            <a-button type="primary" @click="search">快速查询</a-button>
+                            <a-button type="primary" style='marginLeft:15px' @click="detailSearch">高级查询</a-button>
+                            <a-button type="primary" style='marginLeft:15px' icon="export" @click="basicExport">导出基本资料</a-button>
+                            <a-button type="primary" style='marginLeft:15px' icon="export" @click="detailExport">导出详细资料</a-button>
+                        </a-form-item>
+                    </a-col>
+                    </a-form>
+                </a-row>
             <a-row :gutter="24">
                 <a-col :span="24">
-                    <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination"></a-search-table>
+                    <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination" @tableChange="pageChange"></a-search-table>
                 </a-col>
             </a-row>
             <a-form-modal :visible="visible" @cancel="cancelHandle" @searchData="searchParamData"></a-form-modal>
+            <a-detail-modal :visible="exportModal.visible" @cancel="detailCancelHandle" 
+            :propsData="exportModal.data" @ok="downloadExcelData"></a-detail-modal>
         </div>
         
     </div>
@@ -38,10 +49,14 @@ import { Emit, Prop, Watch } from 'vue-property-decorator';
 import SearchTable from './searchTable.vue';
 import { getEmployeeData, searchEmployeeData } from '@/api/staff';
 import FormModal from '@/components/FormModal/index.vue';
+import config from '@/utils/config';
+import DetailModal from './searchModal.vue';
 import { Pagination } from '@/interface';
 import _ from 'lodash';
 import './index.less';
 import moment from 'moment';
+import { message } from 'ant-design-vue';
+
 interface EmployeeData {
     value: string;
     text: string;
@@ -52,6 +67,15 @@ interface TargetData {
     phoneNumber: {
         number: string;
     };
+}
+interface FilterSort {
+    name: string;
+    title: string;
+    isSelect: boolean;
+}
+interface ExportModal {
+    visible: boolean;
+    data: FilterSort[];
 }
 @Component({
     components: {
@@ -64,15 +88,24 @@ interface TargetData {
         'a-button': Button,
         'a-input': Input,
         'a-form-modal': FormModal,
+        'a-detail-modal': DetailModal,
     },
     name: 'staffsearch',
 })
 export default class Search extends Vue {
+    private searchParams: URLSearchParams = new URLSearchParams();
+    private exportButton: string = 'basic';
     private pagination: Pagination = {
         pageSize: 0,
         total: 0,
-        onChange: this.pageChange,
+        current: 1,
+        showSizeChanger: true,
+        pageSizeOptions: ['5', '10', '15'],
+        onChange: (current: number, pageSize: number) => this.pageChange,
+        showTotal: this.showTotal,
     };
+    private form: any;
+    private $form: any;
     private visible: boolean = false;
     private tabData: any = [];
     private dateFormat = 'YYYY-MM-DD';
@@ -80,11 +113,179 @@ export default class Search extends Vue {
     private searchKey: string = '';
     private employeeDataList: EmployeeData[] = [];
     private dataSource = ['123', '22', '223'];
+    private exportModal: ExportModal = {
+        visible: false,
+        data: [],
+    };
     private created() {
+        this.form = this.$form.createForm(this, {
+            IsIncludeTerminated: false,
+        });
         this.fetch('');
+    }
+    private showTotal(total: string, range: any) {
+        return  `总记录数: ${total}条`;
     }
     private detailSearch() {
         this.visible = true;
+    }
+    private basicExport() {
+        this.exportButton = 'basic';
+        this.exportModal = {
+            visible: true,
+            data: [{
+                name: 'first_name',
+                title: '员工姓',
+                isSelect: false,
+            }, {
+                name: 'last_name',
+                title: '员工名',
+                isSelect: false,
+            }, {
+                name: 'birthDay',
+                title: '出生日期',
+                isSelect: false,
+            }, {
+                name: 'isMarry',
+                title: '婚否',
+                isSelect: false,
+            }, {
+                name: 'gender',
+                title: '性别',
+                isSelect: false,
+            }, {
+                name: 'last_name',
+                title: '身份证件信息',
+                isSelect: false,
+            }, {
+                name: 'birthDay',
+                title: '能力&特长',
+                isSelect: false,
+            }, {
+                name: 'isMarry',
+                title: '入职日期',
+                isSelect: false,
+            }, {
+                name: 'employeeOrigin',
+                title: '入职来源',
+                isSelect: false,
+            }, {
+                name: 'introducer',
+                title: '介绍人',
+                isSelect: false,
+            }, {
+                name: 'workplace',
+                title: '工作地点',
+                isSelect: false,
+            }, {
+                name: 'employeeType',
+                title: '工作性质',
+                isSelect: false,
+            }, {
+                name: 'probation',
+                title: '试用期截至',
+                isSelect: false,
+            }, {
+                name: 'position',
+                title: '职位信息',
+                isSelect: true,
+            }, {
+                name: 'employeeStatus',
+                title: '员工状态',
+                isSelect: false,
+            }, {
+                name: 'endJobType',
+                title: '离职类型',
+                isSelect: false,
+            }, {
+                name: 'endJobDate',
+                title: '离职日期',
+                isSelect: false,
+            }, {
+                name: 'endJobReason',
+                title: '离职原因',
+                isSelect: false,
+            }, {
+                name: 'contactPhone',
+                title: '联系电话',
+                isSelect: false,
+            }, {
+                name: 'contactAddress',
+                title: '联系地址',
+                isSelect: false,
+            }, {
+                name: 'emergencyContact',
+                title: '紧急联系人',
+                isSelect: false,
+            }],
+        };
+    }
+    private detailExport() {
+        this.exportButton = 'detail';
+        this.exportModal = {
+            visible: true,
+            data: [{
+                name: 'basic',
+                title: '基本信息',
+                isSelect: false,
+            }, {
+                name: 'LegalIds',
+                title: '身份证件信息',
+                isSelect: false,
+            }, {
+                name: 'phone',
+                title: '联系电话',
+                isSelect: false,
+            }, {
+                name: 'address',
+                title: '联系地址',
+                isSelect: false,
+            }, {
+                name: 'emergencyContact',
+                title: '紧急联系人资料',
+                isSelect: false,
+            }, {
+                name: 'position',
+                title: '职位信息',
+                isSelect: false,
+            }, {
+                name: 'education',
+                title: '教育经历',
+                isSelect: false,
+            }, {
+                name: 'workExperience',
+                title: '工作经历',
+                isSelect: false,
+            }, {
+                name: 'credential',
+                title: '证件资料',
+                isSelect: false,
+            }, {
+                name: 'contract',
+                title: '个人合同',
+                isSelect: false,
+            }, {
+                name: 'bankAccount',
+                title: '银行账号',
+                isSelect: false,
+            }, {
+                name: 'computerAccount',
+                title: '电脑登录账号',
+                isSelect: false,
+            }, {
+                name: 'email',
+                title: '企业邮箱',
+                isSelect: false,
+            }, {
+                name: 'DingDing',
+                title: '企业钉钉',
+                isSelect: false,
+            }, {
+                name: 'Document',
+                title: '关联文档',
+                isSelect: false,
+            }]
+        };
     }
     private valueChange(value: string) {
         this.searchKey = value;
@@ -96,16 +297,40 @@ export default class Search extends Vue {
         this.searchData(current, pageSize);
     }
     private search() {
-        this.searchData(1, 5);
+        this.searchData(1, 10);
     }
     private cancelHandle() {
         this.visible = false;
     }
+    private detailCancelHandle() {
+        this.exportModal.visible = false;
+    }
     private handleCancel() {
         this.visible = false;
     }
+    private downloadExcelData() {
+        if (!_.isEmpty(this.searchParams.toString())) {
+            this.exportModal.visible = false;
+            let downLink;
+            switch (this.exportButton) {
+                case 'basic':
+                    downLink = config.baseUrl + '/employee/Export/ExportBasicEmployees?' + this.searchParams;
+                    break;
+                default:
+                    downLink = config.baseUrl + '/employee/Export/ExportDetailEmployees?' + this.searchParams;
+                    break;
+            }
+            const link = document.createElement('a');
+            link.href = downLink;
+            link.click();
+        } else {
+            message.warning('暂无数据');
+        }
+    }
     private searchParamData(param: URLSearchParams) {
         this.searchLoading = true;
+        this.visible = false;
+        this.searchParams = param;
         getEmployeeData(param).then((res) => {
             const data = res.data;
             this.tabData = _.map(data, (item) => {
@@ -135,11 +360,18 @@ export default class Search extends Vue {
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
+        }).catch(() => {
+            this.tabData = [];
+            this.pagination.pageSize = 0;
+            this.pagination.total = 0;
+            this.pagination.current = 1;
+            this.searchLoading = false;
         });
     }
     private searchData(current: number, pageSize: number) {
         const params = new URLSearchParams();
-        params.set('SearchQuery', this.searchKey);
+        params.set('FilterProperties.Id', this.searchKey);
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
         this.searchParamData(params);
@@ -147,10 +379,16 @@ export default class Search extends Vue {
     private handleChange(value: string) {
         this.fetch(value);
     }
+    private changeDataToParamas(params: URLSearchParams, data: boolean, paramName: string) {
+        if (data) {
+            params.set(paramName, data.toString());
+        }
+    }
     private fetch(value: string) {
         const params = new URLSearchParams();
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
+        this.changeDataToParamas(params, this.form.getFieldValue('IsIncludeTerminated'), 'FilterProperties.IsIncludeTerminated');
         searchEmployeeData(params.toString()).then((res) => {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {

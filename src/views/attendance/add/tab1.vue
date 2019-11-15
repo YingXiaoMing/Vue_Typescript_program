@@ -4,7 +4,7 @@
         <a-row :gutter="24">
             <a-col :lg="6" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="请假类型">
-                    <a-select labelInValue v-decorator="['type',{initialValue: options[0]}]">
+                    <a-select labelInValue  v-decorator="['type',{initialValue: options[0]}]">
                         <a-select-option v-for="item in options" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
                 </a-form-item>
@@ -14,13 +14,13 @@
         <a-row>
           <a-col :lg="6" :md="12" :sm="24">
               <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="开始日期时间">
-                  <a-date-picker showTime :format="dateForm" v-decorator="['startDateTime',
+                  <a-date-picker style="width: 100%"  :showTime="{ format: 'hh:mm' }" :format="dateForm" v-decorator="['startDateTime',
                   {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
               </a-form-item>
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
               <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="结束日期时间">
-                  <a-date-picker showTime :format="dateForm" v-decorator="['endedDateTime', 
+                  <a-date-picker style="width: 100%"  :showTime="{ format: 'hh:mm' }" :format="dateForm" v-decorator="['endedDateTime', 
                   {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
               </a-form-item>
           </a-col>
@@ -33,15 +33,15 @@
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
               <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="可用有薪假">
-                  <a-input addonAfter="小时" v-decorator="['salaryHour']"></a-input>
+                  <a-input  v-decorator="['salaryHour']" disabled></a-input>
               </a-form-item>
           </a-col>
         </a-row>
         <a-row>
             <a-col :lg="6" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="请假时长">
-                    <a-input  addonAfter="小时" v-decorator="['totalHours',
-                    {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                    <a-input-number  style="width: 100%" v-decorator="['totalHours',
+                    {rules: [{ required: true, message: ' ' }]}]"></a-input-number>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -92,7 +92,7 @@ export default class Tab1 extends Vue {
     private labelCol1 = { xs: {span: 24}, sm: {span: 4} };
     private wrapperCol1 = { xs: {span: 24}, sm: {span: 20} };
     private options: SelectValue[] = [];
-    private dateForm = 'YYYY-MM-DD HH:mm:ss';
+    private dateForm = 'YYYY-MM-DD HH:mm';
     private form: any;
     private $form: any;
     private created() {
@@ -116,7 +116,7 @@ export default class Tab1 extends Vue {
             return;
         }
         this.form.validateFields((err: any, values: any) => {
-            if (!err) {
+            if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
                 newBusinesstrip(this.employeeId, {
                     timeoffOvertimeBusinesstripTypeId: values.type.key,
                     startDateTime: moment(values.startDateTime).format(this.dateForm),
@@ -131,6 +131,21 @@ export default class Tab1 extends Vue {
                 });
             }
         });
+    }
+    private compareStartDateAndEndDate(startDate: any, endDate: any) {
+        if (moment(startDate).isAfter(endDate)) {
+            message.error('开始日期不能晚于结束日期');
+            return false;
+        }
+        return true;
+    }
+    private isRangeDate(hour: string): boolean {
+        const nativeReg = /^[+]{0,1}(\d+)$|^[+]{0,1}(\d+\.\d+)$/;
+        if (!nativeReg.test(hour)) {
+            message.error('时长必须为正整数');
+            return false;
+        }
+        return true;
     }
 }
 </script>

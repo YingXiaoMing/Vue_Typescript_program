@@ -28,7 +28,8 @@ import { getEmployeeDismissedPosition } from '@/api/operation';
 export default class Tab extends Vue {
     @Prop() private orginData!: SelectValue[];
     @Prop() private dismissData!: SelectValue[];
-    @Prop({default: ''}) private employeeId!: string;
+    @Prop({default: ''}) private employeeIds!: string;
+    private employeeId: string = this.employeeIds;
     private originOptionData: SelectValue[] = this.orginData;
     private dismissOptionData: SelectValue[] = this.dismissData;
     @Watch('orginData')
@@ -38,6 +39,10 @@ export default class Tab extends Vue {
     @Watch('dismissData')
     private dismissPositionChange(value: SelectValue[]) {
         this.dismissOptionData = value;
+    }
+    @Watch('employeeIds')
+    private employeeIdChange(value: string) {
+        this.employeeId = value;
     }
     private tabChange(key: string) {
         if (_.isEqual(this.employeeId, '')) { return; }

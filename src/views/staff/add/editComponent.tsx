@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Radio, Row, Col } from 'ant-design-vue';
 @Component({
     components: {
@@ -9,6 +9,7 @@ import { Radio, Row, Col } from 'ant-design-vue';
     },
 })
 export default class EditStep extends Vue {
+    @Prop({default: 0}) private curTab!: number;
     private stepList = [{
         value: 0,
         label: '基本资料',
@@ -37,14 +38,22 @@ export default class EditStep extends Vue {
         md: {span: 24},
         sm: {span: 24},
     };
+    private created() {
+        this.stepValue = this.curTab;
+    }
     private handleChange(e: any) {
         const newValue = e.target.value;
+        this.stepValue = newValue;
         this.$emit('handleClick', newValue);
+    }
+    @Watch('curTab')
+    private currentTabChange(value: number) {
+        this.stepValue = value;
     }
     private render() {
         return (
             <div>
-                <a-radio-group style='width: 100%' defaultValue={this.stepValue} on-change={this.handleChange}>
+                <a-radio-group style='width: 100%' value={this.stepValue} on-change={this.handleChange}>
                     <a-row type='flex' justify='center'>
                         {this.stepList.map((item) => {
                             return (

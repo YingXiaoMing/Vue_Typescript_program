@@ -13,7 +13,7 @@
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item v-bind="formItemLayout" label="员工(姓)">
-                                <a-input v-decorator="['last_name', {rules: [{ required: true, message: ' ' }],initialValue: basicData.last_name }]"></a-input>
+                                <a-input v-decorator="['last_name', {initialValue: basicData.last_name, rules: [{ required: true, message: ' ' }] }]"></a-input>
                             </a-form-item>
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
@@ -79,21 +79,21 @@
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item label="工作地点" v-bind="formItemLayout">
                                 <a-select labelInValue v-decorator="['workplace', {rules: [{ required: true, message: ' ' }], initialValue: basicData.workplace}]">
-                                    <a-select-option v-for="item in employeeOriginOption" :value="item.key">{{item.label}}</a-select-option>
+                                    <a-select-option v-for="item in workpalceOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item label="工作性质" v-bind="formItemLayout">
                                 <a-select labelInValue v-decorator="['employeeType', {rules: [{ required: true, message: ' ' }], initialValue: basicData.employeeType}]">
-                                    <a-select-option v-for="item in employeeOriginOption" :value="item.key">{{item.label}}</a-select-option>
+                                    <a-select-option v-for="item in employeeTypeOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item label="民族" v-bind="formItemLayout">
                                 <a-select labelInValue v-decorator="['ethnicGroupId', {rules: [{ required: true, message: ' ' }], initialValue: basicData.ethnicGroupId}]">
-                                    <a-select-option v-for="item in employeeOriginOption" :value="item.key">{{item.label}}</a-select-option>
+                                    <a-select-option v-for="item in ethnicGroupOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
                         </a-col>
@@ -111,7 +111,7 @@
                 </a-col>
                 <a-col :xl="4" :lg="24" :md="24" :sm="24" :xs="24">
                     <a-upload name="avatar" :showUploadList="false" 
-                    listType="picture-card" class="avatar-uploader"
+                    listType="picture-card" class="avatar-uploader" action=''
                     :beforeUpload="beforeUpload" @change="handleUploadChange">
                         <div class='Avatar'>
                             <div class='container'>
@@ -163,6 +163,7 @@ export default class BasicDataTable extends Vue {
     private $form: any;
     private dateFormat = 'YYYY-MM-DD';
     private isuploadImg: boolean = false;
+    private canUploadImg: boolean = false;
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 8}},
         wrapperCol: { xs: {span: 24}, sm: {span: 16}},
@@ -198,7 +199,8 @@ export default class BasicDataTable extends Vue {
     }
     private beforeUpload(file: any): boolean {
         this.fileList = [...this.fileList, file];
-        return this.isPic(file) && this.limitSize(file);
+        this.canUploadImg = this.isPic(file) && this.limitSize(file) ? true : false;
+        return false;
     }
     private isPic(file: any): boolean {
         const isJPG = file.type === 'image/jpeg';
@@ -218,10 +220,27 @@ export default class BasicDataTable extends Vue {
         return isLimit3M;
     }
     private handleUploadChange(info: any) {
-        this.getBase64(info.file.originFileObj, (imageUrl: any) => {
-            this.imageUrl = imageUrl;
-            this.isuploadImg = true;
-        });
+        const { employeeStatus } = this.$store.state.step;
+        switch (employeeStatus) {
+            case 1:
+                this.getBase64(info.file, (imageUrl: any) => {
+                    this.imageUrl = imageUrl;
+                    this.isuploadImg = true;
+                });
+                break;
+            default:
+                if (this.canUploadImg) {
+                    const formData = new FormData();
+                    formData.append('files[]', info.file);
+                    uploadAvatar(this.employeeId, formData).then((res) => {
+                        this.getBase64(info.file, (imageUrl: any) => {
+                            this.imageUrl = imageUrl;
+                            this.isuploadImg = true;
+                        });
+                    });
+                }
+                break;
+        }
     }
     private getBase64(img: any, callback: any) {
         const reader = new FileReader();
@@ -230,6 +249,10 @@ export default class BasicDataTable extends Vue {
     }
     private newBasicEmployeeData() {
         this.form.validateFields((err: any, values: BasicForm) => {
+            if (moment(values.birthOfDate).isAfter(moment().format(this.dateFormat))) {
+                message.error('请检查出生日期，出生日期不能大于当前日期');
+                return;
+            }
             if (!err) {
                 const { LegalList, phoneNumberList, contactAddressList,
                 emergencyContactsList, positionList, employeeStatus} = this.$store.state.step;
@@ -244,16 +267,27 @@ export default class BasicDataTable extends Vue {
                             formData.append('files[]', this.fileList[0]);
                             uploadAvatar(id, formData);
                         }
+                        this.$store.dispatch('ChangeNewEmployeeId', id);
+                        this.$store.dispatch('changeEmployeeStatus', 2);
+                        this.$store.dispatch('changeNewEmployeeStatus', 2);
+                        this.$emit('nextStep');
                     });
                 }
+            } else {
+                const errList = _.keys(err);
+                const validateData = {
+                    birthOfDate: '出生日期',
+                    employeeDate: '入职日期',
+                    first_name: '员工(姓)',
+                    last_name: '员工(名)',
+                };
+                const newList = _.map(errList, (o: any) => {
+                    return _.get(validateData, o);
+                });
+                const errMsg = _.join(newList, ',');
+                message.error('基本资料不完整，请检查:' + errMsg);
             }
         });
-    }
-    private transateEmployeeStatus(id: string) {
-        this.basicData.id = id;
-        this.$store.dispatch('ChangeEmployeeId', id);
-        this.$store.dispatch('changeEmployeeStatus', 2);
-        this.$emit('jump');
     }
     private validateStepList(): boolean {
         const { LegalList, phoneNumberList, contactAddressList,
@@ -277,9 +311,11 @@ export default class BasicDataTable extends Vue {
             return true;
         }
     }
-
+    private created() {
+        this.form = this.$form.createForm(this);
+    }
     private convertFormData(values: BasicForm, legalTable: LegalTableItem[], ContactAddressTable: ContactAddressItem[], PhoneNumTable: PhoneNumItem[], EmergencyContactTable: EmergencyContactItem[], PositionTable: PositionItem[]): FormBasicData {
-        const legal_Ids: LegalIdForm[] = _.map(legalTable, (item) => {
+        const legalIds: LegalIdForm[] = _.map(legalTable, (item: LegalTableItem) => {
             return {
                 typeId: item.legalType.key,
                 idNumber: item.legalNum,
@@ -348,23 +384,24 @@ export default class BasicDataTable extends Vue {
             phoneNumbers,
             emergencyContacts,
             positionIds,
-            legal_Ids,
+            legal_Ids: legalIds,
         };
         return formData;
     }
 
-
     private saveEditData() {
-        this.form.validateFields((err: any, values: NewBasicForm) => {
+        this.form.validateFields((err: any, values: any) => {
+            if (moment(values.birthOfDate).isAfter(moment().format(this.dateFormat))) {
+                message.error('请检查出生日期，出生日期不能大于当前日期');
+                return;
+            }
+            values.birthOfDate = this.momentDate(values.birthOfDate);
+            values.employeeDate = this.momentDate(values.employeeDate);
             const diff = this.compareNewValueAndOldValue(values, this.basicDatas);
             putEmployeeBasicData(this.employeeId, diff, {
                 'If-Match': this.ETag,
             }).then((res) => {
-                if (this.isuploadImg) {
-                    const formData = new FormData();
-                    formData.append('files[]', this.fileList[0]);
-                    uploadAvatar(this.employeeId, formData);
-                }
+                message.success('更新成功');
                 this.$emit('loadData');
             });
         });
@@ -378,13 +415,10 @@ export default class BasicDataTable extends Vue {
     }
 
     private transferComputedData(value: NewBasicForm) {
-        return {
+        const compareValues: any =  {
             firstName: value.first_name,
             lastName: value.last_name,
             nickName: value.nick_name,
-            employmentProbrationInfo: {
-                probrationEndedDate: value.dueDate.date ? moment(value.dueDate.date).format(this.dateFormat) : null,
-            },
             dateOfBirth: value.birthOfDate ? moment(value.birthOfDate).format(this.dateFormat) : null,
             marriageStateValue: value.isMarried,
             genderValue: value.gender,
@@ -399,6 +433,16 @@ export default class BasicDataTable extends Vue {
                 employmentTypeId: value.employeeType.key,
             },
         };
+        if (value.dueDate.check) {
+            compareValues.employmentProbrationInfo = {
+                probrationEndedDate: value.dueDate.date,
+            };
+        }
+        return compareValues;
+    }
+    private momentDate(date: any) {
+        if (!date) { return null; }
+        return moment(date, this.dateFormat);
     }
 
     @Watch('options')
@@ -412,10 +456,25 @@ export default class BasicDataTable extends Vue {
     @Watch('basicDatas')
     private basicDataChange(values: NewBasicForm) {
         this.basicData = values;
+        this.form.setFieldsValue({
+            num: values.id,
+            first_name: values.first_name,
+            last_name: values.last_name,
+            nick_name: values.nick_name,
+            birthOfDate: values.birthOfDate ? moment(values.birthOfDate, this.dateFormat) : null,
+            isMarried: values.isMarried,
+            highEducation: values.highEducation,
+            gender: values.gender,
+            employeeDate: values.employeeDate ? moment(values.employeeDate, this.dateFormat) : null,
+            employeeOrigin: values.employeeOrigin,
+            employeeIntroducer: values.employeeIntroducer,
+            workplace: values.workplace,
+            employeeType: values.employeeType,
+            ethnicGroupId: values.ethnicGroupId,
+            personalAbilityDescription: values.personalAbilityDescription,
+            dueDate: values.dueDate,
+        });
         this.imageUrl = values.imageUrl;
-    }
-    private created() {
-        this.form = this.$form.createForm(this);
     }
 }
 </script>

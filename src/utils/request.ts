@@ -9,7 +9,8 @@ import { getEmployeeTokenByRrefreshToken } from '../api/operation';
 const service = axios.create({
     baseURL: config.baseUrl,
     timeout: 5000,
-    headers: {'Content-Type': 'application/vnd.ais.hr.department+json'},
+    headers: {'Content-Type': 'application/vnd.ais.hr.department+json',
+              'Cache-Control': 'no-cache'},
 });
 
 service.interceptors.response.use(
@@ -18,37 +19,39 @@ service.interceptors.response.use(
         return response;
     },
     (error) => {
-        // message.error();
-        // 单独处理token过期信息
-        if (error.response.status === 401) {
-            if (getRefreshToken()) {
-                const refreshToken = getRefreshToken();
-                const newUrl = config.awsTokenDomain;
-                getEmployeeTokenByRrefreshToken(newUrl, {
-                    grant_type: 'refresh_token',
-                    refresh_token: refreshToken,
-                    client_id: awsconfig.aws_user_pools_web_client_id,
-                }).then((res: any) => {
-                    // 刷新token
-                    setAccessToken(res.access_token);
-                    // 再次发送用户上次的请求
-                    const token = res.token_type + res.access_token;
-                    const Config = error.response.config;
-                    Config.header.Authorization = token;
-                    const request = axios.request(Config);
-                    return request;
-                });
-            } else {
-                message.error('登录过期请重新登录！');
-                removeAccessToken();
-                router.push({
-                    name: 'login',
-                });
-            }
-        };
-
-        const data = error.response.data;
-        message.error(data);
+        switch (error.response.status) {
+            case 401:
+                if (getRefreshToken()) {
+                    const refreshToken = getRefreshToken();
+                    const newUrl = config.awsTokenDomain;
+                    getEmployeeTokenByRrefreshToken(newUrl, {
+                        grant_type: 'refresh_token',
+                        refresh_token: refreshToken,
+                        client_id: awsconfig.aws_user_pools_web_client_id,
+                    }).then((res: any) => {
+                        // 刷新token
+                        setAccessToken(res.access_token);
+                        // 再次发送用户上次的请求
+                        const token = res.token_type + res.access_token;
+                        const Config = error.response.config;
+                        Config.header.Authorization = token;
+                        const request = axios.request(Config);
+                        return request;
+                    });
+                } else {
+                    message.error('登录过期请重新登录！');
+                    removeAccessToken();
+                    router.push({
+                        name: 'login',
+                    });
+                }
+                break;
+            default:
+                const newData = error.response.data;
+                const errMsg = _.values(newData);
+                message.error(errMsg[0]);
+                break;
+        }
         return Promise.reject(error);
     },
 );

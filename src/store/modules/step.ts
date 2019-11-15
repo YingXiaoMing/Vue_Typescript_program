@@ -9,13 +9,15 @@ const step = {
         positionList: [],
         basicData: {},
         employeeStatus: 1,
+        newEmployeeStatus: 1,
         educationHistoryList: [],
         workExperienceList: [],
         credentialList: [],
         contractList: [],
         bankList: [],
         relatedDocumentList: [],
-        employeeId: '',
+        editEmployeeId: '',
+        newEmployeeId: '',
     },
     actions: {
         AddLegalList: (context: any, data: any) => {
@@ -72,6 +74,9 @@ const step = {
         changeEmployeeStatus: (context: any, num: number) => {
             context.state.employeeStatus = num;
         },
+        changeNewEmployeeStatus: (context: any, num: number) => {
+            context.state.newEmployeeStatus = num;
+        },
         ReplaceEducationHistoryList: (context: any, data: any) => {
             context.state.educationHistoryList = data;
         },
@@ -90,8 +95,18 @@ const step = {
         ReplaceRelatedDocumentList: (context: any, data: any) => {
             context.state.relatedDocumentList = data;
         },
-        ChangeEmployeeId: (context: any, data: string) => {
-            context.state.employeeId = data;
+        ChangeNewEmployeeId: (context: any, data: string) => {
+            context.state.newEmployeeId = data;
+        },
+        ChangeEditEmployeeId: (context: any, data: string) => {
+            context.state.editEmployeeId = data;
+        },
+        clearEmployeeDataList: (context: any) => {
+            context.state.LegalList = [];
+            context.state.phoneNumberList = [];
+            context.state.contactAddressList = [];
+            context.state.emergencyContactsList = [];
+            context.state.positionList = [];
         },
     },
 };

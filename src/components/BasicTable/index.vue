@@ -15,13 +15,13 @@
                     <span v-else>
                         <a @click="saveRow(record.key)">保存</a>
                         <a-divider type='vertical'></a-divider>
-                        <a @click="cancel(record.key)">取消</a>
+                        <a @click="makeBasicRowNotEditable(record.key)">取消</a>
                     </span>
                 </template>
                 <span v-else>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeBasicRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="removeRow(record.key)" class="red">删除</a>
+                    <a @click="removeRow(record.key)" class="red" :class="{'disabled-button': record.disable}">删除</a>
                 </span>
             </template>
         </a-table>
@@ -30,6 +30,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import { message } from 'ant-design-vue';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Col, Divider, Input } from 'ant-design-vue';
 import { ColumnList } from '@/interface';
@@ -41,6 +42,7 @@ interface TableData {
     key?: string;
     editable: boolean;
     isNew: boolean;
+    disable: boolean;
     [key: string]: any;
 }
 interface RemoteTableData {
@@ -60,7 +62,6 @@ export default class BasicTable extends Vue {
     @Prop({default: ''}) private ETag!: string;
     private data: TableData[] = this.tableList;
     private etag: string = this.ETag;
-
     private loading: boolean = false;
     private cacheOriginData: any = [];
     private column: ColumnList[] = [{
@@ -98,7 +99,6 @@ export default class BasicTable extends Vue {
                 'If-Match': this.etag,
             }).then((res) => {
                 this.loadData();
-                console.log('加载数据');
             });
         } else {
             const newData = [...this.data];
@@ -121,6 +121,7 @@ export default class BasicTable extends Vue {
             key: 'new_id_1',
             isNew: true,
             editable: true,
+            disable: false,
         });
         return  data;
     }
@@ -131,6 +132,7 @@ export default class BasicTable extends Vue {
                 key: item.id,
                 editable: false,
                 isNew: false,
+                disable: false,
             };
         });
     }
@@ -140,18 +142,18 @@ export default class BasicTable extends Vue {
             this.loadData();
         });
     }
-    @Emit()
-    private toggle(key: string) {
+    private makeBasicRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
                 this.cacheOriginData = _.cloneDeep(this.data);
             }
             target.editable = !target.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
     @Emit()
-    private cancel(key: string) {
+    private makeBasicRowNotEditable(key: string) {
         const newData = [...this.data];
         // const target = this.data.filter(item => item.key === key)[0];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
@@ -161,6 +163,14 @@ export default class BasicTable extends Vue {
             this.data = newData;
         }
         target.editable = false;
+        this.setOtherRowsDisabled(key, this.data, false);
+    }
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
     }
     @Emit()
     private handleChange(value: any, key: string, name: string) {
@@ -174,19 +184,28 @@ export default class BasicTable extends Vue {
     @Emit()
     private addRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const originData = this.deleteLast(_.cloneDeep(this.data));
+        if (_.find(originData, {name: target.name})) {
+            message.error('不允许添加重复的数据');
+            return;
+        }
         newBasicData(this.url, {name: target.name}).then((response: any) => {
             const index = key + 1;
             const newData = [...this.data];
             target.editable = false;
-            target.key = response.id;
+            target.key = response.data.id;
             target.isNew = false;
             this.data.push({
                 name: '',
                 editable: true,
                 isNew: true,
                 key: 'new_id_1',
+                disable: false,
             });
         });
+    }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
     }
     private transformRemoteData(remoteData: TableData[]): RemoteTableData[] {
         const newData: RemoteTableData[] = _.map(remoteData, (item) => {

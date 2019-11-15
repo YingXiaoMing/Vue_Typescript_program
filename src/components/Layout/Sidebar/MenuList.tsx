@@ -3,6 +3,7 @@ import { Menu, Icon } from 'ant-design-vue';
 import { RouterItem } from '@/interface';
 import './MenuList.less';
 import { routeToArray } from '@/utils';
+import _ from 'lodash';
 @Component({
     components: {
         'a-menu': Menu,
@@ -77,10 +78,12 @@ export default class MenuList extends Vue {
         });
     }
 
-
     public openPage(path: string) {
-        if (path === '/staff/add') {
+        if (_.isEqual(path, '/staff/add')) {
             this.$store.dispatch('changeEmployeeStatus', 1);
+            this.$store.dispatch('changeNewEmployeeStatus', 1);
+        } else if (_.isEqual(path, '/staff/edit')) {
+            this.$store.dispatch('changeEmployeeStatus', 3);
         }
         this.$router.push(path);
     }

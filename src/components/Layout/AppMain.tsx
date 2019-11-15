@@ -5,7 +5,6 @@ import { Tabs, Layout } from 'ant-design-vue';
 import _ from 'lodash';
 import Sidebar from './Sidebar';
 import './AppMain.less';
-import '@/style/global.less';
 import config from '@/utils/config';
 import SkinToolBox from './SkinToolbox/index.vue';
 import jwt_decode from 'jwt-decode';
@@ -40,6 +39,8 @@ export default class AppMain extends Vue {
             if (item.name === name) {
                 if (_.isEqual(name, 'staffadd')) {
                     this.$store.dispatch('changeEmployeeStatus', 1);
+                } else if (_.isEqual(name, 'staff-edit')) {
+                    this.$store.dispatch('changeEmployeeStatus', 3);
                 }
                 this.$router.push({ name: item.name});
                 this.$store.dispatch('TabChange', item.name);
@@ -54,28 +55,28 @@ export default class AppMain extends Vue {
         }
     }
     private mounted() {
-        this.globalClick(() => {
-            const userToken = getAccessToken();
-            if (userToken) {
-                const decoded: any = jwt_decode(userToken);
-                const tokenDate = decoded.exp;
-                if (this.compareWithTokenDate(tokenDate)) {
-                    // 重新获取token
-                    const newUrl = config.awsTokenDomain;
-                    getEmployeeToken(newUrl, {
-                        grant_type: 'refresh_token',
-                        client_id: awsconfig.aws_user_pools_web_client_id,
-                        refresh_token: getRefreshToken(),
-                      }).then((res: any) => {
-                        setAccessToken(res.access_token);
-                      }).catch(() => {
-                        this.$router.push({
-                            name: 'login',
-                        });
-                      });
-                }
-            }
-        });
+        // this.globalClick(() => {
+        //     const userToken = getAccessToken();
+        //     if (userToken) {
+        //         const decoded: any = jwt_decode(userToken);
+        //         const tokenDate = decoded.exp;
+        //         if (this.compareWithTokenDate(tokenDate)) {
+        //             // 重新获取token
+        //             const newUrl = config.awsTokenDomain;
+        //             getEmployeeToken(newUrl, {
+        //                 grant_type: 'refresh_token',
+        //                 client_id: awsconfig.aws_user_pools_web_client_id,
+        //                 refresh_token: getRefreshToken(),
+        //               }).then((res: any) => {
+        //                 setAccessToken(res.access_token);
+        //               }).catch(() => {
+        //                 this.$router.push({
+        //                     name: 'login',
+        //                 });
+        //               });
+        //         }
+        //     }
+        // });
     }
     private compareWithTokenDate(tokenDate: number): boolean {
         if ((new Date().getTime() / 1000 +  15 * 60) >= tokenDate) {
@@ -111,7 +112,7 @@ export default class AppMain extends Vue {
                             }
                         </a-tabs>
                         <div class='page-wrap' id='page-wrap'>
-                            <keep-alive include={keepList}>
+                            <keep-alive include={keepList} exclude='staffadd'>
                                 <router-view></router-view>
                             </keep-alive>
                         </div>

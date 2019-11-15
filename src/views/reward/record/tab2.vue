@@ -4,12 +4,13 @@
         <a-row :gutter="24">
             <a-col :lg="8" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="部门组织">
-                    <a-tree-select :options="treeData" :multiple="true" noChildrenText="空"/>
+                    <a-tree-select :treeData="treeData" :showCheckedStrategy="SHOW_PARENT" 
+                    treeCheckable v-decorator="['EmployeePrincipalPositionFullPaths']"/>
                 </a-form-item>
             </a-col>
             <a-col :lg="8" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="奖惩类型">
-                    <a-select mode="multiple">
+                    <a-select mode="multiple" v-decorator="['PrizePenaltyTypeIds']">
                         <a-select-opt-group v-for="item in prizePentalData" :label="item.name">
                             <a-select-option v-for="it in item.children"  :value="it.id">{{it.name}}</a-select-option>
                         </a-select-opt-group>
@@ -35,7 +36,8 @@
                 </a-form-item>
             </a-col>
             <a-divider>查询结果</a-divider>
-            <a-table2 :tabList="tabData" :loading="searchLoading" :paginationData="pagination"></a-table2>
+            <a-table1 :tabList="tabData" :loading="searchLoading" :paginationData="pagination"
+            @refreshData="refreshData" @tableChange="pageChange"></a-table1>
         </a-row>
         </a-form>
     </div>
@@ -44,12 +46,10 @@
 import Vue from 'vue';
 import _ from 'lodash';
 import Component from 'vue-class-component';
-import Treeselect from '@riophae/vue-treeselect';
-import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-import { Row, Col, Form, Select, DatePicker, Button, Divider } from 'ant-design-vue';
+import { TreeSelect } from 'ant-design-vue';
 import { getCompanyOrganizationChart } from '@/api/operation';
 import { getAllPrizePenaltyClassify } from '@/api/basic';
-import Table2 from './tabTable2.vue';
+import Table1 from './tabTable1.vue';
 import { Pagination } from '@/interface';
 import moment from 'moment';
 import { searchPrizePenaltyRecord } from '@/api/operation';
@@ -62,8 +62,9 @@ interface Data {
     key: string;
 }
 interface TableData {
-    label: string;
-    id: string;
+    title: string;
+    key: string;
+    value: string;
     description: string;
     children: Data[];
 }
@@ -79,26 +80,17 @@ interface PrizePentalTable {
 
 @Component({
     components: {
-        'a-row': Row,
-        'a-col': Col,
-        'a-form-item': Form.Item,
-        'a-tree-select': Treeselect,
-        'a-select': Select,
-        'a-select-opt-group': Select.OptGroup,
-        'a-select-option': Select.Option,
-        'a-date-picker': DatePicker,
-        'a-button': Button,
-        'a-table2': Table2,
-        'a-divider': Divider,
-        'a-form': Form,
+        'a-table1': Table1,
     },
 })
+
 export default class Tab2 extends Vue {
     private labelCol = { xs: {span: 24}, sm: {span: 8}};
     private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
     private prizePentalData: PrizePentalTable[] = [];
     private searchLoading: boolean = false;
-    private treeData: TableData[] = [{ label: '', id: '', description: '', children: [] }];
+    private SHOW_PARENT = TreeSelect.SHOW_PARENT;
+    private treeData: TableData[] = [{ title: '', key: '', value: '', children: [], description: '' }];
     private form: any;
     private $form: any;
     private tabData: any = [];
@@ -107,10 +99,21 @@ export default class Tab2 extends Vue {
     private pagination: Pagination = {
         pageSize: 0,
         total: 0,
+        current: 0,
         onChange: this.pageChange,
-    }
+        pageSizeOptions: ['5', '10', '15'],
+        showSizeChanger: true,
+        showTotal: this.showTotal,
+    };
     private pageChange(current: number, pageSize: number) {
         this.param.set('PageNumber', current.toString());
+        this.param.set('PageSize', pageSize.toString());
+        this.loadData(this.param);
+    }
+    private showTotal(total: string, range: any) {
+        return  `总记录数: ${total}条`;
+    }
+    private refreshData() {
         this.loadData(this.param);
     }
     private created() {
@@ -134,8 +137,9 @@ export default class Tab2 extends Vue {
         getCompanyOrganizationChart().then((res: any) => {
             const data = res.data;
             const newData: TableData = {
-                label: data.name,
-                id: data.id,
+                title: data.name,
+                key: data.id,
+                value: data.name,
                 description: 'company',
                 children: [],
             };
@@ -155,14 +159,16 @@ export default class Tab2 extends Vue {
                 let newTarget;
                 if (_.isEqual(descriptionName, 'position')) {
                     newTarget = {
-                        label: item.name,
-                        id: item.id,
+                        title: item.name,
+                        key: item.id,
+                        value: TopParentNode.value + '->' + item.name,
                         description: descriptionName,
                     };
                 } else {
                     newTarget = {
-                        label: item.name,
-                        id: item.id,
+                        title: item.name,
+                        key: item.id,
+                        value: TopParentNode.value + '->' + item.name,
                         description: descriptionName,
                         children: [],
                     };
@@ -186,21 +192,30 @@ export default class Tab2 extends Vue {
     }
     private searchClick() {
         this.form.validateFields((err: any, values: any) => {
-                this.searchLoading = true;
                 const params = new URLSearchParams();
                 params.set('PageNumber', '1');
-                params.set('PageSize', '5');
+                params.set('PageSize', '10');
                 if (values.startDateTime) {
                     params.set('FilterProperties.EffectiveDateStartValue', moment(values.startDateTime).format(this.dateFormat));
                 }
                 if (values.endDateTime) {
                     params.set('FilterProperties.EffectiveDateEndValue', moment(values.endDateTime).format(this.dateFormat));
                 }
+                this.changeListDataToParams(params, values.PrizePenaltyTypeIds, 'FilterProperties.PrizePenaltyTypeIds');
+                this.changeListDataToParams(params, values.EmployeePrincipalPositionFullPaths, 'FilterProperties.EmployeePrincipalPositionFullPaths');
                 this.param = params;
                 this.loadData(params);
         });
     }
+    private changeListDataToParams(params: URLSearchParams, data: string[], paramName: string) {
+        if ( data && data.length > 0) {
+            data.filter((item: string) => {
+                params.append(paramName, item);
+            });
+        }
+    }
     private loadData(param: URLSearchParams) {
+        this.searchLoading = true;
         searchPrizePenaltyRecord(param).then((res) => {
             this.tabData = _.map(res.data, (item) => {
                 return {
@@ -211,12 +226,18 @@ export default class Tab2 extends Vue {
                     isReward: item.prizePenaltyTypeClassifyName,
                     rewardType: item.prizePenaltyTypeName,
                     date: moment(item.effectiveDate).format(this.dateFormat),
+                    situationDescription: item.situationDescription,
+                    solution: item.solution,
+                    typeId: item.prizePenaltyTypeId,
+                    id: item.id,
+                    employeeId: item.employeeId,
                 };
             });
             this.searchLoading = false;
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         });
     }
 }

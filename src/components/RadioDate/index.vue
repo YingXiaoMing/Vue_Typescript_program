@@ -3,7 +3,7 @@
         <a-radio-group :value="radioValue" @change="onRadioChange">
             <a-radio value="0">永久</a-radio>
             <a-radio value="1">
-                <a-date-picker :value="momentDate(date)" :disabled="isShow" @change="onDateChange"></a-date-picker>
+                <a-date-picker :value="momentDate(date)" :disabled="isShow" @change="onDateChange" :format="dateFormat"></a-date-picker>
             </a-radio>
         </a-radio-group>
     </div>
@@ -15,32 +15,36 @@ import moment from 'moment';
 interface Values {
     value: string;
     date: string;
+    isShow: boolean;
 }
 @Component({
     components: {},
 })
 export default class RadioDate extends Vue {
     @Prop() private value!: Values;
-    private date: string = this.value ? this.value.date : '9999-12-31';
+    private date: string = this.value.date !== '9999-12-31' ? this.value.date : moment().format('L');
     private radioValue: string = this.value ? this.value.value : '0';
-    private isShow: boolean = true;
-
+    private isShow: boolean = this.value ? this.value.isShow : true;
     private dateFormat = 'YYYY-MM-DD';
     private momentDate(date: string) {
-        return moment(date, this.dateFormat);
+        if (date) {
+            return moment(date, this.dateFormat);
+        }
+        return date;
     }
     @Watch('value')
     private valueChange(newValue: Values) {
         if (newValue) {
             this.date = newValue.date;
             this.radioValue = newValue.value;
+            this.isShow = newValue.isShow;
         }
     }
     private onRadioChange(e: any) {
         switch (e.target.value) {
             case '0':
                 this.isShow = true;
-                this.date  = '9999-12-31';
+                this.date  = moment().format('L');
                 break;
             default:
                 this.isShow = false;

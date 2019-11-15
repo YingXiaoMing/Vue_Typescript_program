@@ -24,19 +24,19 @@
                 <span v-else>
                     <a @click="saveRow(record.key)">保存</a>
                     <a-divider type='vertical'></a-divider>
-                    <a @click="cancel(record.key)">取消</a>
+                    <a @click="makePhoneRowNotEditable(record.key)">取消</a>
                 </span>
             </template>
             <span v-else>
                 <template v-if="record.isRequired === 'true'">
                     <a-tooltip placement="top" title="系统必须保留一个主号码，如需删除主号码，请将其它号码设置为主号码">
-                        <a @click="toggle(record.key)">编辑</a>
+                        <a @click="makePhoneRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                     </a-tooltip>
                 </template>
                 <template v-else>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makePhoneRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="removeRow(record.key)">删除</a>
+                    <a @click="removeRow(record.key)" :class="{'disabled-button': record.disable}">删除</a>
                 </template>
                 
             </span>
@@ -73,6 +73,7 @@ interface TableData {
     isRequired: string;
     editable: boolean;
     isNew: boolean;
+    disable: boolean;
     key: string;
     [key: string]: any;
 }
@@ -151,13 +152,12 @@ export default class PhoneTable extends Vue {
     private deleteLast(arr: any) {
         return arr.slice(0, arr.length - 1);
     }
-    @Emit()
-    private toggle(key: string) {
+    private makePhoneRowEditable(key: string) {
         this.cacheOriginData = this.deleteLast(_.cloneDeep(this.data));
         const targetRow = this.getEditableRow(this.data, key);
         if (targetRow) {
             targetRow.editable = !targetRow.editable;
-            // this.setOtherRowsDisabled(key, this.data, true);
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
     private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
@@ -170,22 +170,16 @@ export default class PhoneTable extends Vue {
     private getEditableRow(data: TableData[], key: string) {
         return data.filter((item) => _.isEqual(item.key, key))[0];
     }
-    @Emit()
-    private cancel(key: number) {
-        const newData = [...this.data];
-        // const target = this.data.filter(item => item.key === key)[0];
-        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        target.editable = false;
+    private makePhoneRowNotEditable(key: string) {
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
+        this.setOtherRowsDisabled(key, this.data, false);
     }
 
     private isNullPhoneNum(target: TableData): boolean {
-        if (target.phoneNum === '') {
-            message.error('请至少保留一条联系电话信息');
+        if (_.isEmpty(target.phoneNum)) {
+            message.error('联系电话信息不完整');
             return false;
         }
         return true;
@@ -271,9 +265,10 @@ export default class PhoneTable extends Vue {
         if (_.isEqual(target.isRequired, 'true')) {
             this.findAndReplaceRequired(newData, key);
         }
-        target.editable = false;
         newData.pop();
         this.$store.dispatch('ReplacePhoneNumberList', newData);
+        target.editable = false;
+        this.setOtherRowsDisabled(key, this.data, false);
     }
     @Emit()
     private addRow(key: string) {
@@ -324,6 +319,7 @@ export default class PhoneTable extends Vue {
             isRequired: 'false',
             editable: true,
             isNew: true,
+            disable: false,
             key: index,
         });
     }

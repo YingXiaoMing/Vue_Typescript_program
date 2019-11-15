@@ -22,11 +22,11 @@
                     <span v-else>
                         <a @click="saveRow(record.key)">保存</a>
                         <a-divider type="vertical"></a-divider>
-                        <a @click="cancel(record.key)">取消</a>
+                        <a @click="makeTableRowNotEditable(record.key)">取消</a>
                     </span>
                 </template>
                 <span v-else>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeTableRowEditable(record.key)">编辑</a>
                     <a-divider type="vertical"></a-divider>
                     <a @click="removeRow(record.key)">删除</a>
                 </span>
@@ -41,7 +41,7 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Col, Divider, Input, Select, message } from 'ant-design-vue';
 import _ from 'lodash';
-import { newPrizePenaltyClassify, deletePrizePenaltyClassify, patchPrizePenaltyClassify } from '@/api/basic';
+import { newPrizePenaltyClassify, deletePrizePenaltyClassify, patchPrizePenaltyClassify, getAllPrizePenaltyClassify } from '@/api/basic';
 interface TableData {
     type: {
         key: string;
@@ -94,6 +94,41 @@ export default class PrizeTable extends Vue {
     private optionDataChange(value: any) {
         this.data = value;
     }
+    private loadData() {
+        getAllPrizePenaltyClassify().then((res) => {
+            let data: TableData[] = [];
+            this.optionType = _.map(res.data, (item: any) => {
+                const newData =  _.map(item.prizePenaltyTypeDtos, (itm) => {
+                    return {
+                        type: {
+                            key: item.prizePenaltyTypeClassifyValue,
+                            label: item.prizePenaltyTypeClassifyDisplayName,
+                        },
+                        key: itm.id,
+                        name: itm.name,
+                        editable: false,
+                        isNew: false,
+                    };
+                });
+                data = _.concat(data, newData);
+                return {
+                    key: item.prizePenaltyTypeClassifyValue,
+                    label: item.prizePenaltyTypeClassifyDisplayName,
+                };
+            });
+            data.push({
+                type: {
+                    key: this.optionType[0].key,
+                    label: this.optionType[0].label,
+                },
+                key: '1',
+                name: '',
+                editable: true,
+                isNew: true,
+            });
+            this.data = data;
+        });
+    }
     private handleChange(value: any, key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
@@ -108,15 +143,14 @@ export default class PrizeTable extends Vue {
                 prizePenaltyTypeClassifyValue: target.type.key,
                 name: target.name,
             }).then(() => {
-                const newData = [...this.data];
-                target.editable = false;
+                this.loadData();
             });
         } else {
             const newData = [...this.data];
             target.editable = false;
         }
     }
-    private toggle(key: string) {
+    private makeTableRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
             if (!target.editable) {
@@ -138,24 +172,13 @@ export default class PrizeTable extends Vue {
                 name: target.name,
                 prizePenaltyTypeClassifyValue: target.type.key,
             }).then((res: any) => {
-                const newData = [...this.data];
-                target.editable = false;
-                target.key = res.id;
-                target.isNew = false;
-                this.data.push({
-                    name: '',
-                    editable: true,
-                    isNew: true,
-                    key: 'new_i2_1',
-                    type: this.optionType[0],
-                });
+                this.loadData();
             });
         }
     }
     private removeRow(key: string) {
         deletePrizePenaltyClassify(key).then(() => {
-            const newData = this.data.filter((item) => !_.isEqual(item.key, key));
-            this.data = newData;
+            this.loadData();
         });
     }
     private isNullData(target: TableData): boolean {
@@ -165,7 +188,7 @@ export default class PrizeTable extends Vue {
         }
         return true;
     }
-    private cancel(key: string) {
+    private makeTableRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {

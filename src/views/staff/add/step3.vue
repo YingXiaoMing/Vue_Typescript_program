@@ -23,7 +23,7 @@
                 </a-col>
                 <a-col :span="8">
                     <a-form-item label="有效日期" v-bind="formItemLayout">
-                        <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: { value: '0', date: '9999-12-31'}}]"></a-radio-date>
+                        <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue }]"></a-radio-date>
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
@@ -49,6 +49,16 @@
                     :employeeId="employeeId" @loadData="loadCredentialData" :ETag="etag"></a-credentialTable>
           </a-row>
         </a-row>
+        <a-row v-if="employeeStatus !== 3">
+          <a-col v-bind="botttomLayout" style="marginTop: 20px">
+              <a-col v-bind="bottomLayoutBtn">
+                  <a-button type="primary" @click="preStep">上一步</a-button>
+              </a-col>
+              <a-col v-bind="bottomLayoutBtn">
+                  <a-button type="primary" @click="nextStep">下一步</a-button>
+              </a-col>
+          </a-col>
+        </a-row>
     </div>
 </template>
 <script lang="ts">
@@ -59,6 +69,7 @@ import { getCredentialTypeOption } from '@/api/basic';
 import { SelectValues, BasicData, CredntialTableData } from '@/interface';
 import CredentialTable from '@/components/Step3/CredentialTable.vue';
 import moment from 'moment';
+import { getEmployeeID } from '@/utils/cookie';
 import { getEmployeeCredentialData, newEmployeeCredential, newEmployeeCredentialAttachment } from '@/api/staff';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
@@ -71,6 +82,7 @@ interface NewValueForm {
     issueDate: any;
     expireDate: {
         date: string;
+        value: string;
     };
 }
 @Component({
@@ -83,6 +95,7 @@ export default class Step3 extends Vue {
     private form: any;
     private $form: any;
     private $store: any;
+    private employeeStatus: number = 1;
     private employeeId: string = '';
     private dateFormat = 'YYYY-MM-DD';
     private fileList: any = [];
@@ -90,15 +103,41 @@ export default class Step3 extends Vue {
     private credentialLoading: boolean = false;
     private credentialTypeOption: SelectValues[] = [];
     private credntialTableData: CredntialTableData[] = [];
+    private initialDateValue = {
+        value: '0',
+        date: moment().format('L'),
+        isShow: true,
+    };
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 10}},
         wrapperCol: { xs: {span: 24}, sm: {span: 14}},
     };
+    private bottomLayoutBtn = {
+        lg: {span: 12},
+        md: {span: 24},
+        sm: {span: 24},
+    };
+    private botttomLayout = {
+        lg: {span: 12, offset: 8},
+        md: {span: 24, offset: 14},
+        sm: {span: 24, offset: 14},
+    };
     private created() {
-        const { employeeId } = this.$store.state.step;
+        const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        this.employeeStatus = employeeStatus;
+        switch (employeeStatus) {
+            case 3:
+                const employeeId = getEmployeeID();
+                if (employeeId) {
+                    this.employeeId = employeeId;
+                }
+                break;
+            default:
+                this.employeeId = newEmployeeId;
+                break;
+        }
         this.fetchCredentialTypeData();
         this.form = this.$form.createForm(this);
-        this.employeeId = employeeId;
     }
     private beforeUpload(file: any): boolean {
         this.fileList = [...this.fileList, file];
@@ -118,6 +157,10 @@ export default class Step3 extends Vue {
                     message.error('有效日期不能早于颁发日期');
                     return;
                 }
+                if (moment(param.issueDate).isAfter()) {
+                    message.error('颁发日期不能早于当天时间');
+                    return;
+                }
                 newEmployeeCredential(this.employeeId, param).then((res: any) => {
                     const data = res.data;
                     const  id = data.id;
@@ -135,6 +178,8 @@ export default class Step3 extends Vue {
                         this.clearFormData();
                     }
                 });
+            } else {
+                message.error('证件资料请填写完整');
             }
         });
     }
@@ -163,7 +208,8 @@ export default class Step3 extends Vue {
                     credentialType: targetType ? targetType : { key: '', label: '' },
                     issueDate: moment(item.issueDate).format(this.dateFormat),
                     editable: false,
-                    expireDate: moment(item.expireDate).format(this.dateFormat),
+                    disable: false,
+                    expireDate: _.isEqual(moment(item.expireDate).format(this.dateFormat), '9999-12-31') ? {date: '9999-12-31', value: '0', isShow: true} : {date: moment(item.expireDate).format(this.dateFormat), value: '1', isShow: false},
                     employeeCredentialAttachments: item.employeeCredentialAttachments,
                 };
             });
@@ -186,8 +232,14 @@ export default class Step3 extends Vue {
             typeId: data.credentialType.key,
             name: data.credentialName,
             issueDate:  moment(data.issueDate).format(this.dateFormat),
-            expireDate: data.expireDate.date,
+            expireDate: data.expireDate.value ===  '0' ? '9999-12-31' : data.expireDate.date,
         };
+    }
+    private nextStep() {
+        this.$emit('nextStep');
+    }
+    private preStep() {
+        this.$emit('preStep');
     }
 }
 </script>

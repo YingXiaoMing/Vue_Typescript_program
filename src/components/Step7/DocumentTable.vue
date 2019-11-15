@@ -15,13 +15,13 @@
                     <span>
                         <a @click="saveRow(record.key)">保存</a>
                         <a-divider type='vertical'></a-divider>
-                        <a @click="cancel(record.key)">取消</a>
+                        <a @click="makeDocumentRowNotEditable(record.key)">取消</a>
                     </span>
                 </template>
                 <span v-else>
-                    <a @click="toggle(record.key)">编辑</a>
+                    <a @click="makeDocumentRowEditable(record.key)" :class="{'disabled-button': record.disable}">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="removeRow(record.key)" class="red">删除</a>
+                    <a @click="removeRow(record.key)" :class="[{'disabled-button': record.disable}, 'red']">删除</a>
                 </span>
             </template>
         </a-table>
@@ -43,6 +43,8 @@ interface TableData {
     key: string;
     name: string;
     description: string;
+    disable: boolean;
+    editable: boolean;
     [key: string]: any;
 }
 @Component({
@@ -93,15 +95,24 @@ export default class ContractTable extends Vue {
     private tableDataChange(value: any) {
         this.data = value;
     }
+    private isNullData(target: TableData): boolean {
+        if ( _.isEmpty(target.name) || _.isEmpty(target.description)) {
+            message.error('文档资料不完整');
+            return false;
+        }
+        return true;
+    }
     private openAttachmentDialog(key: string) {
         getEmployeeAttachmentById(this.employeeId, key, this.pathName).then((res: any) => {
             this.visible = true;
-            this.fileList  = _.map(res.employeeRelatedDocumentAttachments, (item) => {
+            const data = res.data;
+            this.fileList  = _.map(data.employeeRelatedDocumentAttachments, (item) => {
                 return {
                     key: item.id,
                     name: item.attachmentInfo.fileName,
                     description: item.description,
                     editable: false,
+                    disable: false,
                 };
             });
             this.employeePropertyId = key;
@@ -113,15 +124,18 @@ export default class ContractTable extends Vue {
     private handleOk() {
         this.visible = false;
     }
-    private cancel(key: string) {
-        const newData = [...this.data];
-        const target = newData.filter((item) => _.isEqual(key, item.key))[0];
-        if (this.cacheOriginData[key]) {
-            Object.assign(target, this.cacheOriginData[key]);
-            delete this.cacheOriginData[key];
-            this.data = newData;
-        }
-        target.editable = false;
+    private makeDocumentRowNotEditable(key: string) {
+        const target = _.find(this.cacheOriginData, ['key', key]);
+        const targetIndex = _.findIndex(this.data, ['key', key]);
+        this.data.splice(targetIndex, 1, target);
+        this.setOtherRowsDisabled(key, this.data, false);
+    }
+    private setOtherRowsDisabled(key: string, arr: TableData[], disabled: boolean) {
+        arr.filter((item) => {
+            if (!_.isEqual(item.key, key)) {
+                item.disable = disabled;
+            }
+        });
     }
     private removeRow(key: string) {
         deleteEmployeeRelatedDocument(this.employeeId, key).then((res) => {
@@ -133,7 +147,7 @@ export default class ContractTable extends Vue {
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
-        if (target) {
+        if (target && this.isNullData(target)) {
             const newData = _.cloneDeep(this.data);
             const newValue = this.transformRemoteData(newData);
             const oldValue = this.transformRemoteData(this.cacheOriginData);
@@ -141,6 +155,7 @@ export default class ContractTable extends Vue {
             putEmployeeRelatedDocument(this.employeeId, param, {
                 'If-Match': this.ETag,
             }).then((res) => {
+                message.success('更新成功');
                 this.$emit('loadData');
             }).catch((err) => {
                 message.error('更新失败');
@@ -168,11 +183,12 @@ export default class ContractTable extends Vue {
         });
         return newData;
     }
-    private toggle(key: string) {
+    private makeDocumentRowEditable(key: string) {
         const target = this.data.filter((item) => item.key === key)[0];
         if (target) {
             this.cacheOriginData = _.cloneDeep(this.data);
             target.editable = !target.editable;
+            this.setOtherRowsDisabled(key, this.data, true);
         }
     }
 }
