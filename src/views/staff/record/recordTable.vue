@@ -159,6 +159,87 @@ export default class RecordTable extends Vue {
     }
     private makeEmployeeDataEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        switch (target.transfer) {
+            case '调职':
+                this.dialog = {
+                    name: 's-transfer',
+                    title: '调职操作',
+                    visible: true,
+                    data: {
+                        name: target.name,
+                        num: target.num,
+                        id: target.key,
+                        employeeId: target.employeeId,
+                        effectiveDate: target.effectiveDate,
+                        employeePositionChangeTypeId: target.employeePositionChangeTypeId,
+                        position: target.position,
+                    },
+                };
+                break;
+            case '离职':
+                this.dialog = {
+                    name: 's-departure',
+                    title: '离职操作',
+                    visible: true,
+                    data: {
+                        name: target.name,
+                        num: target.num,
+                        id: target.key,
+                        employeeId: target.employeeId,
+                        effectiveDate: target.effectiveDate,
+                        reason: target.reason,
+                        employeePositionChangeTypeId: target.employeePositionChangeTypeId,
+                    },
+                };
+                break;
+            case '撤职':
+                this.dialog = {
+                    name: 's-dismiss',
+                    title: '撤职操作',
+                    visible: true,
+                    data: {
+                        name: target.name,
+                        num: target.num,
+                        id: target.key,
+                        employeeId: target.employeeId,
+                        effectiveDate: target.effectiveDate,
+                        reason: target.reason,
+                    },
+                };
+                break;
+            case '复职':
+                this.dialog = {
+                    name: 's-rehab',
+                    title: '复职操作',
+                    visible: true,
+                    data: {
+                        name: target.name,
+                        num: target.num,
+                        id: target.key,
+                        employeeId: target.employeeId,
+                        effectiveDate: target.effectiveDate,
+                        reason: target.reason,
+                    },
+                };
+                break;
+            case '任职':
+                this.dialog = {
+                    name: 's-serve',
+                    title: '任职操作',
+                    visible: true,
+                    data: {
+                        name: target.name,
+                        num: target.num,
+                        id: target.key,
+                        employeeId: target.employeeId,
+                        effectiveDate: target.effectiveDate,
+                        reason: target.reason,
+                    },
+                };
+                break;
+            default:
+                break;
+        }
         if (_.isEqual(target.transfer, '调职')) {
             this.formData = {
                 name: target.name,

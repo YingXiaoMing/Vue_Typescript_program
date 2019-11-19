@@ -38,12 +38,17 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import moment from 'moment';
 import { getOrginzationData } from '@/api/basic';
+import { UpdatePositionDelegated } from '@/api/operation';
 import { CascderOptionItem, CascderOption } from '@/interface';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
 interface FormData {
     name: string;
     num: string;
+    id: string;
+    employeeId: string;
+    effectiveDate: string;
+    reason: string;
 }
 @Component({
     name: 's-serve',
@@ -147,6 +152,22 @@ export default class Serve extends Vue {
     private momentFromDate(date: string) {
          if (_.isEmpty(date)) { return null; }
          return moment(date, this.dateFormat);
+    }
+    private sumbitData(callback: any) {
+        this.form.validateFields((err: any, values: any) => {
+            if (!err) {
+                UpdatePositionDelegated(this.data.employeeId, this.data.id, {
+                    companyId: this.newCompanyId,
+                    departmentId: this.newDepartmentId,
+                    positionId: this.newPositionId,
+                    effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
+                    reason: values.reason,
+                }).then(() => {
+                    message.success('更新成功');
+                    callback(true);
+                });
+            }
+        });
     }
 
 }

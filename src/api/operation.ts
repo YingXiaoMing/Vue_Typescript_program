@@ -148,6 +148,9 @@ export const patchAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, r
 export const UpdatePositionEnded = (employeeId: string, recordId: string, param: any) =>
     request.put('/employee/' + employeeId + '/PositionEnded/' + recordId + '/UpdatePositionEnded', param);
 
+export const UpdatePositionDelegated = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/PositionDelegated/' + recordId, param);
+
 
 
 
