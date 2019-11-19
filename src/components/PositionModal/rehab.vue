@@ -31,7 +31,7 @@
         </a-row>
         <a-row>
             <a-col :span="24">
-                <a-form-item label="撤职原因" v-bind="formItemLayout3">
+                <a-form-item label="复职原因" v-bind="formItemLayout3">
                     <a-textarea v-decorator="['reason', {initialValue: data.reason}]" rows="4"></a-textarea>
                 </a-form-item>
             </a-col>
