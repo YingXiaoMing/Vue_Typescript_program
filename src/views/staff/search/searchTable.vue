@@ -59,6 +59,7 @@ export default class SearchTable extends Vue {
     private column: ColumnList[] = [{
         title: '序号',
         dataIndex: 'Index',
+        width: 44,
         align: 'center',
         scopedSlots: { customRender: 'Index' },
     }, {
