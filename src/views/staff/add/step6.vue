@@ -10,12 +10,11 @@
                 <a-checkbox>开通企业邮箱</a-checkbox>
             </a-form-item>
         </a-col>
-        <a-col :span="17">
+        <a-col :span="19">
             <a-form-item>
-                <a-radio-group :value="1">
+                <a-radio-group>
                     <a-radio value="1">默认邮箱用户名</a-radio>
-                    <a-radio value="2">期望邮箱用户名</a-radio>
-                    <a-input style='marginLeft: 8px'></a-input>
+                    <a-radio value="2">期望邮箱用户名<a-input style='marginLeft: 8px'></a-input></a-radio>
                 </a-radio-group>
             </a-form-item>
         </a-col>
