@@ -319,9 +319,9 @@ export default class FormModal extends Vue {
     private initialAdressData() {
         const newProvinceData = _.cloneDeep(provinceData);
         const newCityData = _.cloneDeep(cityData);
-        this.provinceOption = _.fill(newProvinceData, '全部', 0, 1);
+        this.provinceOption = _.flatten(['全部', newProvinceData]);
         this.province = '全部';
-        this.cityOption = _.fill(this.cityOption, '全部', 0, 1);
+        this.cityOption = _.flatten(['全部', this.cityOption]);
         this.city = '全部';
         this.area = '全部';
     }
@@ -503,8 +503,8 @@ export default class FormModal extends Vue {
                 this.province = value;
                 this.cityOption = cityData[value];
                 this.areaOption = areaData[cityData[value][0]];
-                this.cityOption = _.fill(this.cityOption, '全部', 0 , 1);
-                this.areaOption = _.fill(this.areaOption, '全部', 0 , 1);
+                this.cityOption = _.flatten(['全部', this.cityOption]);
+                this.areaOption = _.flatten(['全部', this.areaOption]);
                 this.city = '全部';
                 this.area = '全部';
                 this.form.setFieldsValue({
@@ -520,7 +520,7 @@ export default class FormModal extends Vue {
                 }
                 this.city = value;
                 this.areaOption = areaData[value];
-                this.areaOption = _.fill(this.areaOption, '全部', 0 , 1);
+                this.areaOption = _.flatten(['全部', this.areaOption]);
                 this.area = '全部';
                 this.form.setFieldsValue({
                     area: '全部',
@@ -538,12 +538,12 @@ export default class FormModal extends Vue {
         });
         getCredentialTypeOption().then((res) => {
             this.credentialType = this.transformSelectData(res.data);
-            this.credentialType = _.fill(this.credentialType, {key: '全部', label: '全部'}, 0 , 1);
+            this.credentialType = _.flatten([{key: '全部', label: '全部'}, this.credentialType]);
             this.searchData.credentialType = this.credentialType[0].key;
         });
         getContractTypeOption().then((res) => {
             this.contractType = this.transformSelectData(res.data);
-            this.contractType = _.fill(this.contractType, {key: '全部', label: '全部'}, 0 , 1);
+            this.contractType = _.flatten([{key: '全部', label: '全部'}, this.contractType]);
             this.searchData.contractType = this.contractType[0].key;
         });
         getEducationLevelOption().then((res) => {
