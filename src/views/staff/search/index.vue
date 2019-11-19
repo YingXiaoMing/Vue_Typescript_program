@@ -375,7 +375,6 @@ export default class Search extends Vue {
     private searchData(current: number, pageSize: number) {
         const params = new URLSearchParams();
         params.set('FilterProperties.Id', this.searchKey);
-        console.log(this.searchKey);
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
         this.searchParamData(params);

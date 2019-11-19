@@ -275,7 +275,16 @@ export default class FormModal extends Vue {
         key: '12',
         label: '十二月',
     }];
-    private employeeStatusOptions = ['正式员工', '试用期员工', '离职员工'];
+    private employeeStatusOptions = [{
+        label: '在职',
+        value: '0FAGJ-XR8UN-Z5V2L-EWND7',
+    }, {
+        label: '已离职',
+        value: '0FAGJ-XR8VC-Z5V2L-ES6RU',
+    }, {
+        label: '已申请离职',
+        value: '0FCWK-UVPXV-Y5LQK-U5B8Y',
+    }];
     private employeeTypeOptions: TypeOption[] = [];
     private employeeGenderOptions = [{
         label: '男',
@@ -329,6 +338,7 @@ export default class FormModal extends Vue {
         this.form.validateFields((err: any, values: any) => {
             const  param = new URLSearchParams();
             this.changeValueToParamas(param, values.keyword, 'SearchQuery');
+            this.changeListDataToParams(param, values.employeeStatusCheckedList, 'FilterProperties.EmploymentStateIds');
             this.changeListDataToParams(param, values.employeeGenderCheckedList, 'FilterProperties.GenderValues');
             this.changeListDataToParams(param, values.employeeMarryStatusCheckedList, 'FilterProperties.MarriageStateValues');
             this.changeListDataToParams(param, values.highEducation, 'FilterProperties.HighestEducationIds');
@@ -387,9 +397,10 @@ export default class FormModal extends Vue {
     }
 
     private onEmployeeStatusCheckAllChange(e: any) {
+        const newAllCheckOptions = _.map(this.employeeStatusOptions, 'value');
         this.form.setFieldsValue({
             employeeStatusCheckAll: e.target.checked,
-            employeeStatusCheckedList: e.target.checked ? this.employeeStatusOptions : [],
+            employeeStatusCheckedList: e.target.checked ? newAllCheckOptions : [],
         });
     }
     private onEmployeeStatusChange(checkedList: string[]) {
