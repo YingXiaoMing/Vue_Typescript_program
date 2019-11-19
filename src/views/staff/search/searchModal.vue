@@ -38,11 +38,11 @@ export default class DetailModal extends Vue {
     private data: FilterSort[] = this.propsData;
     private isVisible: boolean = this.visible;
     private BasicData: FilterSort[] = [{
-        name: 'num',
+        name: 'IsExportEmployeeStringID',
         title: '员工工号',
         isSelect: true,
     }, {
-        name: 'name',
+        name: 'IsExportEmployeeFullName',
         title: '员工姓名',
         isSelect: true,
     }];
@@ -69,7 +69,10 @@ export default class DetailModal extends Vue {
         this.$emit('cancel');
     }
     private okHandle() {
-        this.$emit('ok');
+        this.form.validateFields((err: any, values: any) => {
+            this.$emit('ok', values);
+            this.form.resetFields();
+        });
     }
 }
 </script>

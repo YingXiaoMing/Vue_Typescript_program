@@ -135,87 +135,91 @@ export default class Search extends Vue {
         this.exportModal = {
             visible: true,
             data: [{
-                name: 'first_name',
+                name: 'IsExportEmployeeLastName',
                 title: '员工姓',
                 isSelect: false,
             }, {
-                name: 'last_name',
+                name: 'IsExportEmployeeFirstName',
                 title: '员工名',
                 isSelect: false,
             }, {
-                name: 'birthDay',
+                name: 'IsExportDateOfBirth',
                 title: '出生日期',
                 isSelect: false,
             }, {
-                name: 'isMarry',
+                name: 'IsExportMarriage',
                 title: '婚否',
                 isSelect: false,
             }, {
-                name: 'gender',
+                name: 'IsExportEthnicGroup',
+                title: '种族',
+                isSelect: false,
+            }, {
+                name: 'IsExportGender',
                 title: '性别',
                 isSelect: false,
             }, {
-                name: 'last_name',
+                name: 'IsExportEmployeeLegal_id',
                 title: '身份证件信息',
                 isSelect: false,
             }, {
-                name: 'birthDay',
+                name: 'IsExportPersonalAbilityDescription',
                 title: '能力&特长',
                 isSelect: false,
             }, {
-                name: 'isMarry',
+                name: 'IsExportEmploymentStartedDate',
                 title: '入职日期',
                 isSelect: false,
             }, {
-                name: 'employeeOrigin',
+                name: 'IsExportEmploymentSource',
                 title: '入职来源',
                 isSelect: false,
             }, {
-                name: 'introducer',
+                name: 'IsExportReferencePerson',
                 title: '介绍人',
                 isSelect: false,
             }, {
-                name: 'workplace',
+                name: 'IsExportWorkingLocation',
                 title: '工作地点',
                 isSelect: false,
             }, {
-                name: 'employeeType',
+                name: 'IsExportEmploymentType',
                 title: '工作性质',
                 isSelect: false,
             }, {
-                name: 'probation',
+                name: 'IsExportProbrationEndedDate',
                 title: '试用期截至',
                 isSelect: false,
             }, {
-                name: 'position',
+                name: 'IsExportEmployeePosition',
                 title: '职位信息',
                 isSelect: true,
             }, {
-                name: 'employeeStatus',
+                name: 'IsExportEmploymentState',
                 title: '员工状态',
                 isSelect: false,
             }, {
-                name: 'endJobType',
+                name: 'IsExportEmploymentEndedType',
                 title: '离职类型',
                 isSelect: false,
             }, {
-                name: 'endJobDate',
+                name: 'IsExportEmploymentEndedDate',
                 title: '离职日期',
                 isSelect: false,
             }, {
-                name: 'endJobReason',
+                name: 'IsExportEmploymentEndedReason',
                 title: '离职原因',
                 isSelect: false,
             }, {
-                name: 'contactPhone',
+                name: 'IsExportEmployeePhoneNumber',
                 title: '联系电话',
                 isSelect: false,
             }, {
-                name: 'contactAddress',
+                name: 'IsExportContactAddress',
                 title: '联系地址',
                 isSelect: false,
             }, {
-                name: 'emergencyContact',
+                name: 'IsExportEmergencyContact',
                 title: '紧急联系人',
                 isSelect: false,
             }],
@@ -226,47 +230,47 @@ export default class Search extends Vue {
         this.exportModal = {
             visible: true,
             data: [{
-                name: 'basic',
+                name: 'IsExportEmployeeBasic',
                 title: '基本信息',
                 isSelect: false,
             }, {
-                name: 'LegalIds',
+                name: 'IsExportEmployeeLegal_id',
                 title: '身份证件信息',
                 isSelect: false,
             }, {
-                name: 'phone',
+                name: 'IsExportEmployeePhoneNumber',
                 title: '联系电话',
                 isSelect: false,
             }, {
-                name: 'address',
+                name: 'IsExportContactAddress',
                 title: '联系地址',
                 isSelect: false,
             }, {
-                name: 'emergencyContact',
+                name: 'IsExportEmergencyContact',
                 title: '紧急联系人资料',
                 isSelect: false,
             }, {
-                name: 'position',
+                name: 'IsExportEmployeePosition',
                 title: '职位信息',
                 isSelect: false,
             }, {
-                name: 'education',
+                name: 'IsExportEmployeeEducation',
                 title: '教育经历',
                 isSelect: false,
             }, {
-                name: 'workExperience',
+                name: 'IsExportWorkExperience',
                 title: '工作经历',
                 isSelect: false,
             }, {
-                name: 'credential',
+                name: 'IsExportEmployeeCredential',
                 title: '证件资料',
                 isSelect: false,
             }, {
-                name: 'contract',
+                name: 'IsExportEmployeeContract',
                 title: '个人合同',
                 isSelect: false,
             }, {
-                name: 'bankAccount',
+                name: 'IsExportEmployeeBankAccount',
                 title: '银行账号',
                 isSelect: false,
             }, {
@@ -282,7 +286,7 @@ export default class Search extends Vue {
                 title: '企业钉钉',
                 isSelect: false,
             }, {
-                name: 'Document',
+                name: 'IsExportEmployeeRelatedDocument',
                 title: '关联文档',
                 isSelect: false,
             }]
@@ -309,8 +313,13 @@ export default class Search extends Vue {
     private handleCancel() {
         this.visible = false;
     }
-    private downloadExcelData() {
+    private downloadExcelData(params: any) {
         if (!_.isEmpty(this.searchParams.toString())) {
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    this.searchParams.append(key, params[key]);
+                }
+            }
             this.exportModal.visible = false;
             let downLink;
             switch (this.exportButton) {
