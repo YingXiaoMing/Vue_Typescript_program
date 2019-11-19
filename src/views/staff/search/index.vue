@@ -6,7 +6,7 @@
                     <a-col :lg="8" :md="12" :sm="24">
                         <a-form-item>
                             <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                            @search="handleChange" @select="onSelect">
+                            @search="handleChange" @select="onSelect" @focus="focusHandle">
                                 <template slot="dataSource">
                                     <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                                 </template>
@@ -95,6 +95,7 @@ interface ExportModal {
 export default class Search extends Vue {
     private searchParams: URLSearchParams = new URLSearchParams();
     private exportButton: string = 'basic';
+    private searchValue: string = '';
     private pagination: Pagination = {
         pageSize: 0,
         total: 0,
@@ -327,6 +328,9 @@ export default class Search extends Vue {
             message.warning('暂无数据');
         }
     }
+    private focusHandle() {
+        this.handleChange(this.searchKey);
+    }
     private searchParamData(param: URLSearchParams) {
         this.searchLoading = true;
         this.visible = false;
@@ -356,7 +360,6 @@ export default class Search extends Vue {
                 };
             });
             this.searchLoading = false;
-            this.searchKey = '';
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
@@ -372,6 +375,7 @@ export default class Search extends Vue {
     private searchData(current: number, pageSize: number) {
         const params = new URLSearchParams();
         params.set('FilterProperties.Id', this.searchKey);
+        console.log(this.searchKey);
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
         this.searchParamData(params);

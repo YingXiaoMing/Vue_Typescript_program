@@ -6,7 +6,7 @@
                     <a-col :lg="6" :md="12" :sm="24">
                         <a-form-item>
                             <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                            @search="handleChange" @select="onSelect">
+                            @search="handleChange" @select="onSelect" @focus="focusHandle">
                                 <template slot="dataSource">
                                     <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                                 </template>
@@ -123,6 +123,9 @@ export default class Record extends Vue {
         } else {
             this.loadData();
         }
+    }
+    private focusHandle() {
+        this.handleChange(this.searchKey);
     }
     private loadData() {
         this.loading = true;
