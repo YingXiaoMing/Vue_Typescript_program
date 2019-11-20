@@ -314,20 +314,24 @@ export default class Search extends Vue {
         this.visible = false;
     }
     private downloadExcelData(params: any) {
+        const newSearchParams = new URLSearchParams();
+        for (const pair of this.searchParams.entries()) {
+            newSearchParams.append(pair[0], pair[1]);
+        }
         if (!_.isEmpty(this.searchParams.toString())) {
             for (const key in params) {
                 if (params.hasOwnProperty(key)) {
-                    this.searchParams.append(key, params[key]);
+                    newSearchParams.append(key, params[key]);
                 }
             }
             this.exportModal.visible = false;
             let downLink;
             switch (this.exportButton) {
                 case 'basic':
-                    downLink = config.baseUrl + '/employee/Export/ExportBasicEmployees?' + this.searchParams;
+                    downLink = config.baseUrl + '/employee/Export/ExportBasicEmployees?' + newSearchParams;
                     break;
                 default:
-                    downLink = config.baseUrl + '/employee/Export/ExportDetailEmployees?' + this.searchParams;
+                    downLink = config.baseUrl + '/employee/Export/ExportDetailEmployees?' + newSearchParams;
                     break;
             }
             const link = document.createElement('a');
