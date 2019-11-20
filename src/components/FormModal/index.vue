@@ -96,10 +96,10 @@
                             </a-form-item>
                         </fieldset>
                         <fieldset class="department">
-                            <legend>部门职位条件</legend>
+                            <legend>部门组织条件</legend>
                             <a-form-item v-bind="formItemLayout2" label="组织架构">
-                                <a-tree-select :multiple="true" :options="treeData"
-                                noChildrenText="空" v-decorator="['text']"/>
+                                <a-tree-select :treeData="treeData" :showCheckedStrategy="SHOW_PARENT" 
+                                treeCheckable v-decorator="['positions']"></a-tree-select>
                             </a-form-item>
                         </fieldset>
                     </a-col>
@@ -161,8 +161,6 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
-import Treeselect from '@riophae/vue-treeselect';
-import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 import { Modal, Row, Col, Form, Input, Checkbox, Radio, Select, Calendar, DatePicker, Icon } from 'ant-design-vue';
 import { SelectValue, BasicData } from '@/interface';
 import { getWorkLocation, getCredentialTypeOption, getContractTypeOption, getEducationLevelOption,
@@ -170,6 +168,7 @@ getEmployeeEndJonType, getEmploymentTypeOption, getAddressTypeOption } from '@/a
 import _ from 'lodash';
 import provinceData from '@/utils/province';
 import { getCompanyOrganizationChart } from '@/api/operation';
+import { TreeSelect } from 'ant-design-vue';
 import './index.less';
 import cityData from '@/utils/city';
 import areaData from '@/utils/area';
@@ -183,8 +182,9 @@ interface Data {
     key: string;
 }
 interface TableData {
-    label: string;
-    id: string;
+    title: string;
+    key: string;
+    value: string;
     description: string;
     children: Data[];
 }
@@ -208,7 +208,6 @@ interface TypeOption {
         'a-select-option': Select.Option,
         'a-range-picker': DatePicker.RangePicker,
         'a-icon': Icon,
-        'a-tree-select': Treeselect,
     },
 })
 export default class FormModal extends Vue {
@@ -232,7 +231,7 @@ export default class FormModal extends Vue {
     private province: string = '';
     private city: string = '';
     private area: string = '';
-    private treeData: TableData[] = [{ id: '', label: '', description: '', children: [] }];
+    private treeData: TableData[] = [{ title: '', key: '', value: '', children: [], description: '' }];
     private credentialType: SelectValue[] = [];
     private contractType: SelectValue[] = [];
     private birthOption: SelectValue[] = [{
@@ -304,6 +303,8 @@ export default class FormModal extends Vue {
     private employeeTypeCheckedList = [];
     private employeeGenderCheckedList = [];
     private employeeMarryStatusCheckedList = [];
+    private employeePositionDataList: TableData[] = [];
+    private SHOW_PARENT = TreeSelect.SHOW_PARENT;
     private form: any;
     private $form: any;
     private formItemLayout = {
@@ -324,6 +325,7 @@ export default class FormModal extends Vue {
         this.initialAdressData();
         this.getBasicData();
         this.getOrganizationData();
+        console.log(this.employeePositionDataList);
     }
     private initialAdressData() {
         const newProvinceData = _.cloneDeep(provinceData);
@@ -338,6 +340,7 @@ export default class FormModal extends Vue {
         this.form.validateFields((err: any, values: any) => {
             const  param = new URLSearchParams();
             this.changeValueToParamas(param, values.keyword, 'SearchQuery');
+            this.changePositionDataToParams(param, values.positions);
             this.changeListDataToParams(param, values.employeeStatusCheckedList, 'FilterProperties.EmploymentStateIds');
             this.changeListDataToParams(param, values.employeeGenderCheckedList, 'FilterProperties.GenderValues');
             this.changeListDataToParams(param, values.employeeMarryStatusCheckedList, 'FilterProperties.MarriageStateValues');
@@ -359,7 +362,29 @@ export default class FormModal extends Vue {
             this.changeDataToParamas(param, values.addressType, 'FilterProperties.ContactAddressTypeId');
             this.$emit('searchData', param);
             this.resetData();
+        });
+    }
 
+    private changePositionDataToParams(params: URLSearchParams, data: string[]) {
+        console.log(this.employeePositionDataList);
+        _.map(data, (item: string) => {
+            return _.find(this.employeePositionDataList, (it) => {
+                if (_.isEqual(it.value, item)) {
+                    switch (it.description) {
+                        case 'company':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.CompanyIds');
+                            break;
+                        case 'department':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.DepartmentIds');
+                            break;
+                        case 'position':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.PositionIds');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
         });
     }
     private resetData() {
@@ -452,11 +477,13 @@ export default class FormModal extends Vue {
         getCompanyOrganizationChart().then((res: any) => {
             const data = res.data;
             const newData: TableData = {
-                label: data.name,
-                id: data.id,
+                title: data.name,
+                key: data.id,
+                value: data.id,
                 description: 'company',
                 children: [],
             };
+            this.addEmployeePositionDataList(newData);
             if (data.subCompanies) {
                 this.traverseStepNodeChild(data.subCompanies, newData, 'company');
             }
@@ -466,23 +493,31 @@ export default class FormModal extends Vue {
             this.treeData = _.castArray(newData);
         });
     }
+    private addEmployeePositionDataList(data: TableData) {
+        this.employeePositionDataList.push(data);
+    }
     private traverseStepNodeChild(data: any, TopParentNode: any, descriptionName: string) {
         if (data) {
             const target = _.map(data, (item) => {
                 let newTarget;
                 if (_.isEqual(descriptionName, 'position')) {
                     newTarget = {
-                        label: item.name,
-                        id: item.id,
-                        description: descriptionName,
-                    };
-                } else {
-                    newTarget = {
-                        label: item.name,
-                        id: item.id,
+                        title: item.name,
+                        key: item.id,
+                        value: item.id,
                         description: descriptionName,
                         children: [],
                     };
+                    this.addEmployeePositionDataList(newTarget);
+                } else {
+                    newTarget = {
+                        title: item.name,
+                        key: item.id,
+                        value: item.id,
+                        description: descriptionName,
+                        children: [],
+                    };
+                    this.addEmployeePositionDataList(newTarget);
                 }
                 if (item.subCompanies) {
                     this.traverseStepNodeChild(item.subCompanies, newTarget, 'company');
