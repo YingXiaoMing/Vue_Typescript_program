@@ -34,7 +34,11 @@
                     <a-search-table :loading="searchLoading" :tabList="tabData" :paginationData="pagination" @tableChange="pageChange"></a-search-table>
                 </a-col>
             </a-row>
-            <a-form-modal :visible="visible" @cancel="cancelHandle" @searchData="searchParamData"></a-form-modal>
+            <a-modal okText="查询" width="1040px" :visible="visible" @cancel="cancelHandle" @ok="okHandle" :destroyOnClose="true">
+                <a-spin :spinning="tloading">
+                    <a-form-modal ref="dialog" @loadFormModalData="loadFormModalData"></a-form-modal>
+                </a-spin>
+            </a-modal>
             <a-detail-modal :visible="exportModal.visible" @cancel="detailCancelHandle" 
             :propsData="exportModal.data" @ok="downloadExcelData"></a-detail-modal>
         </div>
@@ -93,6 +97,9 @@ interface ExportModal {
     name: 'staffsearch',
 })
 export default class Search extends Vue {
+    public $refs!: {
+        dialog: HTMLFormElement,
+    };
     private searchParams: URLSearchParams = new URLSearchParams();
     private exportButton: string = 'basic';
     private searchValue: string = '';
@@ -107,6 +114,7 @@ export default class Search extends Vue {
     };
     private form: any;
     private $form: any;
+    private tloading: boolean = false;
     private visible: boolean = false;
     private tabData: any = [];
     private dateFormat = 'YYYY-MM-DD';
@@ -129,6 +137,7 @@ export default class Search extends Vue {
     }
     private detailSearch() {
         this.visible = true;
+        this.tloading = true;
     }
     private basicExport() {
         this.exportButton = 'basic';
@@ -312,6 +321,15 @@ export default class Search extends Vue {
     }
     private handleCancel() {
         this.visible = false;
+    }
+    private okHandle() {
+        this.$refs.dialog.sumbitData((param: URLSearchParams) => {
+            this.cancelHandle();
+            this.searchParamData(param);
+        });
+    }
+    private loadFormModalData() {
+        this.tloading = false;
     }
     private downloadExcelData(params: any) {
         const newSearchParams = new URLSearchParams();

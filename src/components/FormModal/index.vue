@@ -1,5 +1,4 @@
 <template>
-    <a-modal :visible="isVisible" @cancel="cancelHandle" okText="查询" width="1040px" @ok="okHandle" :destroyOnClose="true">
         <a-form :form="form">
             <a-row :gutter="24">
                 <a-col :span="8">
@@ -155,7 +154,6 @@
                     </a-col>
                 </a-row>
         </a-form>
-    </a-modal>
 </template>
 <script lang="ts">
 import Vue from 'vue';
@@ -323,9 +321,7 @@ export default class FormModal extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
         this.initialAdressData();
-        this.getBasicData();
-        this.getOrganizationData();
-        console.log(this.employeePositionDataList);
+        this.fetchData();
     }
     private initialAdressData() {
         const newProvinceData = _.cloneDeep(provinceData);
@@ -336,7 +332,7 @@ export default class FormModal extends Vue {
         this.city = '全部';
         this.area = '全部';
     }
-    private okHandle() {
+    private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             const  param = new URLSearchParams();
             this.changeValueToParamas(param, values.keyword, 'SearchQuery');
@@ -360,13 +356,12 @@ export default class FormModal extends Vue {
             this.changeDataToParamas(param, values.credentialType, 'FilterProperties.CredentialTypeId');
             this.changeDataToParamas(param, values.contractType, 'FilterProperties.ContractTypeId');
             this.changeDataToParamas(param, values.addressType, 'FilterProperties.ContactAddressTypeId');
-            this.$emit('searchData', param);
+            callback(param);
             this.resetData();
         });
     }
 
     private changePositionDataToParams(params: URLSearchParams, data: string[]) {
-        console.log(this.employeePositionDataList);
         _.map(data, (item: string) => {
             return _.find(this.employeePositionDataList, (it) => {
                 if (_.isEqual(it.value, item)) {
@@ -389,9 +384,6 @@ export default class FormModal extends Vue {
     }
     private resetData() {
         this.form.resetFields();
-        this.initialAdressData();
-        this.getBasicData();
-        this.getOrganizationData();
     }
     // 单独处理字段
     private changeValueToParamas(params: URLSearchParams, data: string, paramName: string) {
@@ -577,43 +569,95 @@ export default class FormModal extends Vue {
                 break;
         }
     }
-    private getBasicData() {
-        getWorkLocation().then((res) => {
-            this.workplaceOption = this.transformSelectData(res.data);
-            this.searchData.workplace = this.workplaceOption[0].key;
+    private fetchData() {
+        const p1 = new Promise((resolve, reject) => {
+            getWorkLocation().then((res) => {
+                this.workplaceOption = this.transformSelectData(res.data);
+                this.searchData.workplace = this.workplaceOption[0].key;
+                resolve();
+            });
         });
-        getCredentialTypeOption().then((res) => {
-            this.credentialType = this.transformSelectData(res.data);
-            this.credentialType = _.flatten([{key: '全部', label: '全部'}, this.credentialType]);
-            this.searchData.credentialType = this.credentialType[0].key;
+        const p2 = new Promise((resolve, reject) => {
+            getCredentialTypeOption().then((res) => {
+                this.credentialType = this.transformSelectData(res.data);
+                this.credentialType = _.flatten([{key: '全部', label: '全部'}, this.credentialType]);
+                this.searchData.credentialType = this.credentialType[0].key;
+                resolve();
+            });
         });
-        getContractTypeOption().then((res) => {
-            this.contractType = this.transformSelectData(res.data);
-            this.contractType = _.flatten([{key: '全部', label: '全部'}, this.contractType]);
-            this.searchData.contractType = this.contractType[0].key;
+        const p3 = new Promise((resolve, reject) => {
+            getWorkLocation().then((res) => {
+                this.workplaceOption = this.transformSelectData(res.data);
+                this.searchData.workplace = this.workplaceOption[0].key;
+                resolve();
+            });
         });
-        getEducationLevelOption().then((res) => {
-            this.highEducation = this.transformSelectData(res.data);
-            this.searchData.highEducation = this.highEducation[0].key;
+        const p4 = new Promise((resolve, reject) => {
+            getContractTypeOption().then((res) => {
+                this.contractType = this.transformSelectData(res.data);
+                this.contractType = _.flatten([{key: '全部', label: '全部'}, this.contractType]);
+                this.searchData.contractType = this.contractType[0].key;
+                resolve();
+            });
         });
-        getEmployeeEndJonType().then((res) => {
-            this.endJobType = this.transformSelectData(res.data);
-            this.searchData.endJobType = this.endJobType[0].key;
+        const p5 = new Promise((resolve, reject) => {
+            getEducationLevelOption().then((res) => {
+                this.highEducation = this.transformSelectData(res.data);
+                this.searchData.highEducation = this.highEducation[0].key;
+                resolve();
+            });
         });
-        // 获取工作性质
-        getEmploymentTypeOption().then((res) => {
-            this.employeeTypeOptions = this.transformTypeData(res.data);
+        const p6 = new Promise((resolve, reject) => {
+            getEmployeeEndJonType().then((res) => {
+                this.endJobType = this.transformSelectData(res.data);
+                this.searchData.endJobType = this.endJobType[0].key;
+                resolve();
+            });
         });
-        // 获取地址类型
-        getAddressTypeOption().then((res) => {
-            this.addressTypeOption = this.transformSelectData(res.data);
+        const p7 = new Promise((resolve, reject) => {
+            // 获取工作性质
+            getEmploymentTypeOption().then((res) => {
+                this.employeeTypeOptions = this.transformTypeData(res.data);
+                resolve();
+            });
+        });
+        const p8 = new Promise((resolve, reject) => {
+            // 获取地址类型
+            getAddressTypeOption().then((res) => {
+                this.addressTypeOption = this.transformSelectData(res.data);
+                resolve();
+            });
+        });
+        const p9 = new Promise((resolve, reject) => {
+            // 获取公司架构
+            getCompanyOrganizationChart().then((res: any) => {
+                const data = res.data;
+                const newData: TableData = {
+                    title: data.name,
+                    key: data.id,
+                    value: data.id,
+                    description: 'company',
+                    children: [],
+                };
+                this.addEmployeePositionDataList(newData);
+                if (data.subCompanies) {
+                    this.traverseStepNodeChild(data.subCompanies, newData, 'company');
+                }
+                if (res.departments) {
+                    this.traverseStepNodeChild(data.departments, newData, 'department');
+                }
+                this.treeData = _.castArray(newData);
+                resolve();
+            });
+        });
+        Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]).then(() => {
+            this.$emit('loadFormModalData');
         });
     }
     private cancelHandle() {
         this.isVisible = false;
         this.$emit('cancel');
     }
-
     private transformTypeData(data: any) {
         return _.map(data, (item: BasicData) => {
             return {
