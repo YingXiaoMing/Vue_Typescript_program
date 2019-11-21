@@ -121,7 +121,6 @@ export default class Search extends Vue {
     private searchLoading: boolean = false;
     private searchKey: string = '';
     private employeeDataList: EmployeeData[] = [];
-    private dataSource = ['123', '22', '223'];
     private exportModal: ExportModal = {
         visible: false,
         data: [],
@@ -170,6 +169,10 @@ export default class Search extends Vue {
             }, {
                 name: 'IsExportEmployeeLegal_id',
                 title: '身份证件信息',
+                isSelect: false,
+            }, {
+                name: 'IsExportHighestEducation',
+                title: '最高学历',
                 isSelect: false,
             }, {
                 name: 'IsExportPersonalAbilityDescription',
