@@ -106,6 +106,14 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import ('../views/reward/record/index.vue'),
                 meta: { key: 'rewardRecord', title: '奖惩记录' },
             },
+            {
+                path: 'operationRecord',
+                icon: 'read',
+                isShow: true,
+                name: 'rewardOperationRecord',
+                component: () => import ('../views/reward/operation/index.vue'),
+                meta: { key: 'rewardOperationRecord', title: '操作记录查询' },
+            },
         ],
     },
     {
