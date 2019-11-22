@@ -24,6 +24,15 @@ export const getEmployeeDismissedPosition = (employeeId: string) =>
 export const getEmployeeModificationRecord = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord');
 
+// 根据记录ID来查询员工的操作记录
+export const getEmployeeModificationByRecordId = (employeeId: string, recordId: string) =>
+    request.get('/employee/' + employeeId + '/EmployeePositionModification/' + recordId);
+
+// 根据记录ID来更新员工的操作记录
+export const putEmployeeModificationByRecordId = (employeeId: string, recordId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/EmployeePositionModification/' + recordId, param);
+
+
 // 查询公司的组织架构
 export const getCompanyOrganizationChart = () =>
     request.get('/CompanyOrganizationChart');

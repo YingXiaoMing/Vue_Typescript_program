@@ -1,23 +1,32 @@
 <template>
     <a-form :form="form">
         <a-row>
-           <a-col :span="12">
-                <a-form-item label="员工工号" v-bind="formItemLayout">
-                    <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
-                </a-form-item>
-            </a-col>
-            <a-col :span="12">
-                <a-form-item label="员工姓名" v-bind="formItemLayout">
-                    <a-input disabled v-decorator="['name', {initialValue: data.name}]"></a-input>
-                </a-form-item>
-            </a-col>
+            <a-row>
+                <a-col :span="12">
+                    <a-form-item label="工单号" v-bind="formItemLayout">
+                        <span>{{ data.orderNum }}</span>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row>
+                <a-col :span="12">
+                    <a-form-item label="员工工号" v-bind="formItemLayout">
+                        <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
+                    </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                    <a-form-item label="员工姓名" v-bind="formItemLayout">
+                        <a-input disabled v-decorator="['name', {initialValue: data.name}]"></a-input>
+                    </a-form-item>
+                </a-col>
+            </a-row>
         </a-row>
         <a-divider>任职操作</a-divider>
         <a-row>
           <a-col :span="18">
-              <a-form-item label="新职位" v-bind="formItemLayout2">
-                  <a-cascader :options="cascderOption" placeholder="请选择职位"
-                  v-decorator="['newPostion',{  rules: [{ required: true, message: ' ' }] }]"
+              <a-form-item label="任职职位" v-bind="formItemLayout2">
+                  <a-cascader :options="cascderOption" :placeholder="data.position"
+                  v-decorator="['newPostion',{ rules: [{ required: true, message: ' ' }] }]"
                   @change="positionsChange"></a-cascader>
               </a-form-item>
           </a-col>
@@ -38,7 +47,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import moment from 'moment';
 import { getOrginzationData } from '@/api/basic';
-import { UpdatePositionDelegated } from '@/api/operation';
+import { putEmployeeModificationByRecordId } from '@/api/operation';
 import { CascderOptionItem, CascderOption } from '@/interface';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
@@ -49,6 +58,8 @@ interface FormData {
     employeeId: string;
     effectiveDate: string;
     reason: string;
+    orderNum: string;
+    position: string;
 }
 @Component({
     name: 's-serve',
@@ -156,10 +167,10 @@ export default class Serve extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                UpdatePositionDelegated(this.data.employeeId, this.data.id, {
-                    companyId: this.newCompanyId,
-                    departmentId: this.newDepartmentId,
-                    positionId: this.newPositionId,
+                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                    newCompanyId: this.newCompanyId,
+                    newDepartmentId: this.newDepartmentId,
+                    newPositionId: this.newPositionId,
                     effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then(() => {

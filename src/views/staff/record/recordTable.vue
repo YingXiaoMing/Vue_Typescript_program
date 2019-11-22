@@ -12,7 +12,7 @@
             </template>
         </a-table>
         <a-modal :visible="dialog.visible" :title="dialog.title"
-         @cancel="cancelHandle" :width="928" @ok="okHandle">
+         @cancel="cancelHandle" :width="928" @ok="okHandle" class='recordModal'>
             <component :is="dialog.name" ref="dialog" :data="dialog.data"></component>
         </a-modal>
     </div>
@@ -26,9 +26,12 @@ import { Table, Divider } from 'ant-design-vue';
 import { ScopedSlot } from 'vue/types/vnode';
 import TransferModal from '@/components/PositionModal/transfer.vue';
 import DismissModal from '@/components/PositionModal/dismiss.vue';
+import moment from 'moment';
 import RehabModal from '@/components/PositionModal/rehab.vue';
 import DepartureModal from '@/components/PositionModal/departure.vue';
 import ServeModal from '@/components/PositionModal/serve.vue';
+import './recordTable.less';
+import { getEmployeeModificationByRecordId } from '@/api/operation';
 import _ from 'lodash';
 
 interface TableData {
@@ -72,6 +75,7 @@ export default class RecordTable extends Vue {
     };
     @Prop() private vloading!: boolean;
     @Prop() private tabList!: TableData[];
+    private dateFormat = 'YYYY-MM-DD';
     private dialog = {
         visible: false,
         name: '',
@@ -223,19 +227,24 @@ export default class RecordTable extends Vue {
                 };
                 break;
             case '任职':
-                this.dialog = {
-                    name: 's-serve',
-                    title: '任职操作',
-                    visible: true,
-                    data: {
-                        name: target.name,
-                        num: target.num,
-                        id: target.key,
-                        employeeId: target.employeeId,
-                        effectiveDate: target.effectiveDate,
-                        reason: target.reason,
-                    },
-                };
+                getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                    const data = res.data;
+                    this.dialog = {
+                        name: 's-serve',
+                        title: '任职操作',
+                        visible: true,
+                        data: {
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            id: data.id,
+                            employeeId: data.employeeId,
+                            effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                            reason: data.reason,
+                            orderNum: data.workOrderNumber,
+                            position: data.newPositionFullPath,
+                        },
+                    };
+                });
                 break;
             default:
                 break;
