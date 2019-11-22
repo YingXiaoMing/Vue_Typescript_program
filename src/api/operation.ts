@@ -81,11 +81,9 @@ export const deletePosition = (companyId: string, departmentId: string, id: stri
 export const newPostion = (companyId: string, departmentId: string, param: any) =>
     request.post('/company/' + companyId + '/department/' + departmentId + '/Position', param);
 
-
-
 // 新增员工奖惩
 export const newPrizePenalty = (employeeId: string, param: any) =>
-    request.post('/Employee/' + employeeId + '/PrizePenalty', param);
+    request.post('/Employee/' + employeeId + '/PrizePenaltyRecord', param);
 
 // 新增员工日常请假出差操作
 export const newBusinesstrip = (employeeId: string, param: any) =>
@@ -93,7 +91,7 @@ export const newBusinesstrip = (employeeId: string, param: any) =>
 
 // 查询员工调离职
 export const searchPrizePenaltyRecord = (params: any) =>
-    request.get('/PrizePenaltyRecord?' + params);
+    request.get('/PrizePenaltyRecordCollection?' + params);
 
 // 查询员工加班请假记录
 export const searchBusinessRecord = (params: any) =>
