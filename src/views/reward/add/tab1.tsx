@@ -85,6 +85,15 @@ class Tab1 extends Vue {
                 <a-row gutter={24}>
                     <a-row>
                         <a-col {...{props: this.basicItemLayout}}>
+                            <a-form-item label='工单号' {...{props: this.fromItemLayout}}>
+                                {getFieldDecorator('orderNum', {
+                                    initialValue: '由系统自动生成',
+                                })(<a-input disabled></a-input>)}
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item label='奖励类型' {...{props: this.fromItemLayout}}>
                                 {getFieldDecorator('rewardType', {
                                     rules: [{
