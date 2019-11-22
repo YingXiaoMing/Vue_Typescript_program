@@ -7,6 +7,8 @@
             </template>
             <template slot="action" slot-scope="text, record">
                 <span>
+                    <a class="disabled-button">撤销</a>
+                    <a-divider type="vertical"></a-divider>
                     <a @click="makeTableRowEditable(record.key)">编辑</a>
                 </span>
             </template>
@@ -14,7 +16,6 @@
         <a-reward-modal :visible="modalVisible" @cancel="cancelHandle" :formData="formData"
         @refreshTableData="refreshTableData" :ETag="etag"></a-reward-modal>
     </div>
-    
 </template>
 <script lang="ts">
 import Vue from 'vue';
@@ -26,6 +27,10 @@ import _ from 'lodash';
 import RewardModal from '@/components/RewardModal/index.vue';
 interface TableData {
     key: string;
+    orderNum: string;
+    status: string;
+    operator: string;
+    operateTime: string;
     name: string;
     num: string;
     position: string;
@@ -87,6 +92,11 @@ export default class Tab1Table extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'Index' },
     }, {
+        title: '工单号',
+        dataIndex: 'orderNum',
+        align: 'center',
+        scopedSlots: { customRender: 'orderNum' },
+    }, {
         title: '员工工号',
         dataIndex: 'num',
         align: 'center',
@@ -117,10 +127,25 @@ export default class Tab1Table extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'date' },
     }, {
+        title: '状态',
+        dataIndex: 'status',
+        align: 'center',
+        scopedSlots: { customRender: 'date' },
+    }, {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
+    }, {
+        title: '最后操作人',
+        dataIndex: 'operator',
+        align: 'center',
+        scopedSlots: { customRender: 'operator' },
+    }, {
+        title: '最后操作时间',
+        dataIndex: 'operateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'operateTime' },
     }];
     @Watch('tabList')
     private tableDataChange(value: any) {

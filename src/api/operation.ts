@@ -22,7 +22,7 @@ export const getEmployeeDismissedPosition = (employeeId: string) =>
 
 // 查看员工调离职的记录
 export const getEmployeeModificationRecord = (employeeId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord');
+    request.get('/employee/' + employeeId + '/EmployeePositionModification/Collection');
 
 // 根据记录ID来查询员工的操作记录
 export const getEmployeeModificationByRecordId = (employeeId: string, recordId: string) =>
@@ -91,7 +91,7 @@ export const newBusinesstrip = (employeeId: string, param: any) =>
 
 // 查询员工调离职
 export const searchPrizePenaltyRecord = (params: any) =>
-    request.get('/PrizePenaltyRecordCollection?' + params);
+    request.get('/PrizePenaltyRecord/Collection?' + params);
 
 // 查询员工加班请假记录
 export const searchBusinessRecord = (params: any) =>

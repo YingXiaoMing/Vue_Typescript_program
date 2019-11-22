@@ -1,5 +1,5 @@
 <template>
-    <div class="reward_tab2">
+    <div class="reward_tab">
         <a-form :form="form">
         <a-row :gutter="24">
             <a-col :lg="8" :md="12" :sm="24">
@@ -15,6 +15,11 @@
                             <a-select-option v-for="it in item.children"  :value="it.id">{{it.name}}</a-select-option>
                         </a-select-opt-group>
                     </a-select>
+                </a-form-item>
+            </a-col>
+            <a-col :lg="8" :md="12" :sm="24">
+                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="输入工单号">
+                    <a-input></a-input>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -53,7 +58,6 @@ import Table1 from './tabTable1.vue';
 import { Pagination } from '@/interface';
 import moment from 'moment';
 import { searchPrizePenaltyRecord } from '@/api/operation';
-import './tab2.less';
 import URLSearchParams from 'url-search-params';
 interface Data {
     title: string;

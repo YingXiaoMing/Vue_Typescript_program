@@ -1,34 +1,43 @@
 <template>
-    <div>
+    <div class="reward_tab">
         <a-row :gutter="24">
             <a-form :form="form">
-            <a-col :lg="6" :md="12" :sm="24">
-                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工姓名(工号)">
-                    <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                    @search="handleChange" @select="onSelect" v-decorator="['query']">
-                        <template slot="dataSource">
-                            <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
-                        </template>
-                        <a-input></a-input>
-                    </a-auto-complete>
-                </a-form-item>
-            </a-col>
-            <a-col :lg="6" :md="12" :sm="24">
-                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="开始时间">
-                    <a-date-picker v-decorator="['startDateTime']"></a-date-picker>
-                </a-form-item>
-            </a-col>
-            <a-col :lg="6" :md="12" :sm="24">
-                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="结束时间">
-                    <a-date-picker v-decorator="['endDateTime']"></a-date-picker>
-                </a-form-item>
-            </a-col>
-            <a-col :lg="6" :md="12" :sm="24">
-                <a-form-item>
-                    <a-button type="primary" @click="searchClick">查询</a-button>
-                    <a-button style="marginLeft:10px">导出数据</a-button>
-                </a-form-item>
-            </a-col>
+                <a-row :gutter="24">
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工姓名(工号)">
+                            <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                            @search="handleChange" @select="onSelect" v-decorator="['query']">
+                                <template slot="dataSource">
+                                    <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
+                                </template>
+                                <a-input></a-input>
+                            </a-auto-complete>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="输入工单号">
+                            <a-input></a-input>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+                <a-row :gutter="24">
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="开始时间">
+                            <a-date-picker v-decorator="['startDateTime']"></a-date-picker>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="结束时间">
+                            <a-date-picker v-decorator="['endDateTime']"></a-date-picker>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item :labelCol="labelCol">
+                            <a-button type="primary" @click="searchClick">查询</a-button>
+                            <a-button style="marginLeft:15px">导出数据</a-button>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
             </a-form>
             <a-divider class="diliver_item">查询结果</a-divider>
             <a-table1 :tabList="tabData" :loading="searchLoading" :paginationData="pagination"
@@ -41,7 +50,6 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Row, Col, Form, AutoComplete, Select, Input, DatePicker, Button, Divider } from 'ant-design-vue';
 import { searchEmployeeData } from '@/api/staff';
-import './tab1.less';
 import Table1 from './tabTable1.vue';
 import moment from 'moment';
 import _ from 'lodash';
@@ -162,6 +170,8 @@ export default class Tab1 extends Vue {
                     date: moment(item.effectiveDate).format(this.dateFormat),
                     situationDescription: item.situationDescription,
                     solution: item.solution,
+                    orderNum: item.workOrderNumber,
+                    status: item.recordStateName,
                     typeId: item.prizePenaltyTypeId,
                     id: item.id,
                     employeeId: item.employeeId,

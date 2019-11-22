@@ -19,6 +19,7 @@ import Component from 'vue-class-component';
 import { Card } from 'ant-design-vue';
 import Tab1 from './tab1.vue';
 import Tab2 from './tab2.vue';
+import './index.less';
 
 @Component({
     components: {
