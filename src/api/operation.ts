@@ -164,6 +164,11 @@ export const getEmployeePositionDelegatedType = () =>
     request.get('/EmployeePositionChangeType/PositionDelegated');
 
 
+// 新增 调职/任职/离职类型是数据
+export const putEmployeePositionModification = (employeeId: string, param: any) =>
+    request.put('/employee/' + employeeId + '/EmployeePositionModification', param);
+
+
 
 export const getEmployeeToken = (url: string, param: any) =>
     t_request.post(url, param);

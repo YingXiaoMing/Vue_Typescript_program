@@ -27,10 +27,11 @@
                 </a-col>
             </a-row>
             <a-divider>员工任职</a-divider>
+            <a-form :form="form">
             <a-row :gutter="24">
                 <a-col :lg="10" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="任职类型">
-                        <a-select v-decorator="['typeId']">
+                        <a-select labelInValue v-decorator="['typeId',  {initialValue: positionDelegateTypeOption[0]}]">
                           <a-select-option v-for="item in positionDelegateTypeOption" :value="item.key">{{item.label}}</a-select-option>
                         </a-select>
                     </a-form-item>
@@ -46,7 +47,6 @@
                     </a-form-item>
                 </a-col>
             </a-row>
-            <a-form :form="form">
                 <a-row>
                     <a-col :lg="10" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="任职职位">
@@ -81,7 +81,7 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Row, Col, Input, Select, AutoComplete, Form, Divider, DatePicker, Button, Card, Cascader, message } from 'ant-design-vue';
 import { searchEmployeeData, getEmployeePositionData } from '@/api/staff';
-import { newEmployeePositionDelegated, getEmployeePositionDelegatedType } from '@/api/operation';
+import { putEmployeePositionModification, getEmployeePositionDelegatedType } from '@/api/operation';
 import _ from 'lodash';
 import './index.less';
 import moment from 'moment';
@@ -214,10 +214,11 @@ export default class Serve extends Vue {
         }
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                newEmployeePositionDelegated(this.employeeId, {
-                    companyId: this.companyId,
-                    departmentId: this.departmentId,
-                    positionId: this.positionId,
+                putEmployeePositionModification(this.employeeId, {
+                    newCompanyId: this.companyId,
+                    newDepartmentId: this.departmentId,
+                    newPositionId: this.positionId,
+                    employeePositionChangeTypeId: values.typeId.key,
                     effectiveDate: moment(values.effectiveDate).format(this.dateForm),
                     reason: values.reason,
                 }).then(() => {

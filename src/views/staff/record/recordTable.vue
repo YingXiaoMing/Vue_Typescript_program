@@ -241,7 +241,7 @@ export default class RecordTable extends Vue {
                             effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
                             reason: data.reason,
                             orderNum: data.workOrderNumber,
-                            position: data.newPositionFullPath,
+                            position: data.newPositionFullIds,
                         },
                     };
                 });

@@ -23,10 +23,17 @@
         </a-row>
         <a-divider>任职操作</a-divider>
         <a-row>
+          <a-col :span="12">
+            <a-form-item v-bind="formItemLayout" label="任职类型">
+                <a-select labelInValue v-decorator="['typeId',  {initialValue: positionDelegateTypeOption[0]}]">
+                    <a-select-option v-for="item in positionDelegateTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                </a-select>
+            </a-form-item>
+          </a-col>
           <a-col :span="18">
               <a-form-item label="任职职位" v-bind="formItemLayout2">
-                  <a-cascader :options="cascderOption" :placeholder="data.position"
-                  v-decorator="['newPostion',{ rules: [{ required: true, message: ' ' }] }]"
+                  <a-cascader :options="cascderOption"  :placeholder="请选择职位"
+                  v-decorator="['newPostion',{ initialValue: data.position, rules: [{ required: true, message: ' ' }] }]"
                   @change="positionsChange"></a-cascader>
               </a-form-item>
           </a-col>
@@ -47,8 +54,8 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import moment from 'moment';
 import { getOrginzationData } from '@/api/basic';
-import { putEmployeeModificationByRecordId } from '@/api/operation';
-import { CascderOptionItem, CascderOption } from '@/interface';
+import { putEmployeeModificationByRecordId, getEmployeePositionDelegatedType } from '@/api/operation';
+import { CascderOptionItem, CascderOption, SelectValue, BasicData } from '@/interface';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
 interface FormData {
@@ -59,7 +66,7 @@ interface FormData {
     effectiveDate: string;
     reason: string;
     orderNum: string;
-    position: string;
+    position: string[];
 }
 @Component({
     name: 's-serve',
@@ -75,6 +82,7 @@ export default class Serve extends Vue {
     private newDepartmentId: string = '';
     private newCompanyId: string = '';
     private newPositionId: string = '';
+    private positionDelegateTypeOption: SelectValue[] = [];
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 6}},
         wrapperCol: { xs: {span: 24}, sm: {span: 18}},
@@ -89,6 +97,10 @@ export default class Serve extends Vue {
     };
     private created() {
         this.form = this.$form.createForm(this);
+        getEmployeePositionDelegatedType().then((res: any) => {
+            const data = res.data;
+            this.positionDelegateTypeOption = this.transformSelectData(data);
+        });
         getOrginzationData().then((res: any) => {
             const data = res.data;
             const Options: CascderOption[] = [];
@@ -107,6 +119,14 @@ export default class Serve extends Vue {
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
         });
     }
     private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
@@ -173,6 +193,7 @@ export default class Serve extends Vue {
                     newPositionId: this.newPositionId,
                     effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                     reason: values.reason,
+                    employeePositionChangeTypeId: values.typeId.key,
                 }).then(() => {
                     message.success('更新成功');
                     callback(true);
