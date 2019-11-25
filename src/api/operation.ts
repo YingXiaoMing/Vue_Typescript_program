@@ -159,6 +159,9 @@ export const UpdatePositionDelegated = (employeeId: string, recordId: string, pa
     request.put('/employee/' + employeeId + '/PositionDelegated/' + recordId, param);
 
 
+// 获取任职类型
+export const getEmployeePositionDelegatedType = () =>
+    request.get('/EmployeePositionChangeType/PositionDelegated');
 
 
 

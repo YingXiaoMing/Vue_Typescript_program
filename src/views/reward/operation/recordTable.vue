@@ -1,6 +1,7 @@
 <template>
     <div>
-        <a-table :columns="column" bordered size="small" :dataSource="data">
+        <a-table :columns="column" bordered size="small" :dataSource="data" 
+        :loading="tloading" :pagination="pagination" @change="tableChange">
             <template slot="Index" slot-scope="text,record, index">
                 <span>{{ index + 1 }}</span>
             </template>
@@ -11,6 +12,9 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { ColumnList, Pagination } from '@/interface';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
+import _ from 'lodash';
+
 interface TableData {
     key: string;
     orderNum: string;
@@ -28,31 +32,12 @@ interface TableData {
     components: {},
 })
 export default class RecordTable extends Vue {
-    private data: TableData[] = [{
-        key: '1',
-        orderNum: 'JC201911210001',
-        num: 'S00124',
-        name: '张三',
-        position: '新感觉有限公司->乐从分公司->研发部->研发经理',
-        typeName: '奖励',
-        type: '小功',
-        effectedDate: '2019-11-30',
-        status: '已取消',
-        operator: 'S0254 小丽',
-        operateTime: '2019-11-22 17:58:31',
-    }, {
-        key: '2',
-        orderNum: 'JC201911210001',
-        num: 'S00124',
-        name: '张三',
-        position: '新感觉有限公司->乐从分公司->研发部->研发经理',
-        typeName: '惩罚',
-        type: '小过',
-        effectedDate: '2019-11-30',
-        status: '已取消',
-        operator: 'S0254 小丽',
-        operateTime: '2019-11-22 17:58:31',
-    }];
+    @Prop({ default: false }) private loading!: boolean;
+    @Prop() private tabList!: TableData[];
+    @Prop() private paginationData!: Pagination;
+    private tloading: boolean = this.loading;
+    private data: TableData[] = this.tabList;
+    private pagination: Pagination = this.paginationData;
     private column: ColumnList[] = [{
         title: '序号',
         width: 44,
@@ -110,6 +95,23 @@ export default class RecordTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'operateTime' },
     }];
+    @Watch('loading')
+    private loadingChange(value: boolean) {
+        this.tloading = value;
+    }
+    @Watch('tabList')
+    private tableDataChange(value: any) {
+        this.data = value;
+    }
+    @Watch('paginationData')
+    private paginationDataChange(value: any) {
+        this.pagination = value;
+    }
+    private tableChange(pagination: any, filters: any, sorter: any) {
+        const pageSize = pagination.pageSize;
+        const pageNum = pagination.current;
+        this.$emit('tableChange', pageNum, pageSize);
+    }
 }
 </script>
 

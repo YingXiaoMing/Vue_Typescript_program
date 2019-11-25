@@ -16,7 +16,7 @@
                     </a-col>
                     <a-col :lg="8" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="输入工单号">
-                            <a-input></a-input>
+                            <a-input v-decorator="['WorkOrderNumber']"></a-input>
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -147,6 +147,9 @@ export default class Tab1 extends Vue {
                 }
                 if (values.endDateTime) {
                     params.set('FilterProperties.EffectiveDateEndValue', moment(values.endDateTime).format(this.dateFormat));
+                }
+                if (values.WorkOrderNumber) {
+                    params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
                 }
                 if (values.query) {
                     params.set('SearchQuery', values.query);

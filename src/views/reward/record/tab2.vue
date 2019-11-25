@@ -19,7 +19,7 @@
             </a-col>
             <a-col :lg="8" :md="12" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="输入工单号">
-                    <a-input></a-input>
+                    <a-input v-decorator="['WorkOrderNumber']"></a-input>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -35,7 +35,7 @@
                 </a-form-item>
             </a-col>
             <a-col :lg="8" :md="12" :sm="24">
-                <a-form-item :labelCol="labelCol">
+                <a-form-item class="rightBtn">
                     <a-button type="primary" @click="searchClick">查询</a-button>
                     <a-button style="marginLeft:15px">导出数据</a-button>
                 </a-form-item>
@@ -205,6 +205,9 @@ export default class Tab2 extends Vue {
                 if (values.endDateTime) {
                     params.set('FilterProperties.EffectiveDateEndValue', moment(values.endDateTime).format(this.dateFormat));
                 }
+                if (values.WorkOrderNumber) {
+                    params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
+                }
                 this.changeListDataToParams(params, values.PrizePenaltyTypeIds, 'FilterProperties.PrizePenaltyTypeIds');
                 this.changeListDataToParams(params, values.EmployeePrincipalPositionFullPaths, 'FilterProperties.EmployeePrincipalPositionFullPaths');
                 this.param = params;
@@ -232,6 +235,8 @@ export default class Tab2 extends Vue {
                     date: moment(item.effectiveDate).format(this.dateFormat),
                     situationDescription: item.situationDescription,
                     solution: item.solution,
+                    orderNum: item.workOrderNumber,
+                    status: item.recordStateName,
                     typeId: item.prizePenaltyTypeId,
                     id: item.id,
                     employeeId: item.employeeId,

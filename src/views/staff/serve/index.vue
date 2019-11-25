@@ -28,14 +28,23 @@
             </a-row>
             <a-divider>员工任职</a-divider>
             <a-row :gutter="24">
-              <a-col :lg="10" :md="12" :sm="24">
-                  <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="现有职位">
-                      <a-card :class="{ServeCard: OriginPostionOptions.length > 0}" style="width: 100%">
-                          <p></p>
-                          <p v-for="item in OriginPostionOptions">{{item.label}}</p>
-                      </a-card>
-                  </a-form-item>
-              </a-col>
+                <a-col :lg="10" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="任职类型">
+                        <a-select v-decorator="['typeId']">
+                          <a-select-option v-for="item in positionDelegateTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row>
+                <a-col :lg="10" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="现有职位">
+                        <a-card :class="{ServeCard: OriginPostionOptions.length > 0}" style="width: 100%">
+                            <p></p>
+                            <p v-for="item in OriginPostionOptions">{{item.label}}</p>
+                        </a-card>
+                    </a-form-item>
+                </a-col>
             </a-row>
             <a-form :form="form">
                 <a-row>
@@ -72,11 +81,11 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Row, Col, Input, Select, AutoComplete, Form, Divider, DatePicker, Button, Card, Cascader, message } from 'ant-design-vue';
 import { searchEmployeeData, getEmployeePositionData } from '@/api/staff';
-import { newEmployeePositionDelegated } from '@/api/operation';
+import { newEmployeePositionDelegated, getEmployeePositionDelegatedType } from '@/api/operation';
 import _ from 'lodash';
 import './index.less';
 import moment from 'moment';
-import { SelectValue, CascderOption, CascderOptionItem } from '@/interface';
+import { SelectValue, CascderOption, CascderOptionItem, BasicData } from '@/interface';
 import { getOrginzationData } from '@/api/basic';
 interface EmployeeData {
     value: string;
@@ -120,11 +129,16 @@ export default class Serve extends Vue {
     private employeeNum: string = '';
     private employeeId: string = '';
     private OriginPostionOptions: SelectValue[] = [];
+    private positionDelegateTypeOption: SelectValue[] = [];
     private form: any;
     private $form: any;
     private created() {
         this.form = this.$form.createForm(this);
         this.fetch('');
+        getEmployeePositionDelegatedType().then((res: any) => {
+            const data = res.data;
+            this.positionDelegateTypeOption = this.transformSelectData(data);
+        });
         getOrginzationData().then((res: any) => {
             const data = res.data;
             const Options: CascderOption[] = [];
@@ -143,6 +157,14 @@ export default class Serve extends Vue {
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
+        });
+    }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
         });
     }
     private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {

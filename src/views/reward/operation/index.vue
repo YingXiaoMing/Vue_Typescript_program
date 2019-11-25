@@ -6,7 +6,7 @@
                     <a-col :lg="8" :md="12" :sm="24">
                         <a-form-item label="输入员工姓名或工号" v-bind="formItemLayout">
                             <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                            @search="handleChange" @select="onSelect" @focus="focusHandle">
+                            @search="handleChange" @select="onSelect" @focus="focusHandle" v-decorator="['searchKey']">
                                 <template slot="dataSource">
                                     <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                                 </template>
@@ -16,7 +16,7 @@
                     </a-col>
                     <a-col :lg="6" :md="12" :sm="24">
                         <a-form-item label="输入工单号" v-bind="formItemLayout">
-                            <a-input></a-input>
+                            <a-input v-decorator="['WorkOrderNumber']"></a-input>
                         </a-form-item>
                     </a-col>
                     <a-col :lg="4" :md="12" :sm="24">
@@ -26,12 +26,12 @@
                     </a-col>
                     <a-col :lg="6" :md="12" :sm="24">
                         <a-form-item>
-                            <a-button type="primary">快速查询</a-button>
+                            <a-button type="primary" @click="searchClick">快速查询</a-button>
                         </a-form-item>
                     </a-col>
                 </a-form>
             </a-row>
-            <a-operation-recordTable></a-operation-recordTable>
+            <a-operation-recordTable :tabList="tabData" :loading="searchLoading" :paginationData="pagination" @tableChange="pageChange"></a-operation-recordTable>
         </div>
     </div>
 </template>
@@ -40,7 +40,10 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { searchEmployeeData } from '@/api/staff';
 import OperationRecordTable from './recordTable.vue';
+import { searchPrizePenaltyRecord } from '@/api/operation';
+import { Pagination } from '@/interface';
 import _ from 'lodash';
+import moment from 'moment';
 interface EmployeeData {
     value: string;
     text: string;
@@ -56,6 +59,19 @@ export default class Operation extends Vue {
     private $form: any;
     private searchKey: string = '';
     private employeeDataList: EmployeeData[] = [];
+    private dateFormat = 'YYYY-MM-DD';
+    private param: URLSearchParams = new URLSearchParams();
+    private searchLoading: boolean = false;
+    private pagination: Pagination = {
+        pageSize: 0,
+        total: 0,
+        current: 0,
+        onChange: this.pageChange,
+        pageSizeOptions: ['5', '10', '15'],
+        showSizeChanger: true,
+        showTotal: this.showTotal,
+    };
+    private tabData: any = [];
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 10}},
         wrapperCol: { xs: {span: 24}, sm: {span: 14}},
@@ -68,6 +84,9 @@ export default class Operation extends Vue {
     }
     private handleChange(value: string) {
         this.fetch(value);
+    }
+    private focusHandle() {
+        this.handleChange(this.searchKey);
     }
     private fetch(value: string) {
         const params = new URLSearchParams();
@@ -84,6 +103,58 @@ export default class Operation extends Vue {
                     name: item.fullName,
                 };
             });
+        });
+    }
+    private pageChange(current: number, pageSize: number) {
+        this.param.set('PageNumber', current.toString());
+        this.param.set('PageSize', pageSize.toString());
+        this.loadData(this.param);
+    }
+    private showTotal(total: string, range: any) {
+        return  `总记录数: ${total}条`;
+    }
+    private searchClick() {
+        this.form.validateFields((err: any, values: any) => {
+            const params = new URLSearchParams();
+            params.set('PageNumber', '1');
+            params.set('PageSize', '10');
+            if (values.searchKey) {
+                params.set('FilterProperties.EmployeeIds', values.searchKey);
+            }
+            if (values.WorkOrderNumber) {
+                params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
+            }
+            if (values.IsIncludeTerminated) {
+                // 暂时没包含离职员工
+                // params.set('')
+            }
+            params.set('FilterProperties.IsIncludeOperations', 'true');
+            this.param = params;
+            this.loadData(params);
+        });
+    }
+    private loadData(param: URLSearchParams) {
+        this.searchLoading = true;
+        searchPrizePenaltyRecord(param).then((res) => {
+            const data = res.data;
+            this.tabData = _.map(data, (item) => {
+                return {
+                    key: item.id,
+                    orderNum: item.workOrderNumber,
+                    num: item.employeeStringID,
+                    name: item.employeeFullName,
+                    position: item.employeePrincipalPositionFullPath,
+                    typeName: item.prizePenaltyTypeClassifyName,
+                    type: item.prizePenaltyTypeName,
+                    effectedDate: moment(item.effectiveDate).format(this.dateFormat),
+                    status: item.recordStateName,
+                };
+            });
+            this.searchLoading = false;
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         });
     }
     private changeDataToParamas(params: URLSearchParams, data: boolean, paramName: string) {
