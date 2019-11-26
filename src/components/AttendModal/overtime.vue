@@ -96,7 +96,7 @@ export default class Overtime extends Vue {
     private form: any;
     private $form: any;
     private overtimeType: SelectValue[] = [];
-    private dateFormat = 'YYYY-MM-DD hh:mm';
+    private dateFormat = 'YYYY-MM-DD HH:mm';
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 6}},
         wrapperCol: { xs: {span: 24}, sm: {span: 16}},
