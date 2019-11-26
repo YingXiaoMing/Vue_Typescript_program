@@ -2,7 +2,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Form, Row, Col, Select, DatePicker, Button, Input, message } from 'ant-design-vue';
 import { BasicData, SelectValue } from '@/interface';
 import { getEmployeeEndJonType } from '@/api/basic';
-import { employeeLeavePosition } from '@/api/operation';
+import { putEmployeePositionModification } from '@/api/operation';
 import _ from 'lodash';
 import moment from 'moment';
 @Component({
@@ -64,9 +64,9 @@ class Tab2 extends Vue {
         }
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
-                employeeLeavePosition(this.employeeId, {
+                putEmployeePositionModification(this.employeeId, {
                     employeePositionChangeTypeId: values.endJobType.key,
-                    employmentEndedDate: moment(values.issueDate).format(this.dateFormat),
+                    effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then((res) => {
                     this.Form.resetFields();

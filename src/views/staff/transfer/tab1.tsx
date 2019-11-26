@@ -3,7 +3,7 @@ import { Form, Cascader, Row, Col, Select, DatePicker, Divider, Button, message 
 import { CascderOption, CascderOptionItem, BasicData, SelectValue } from '@/interface';
 import { getOrginzationData, getEmployeePositionChangeType } from '@/api/basic';
 import _ from 'lodash';
-import { employeeTransferPosition } from '@/api/operation';
+import { putEmployeePositionModification } from '@/api/operation';
 import { getEmployeePositionData } from '@/api/staff';
 import moment from 'moment';
 @Component({
@@ -100,13 +100,14 @@ class Tab1 extends Vue {
                     message.error('请选择一个有效职位');
                     return;
                 }
-                employeeTransferPosition(this.employeeId, {
+                putEmployeePositionModification(this.employeeId, {
                     orginalPositionId: values.originPostion.key,
                     newPositionCompanyId: this.newCompanyId,
                     newPositionDepartmentId: this.newDepartmentId,
                     newPositionId: this.newPositionId,
                     employeePositionChangeTypeId: values.transferType.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
+                    reason: values.reason,
                 }).then((res) => {
                     this.resetEmployeeData();
                 });
@@ -242,6 +243,13 @@ class Tab1 extends Vue {
                                     }],
                                 })(<a-cascader options={this.cascderOption}
                                 style='width:100%' on-change={this.positionsChange}></a-cascader>)}
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col {...{props: this.basicItemLayout}}>
+                            <a-form-item label='调职原因' {...{props: this.fromItemLayout}}>
+                                {getFieldDecorator('reason')(<a-textarea rows={4}></a-textarea>)}
                             </a-form-item>
                         </a-col>
                     </a-row>
