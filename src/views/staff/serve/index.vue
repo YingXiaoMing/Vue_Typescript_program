@@ -215,8 +215,8 @@ export default class Serve extends Vue {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
                 putEmployeePositionModification(this.employeeId, {
-                    newCompanyId: this.companyId,
-                    newDepartmentId: this.departmentId,
+                    newPositionCompanyId: this.companyId,
+                    newPositionDepartmentId: this.departmentId,
                     newPositionId: this.positionId,
                     employeePositionChangeTypeId: values.typeId.key,
                     effectiveDate: moment(values.effectiveDate).format(this.dateForm),
