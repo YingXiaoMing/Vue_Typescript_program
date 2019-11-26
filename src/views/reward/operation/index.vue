@@ -126,7 +126,7 @@ export default class Operation extends Vue {
             }
             if (values.IsIncludeTerminated) {
                 // 暂时没包含离职员工
-                // params.set('')
+                params.set('FilterProperties.IsIncludeEmploymentTerminated', values.IsIncludeTerminated);
             }
             params.set('FilterProperties.IsIncludeOperations', 'true');
             this.param = params;
