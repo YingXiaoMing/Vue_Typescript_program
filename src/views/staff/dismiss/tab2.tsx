@@ -72,6 +72,17 @@ class Tab1 extends Vue {
                 <a-row gutter={24}>
                     <a-row>
                         <a-col {...{props: this.basicItemLayout2}}>
+                            <a-form-item label='工单号' {...{props: this.fromItemLayout2}}>
+                                {getFieldDecorator('orderNum', {
+                                    initialValue: '系统自动生成',
+                                })(
+                                    <a-input disabled></a-input>
+                                )}
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row>
+                        <a-col {...{props: this.basicItemLayout2}}>
                             <a-form-item label='复职职位' {...{props: this.fromItemLayout2}}>
                                 {getFieldDecorator('position', {
                                     initialValue: this.valueOption[0],
