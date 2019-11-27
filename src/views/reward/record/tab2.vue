@@ -99,6 +99,7 @@ export default class Tab2 extends Vue {
     private $form: any;
     private tabData: any = [];
     private dateFormat = 'YYYY-MM-DD';
+    private dateTimeFormat = 'YYYY-MM-DD HH:mm';
     private param: URLSearchParams = new URLSearchParams();
     private pagination: Pagination = {
         pageSize: 0,
@@ -240,6 +241,7 @@ export default class Tab2 extends Vue {
                     typeId: item.prizePenaltyTypeId,
                     id: item.id,
                     employeeId: item.employeeId,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;

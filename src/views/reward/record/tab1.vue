@@ -83,6 +83,7 @@ export default class Tab1 extends Vue {
     private param: URLSearchParams = new URLSearchParams();
     private employeeDataList: EmployeeData[] = [];
     private dateFormat = 'YYYY-MM-DD';
+    private dateTimeFormat = 'YYYY-MM-DD HH:mm';
     private searchKey: string = '';
     private searchLoading: boolean = false;
     private tabData: any = [];
@@ -178,6 +179,7 @@ export default class Tab1 extends Vue {
                     typeId: item.prizePenaltyTypeId,
                     id: item.id,
                     employeeId: item.employeeId,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;
