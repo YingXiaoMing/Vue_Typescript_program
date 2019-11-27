@@ -60,6 +60,7 @@ export default class Operation extends Vue {
     private searchKey: string = '';
     private employeeDataList: EmployeeData[] = [];
     private dateFormat = 'YYYY-MM-DD';
+    private dateTimeFormat = 'YYYY-MM-DD HH:mm';
     private param: URLSearchParams = new URLSearchParams();
     private searchLoading: boolean = false;
     private pagination: Pagination = {
@@ -125,7 +126,6 @@ export default class Operation extends Vue {
                 params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
             }
             if (values.IsIncludeTerminated) {
-                // 暂时没包含离职员工
                 params.set('FilterProperties.IsIncludeEmploymentTerminated', values.IsIncludeTerminated);
             }
             params.set('FilterProperties.IsIncludeOperations', 'true');
@@ -148,6 +148,7 @@ export default class Operation extends Vue {
                     type: item.prizePenaltyTypeName,
                     effectedDate: moment(item.effectiveDate).format(this.dateFormat),
                     status: item.recordStateName,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;
