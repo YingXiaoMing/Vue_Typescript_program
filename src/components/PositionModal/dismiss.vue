@@ -1,6 +1,13 @@
 <template>
     <a-form :form="form">
       <a-row>
+          <a-col :span="12">
+              <a-form-item label="工单号" v-bind="formItemLayout">
+                  <a-input disabled v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
+              </a-form-item>
+          </a-col>
+      </a-row>
+      <a-row>
         <a-col :span="12">
               <a-form-item label="员工工号" v-bind="formItemLayout">
                   <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
@@ -14,9 +21,18 @@
       </a-row>
       <a-divider>撤职操作</a-divider>
       <a-row>
+          <a-col :span="18">
+              <a-form-item label="撤职类型" v-bind="formItemLayout2">
+                  <a-select v-decorator="['employeePositionChangeType', {initialValue: typeOption[0].key, rules: [{ required: true, message: ' ' }]}]">
+                      <a-select-option v-for="item in typeOption" :value="item.key">{{item.label}}</a-select-option>
+                  </a-select>
+              </a-form-item>
+          </a-col>
+      </a-row>
+      <a-row>
         <a-col :span="18">
             <a-form-item label="撤职职位" v-bind="formItemLayout2">
-                  <a-select v-decorator="['positionId', {initialValue: dismissPositionOption[0].key, rules: [{ required: true, message: ' ' }]}]">
+                  <a-select v-decorator="['positionId', {initialValue: data.dismissTypeId, rules: [{ required: true, message: ' ' }]}]">
                     <a-select-option v-for="item in dismissPositionOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
             </a-form-item>
@@ -40,11 +56,11 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { SelectValues } from '@/interface';
+import { SelectValues, BasicData } from '@/interface';
 import moment from 'moment';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
-import { getEmployeePositionForUpdatePositionDismissedRecord, updateEmployeePositionDismissedRecord } from '@/api/operation';
+import { getEmployeePositionForUpdatePositionDismissedRecord, putEmployeeModificationByRecordId, getEmployeePositionDismissType } from '@/api/operation';
 interface FormData {
     name: string;
     num: string;
@@ -63,6 +79,7 @@ export default class DismissForm extends Vue {
     private $form: any;
     private dismissPositionOption: SelectValues[] = [{key: '', label: ''}];
     private dateFormat = 'YYYY-MM-DD';
+    private typeOption: SelectValues[] = [{key: '', label: ''}];
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 6}},
         wrapperCol: { xs: {span: 24}, sm: {span: 18}},
@@ -77,6 +94,10 @@ export default class DismissForm extends Vue {
     };
     private created() {
         this.form = this.$form.createForm(this);
+        getEmployeePositionDismissType().then((res: any) => {
+            const data = res.data;
+            this.typeOption = this.transformSelectData(data);
+        });
         getEmployeePositionForUpdatePositionDismissedRecord(this.data.employeeId, this.data.id).then((res: any) => {
             const data = res.data;
             this.dismissPositionOption = _.map(data, (item) => {
@@ -87,6 +108,14 @@ export default class DismissForm extends Vue {
             });
         });
     }
+    private transformSelectData(data: any) {
+        return _.map(data, (item: BasicData) => {
+            return {
+                key: item.id,
+                label: item.name,
+            };
+        });
+    }
     private momentFromDate(date: string) {
          if (_.isEmpty(date)) { return null; }
          return moment(date, this.dateFormat);
@@ -94,8 +123,9 @@ export default class DismissForm extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                updateEmployeePositionDismissedRecord(this.data.employeeId, this.data.id, {
-                    positionId: values.positionId,
+                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                    employeePositionChangeTypeId: values.employeePositionChangeType,
+                    orginalPositionId: values.positionId,
                     effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then(() => {

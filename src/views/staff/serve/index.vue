@@ -31,7 +31,7 @@
             <a-row>
                 <a-col :lg="10" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="工单号">
-                        <a-input disabled v-decorator="['effectiveDate', {initialValue: '系统自动生成'}]"></a-input>
+                        <a-input disabled v-decorator="['workOrderNum', {initialValue: '系统自动生成'}]"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>

@@ -4,7 +4,7 @@
             <a-row>
                 <a-col :span="12">
                     <a-form-item label="工单号" v-bind="formItemLayout">
-                        <span>{{ data.orderNum }}</span>
+                        <a-input disabled v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>
