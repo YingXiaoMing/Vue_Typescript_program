@@ -7,7 +7,7 @@
             </template>
             <template slot="action" slot-scope="text, record">
                 <span>
-                    <a @click="makeEmployeeDataEditable(record.key)" v-if="record.isAllowModification">编辑</a>
+                    <a @click="makeEmployeeDataEditable(record.key)" :class="{'disabled-button': !record.isAllowModification}">编辑</a>
                 </span>
             </template>
         </a-table>
@@ -182,51 +182,65 @@ export default class RecordTable extends Vue {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         switch (target.transfer) {
             case '调职':
-                this.dialog = {
-                    name: 's-transfer',
-                    title: '调职操作',
-                    visible: true,
-                    data: {
-                        name: target.name,
-                        num: target.num,
-                        id: target.key,
-                        employeeId: target.employeeId,
-                        effectiveDate: target.effectiveDate,
-                        employeePositionChangeTypeId: target.employeePositionChangeTypeId,
-                        position: target.position,
-                    },
-                };
+                getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                    const data = res.data;
+                    this.dialog = {
+                        name: 's-transfer',
+                        title: '调职操作',
+                        visible: true,
+                        data: {
+                            id: data.id,
+                            employeeId: data.employeeId,
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            orderNum: data.workOrderNumber,
+                            reason: data.reason,
+                            employeePositionChangeTypeId: data.employeePositionChangeTypeId,
+                            effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                            position: data.orginalPositionId,
+                        },
+                    };
+                });
                 break;
             case '离职':
-                this.dialog = {
-                    name: 's-departure',
-                    title: '离职操作',
-                    visible: true,
-                    data: {
-                        name: target.name,
-                        num: target.num,
-                        id: target.key,
-                        employeeId: target.employeeId,
-                        effectiveDate: target.effectiveDate,
-                        reason: target.reason,
-                        employeePositionChangeTypeId: target.employeePositionChangeTypeId,
-                    },
-                };
+                getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                    const data = res.data;
+                    this.dialog = {
+                        name: 's-departure',
+                        title: '离职操作',
+                        visible: true,
+                        data: {
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            id: data.id,
+                            employeeId: data.employeeId,
+                            effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                            reason: data.reason,
+                            orderNum: data.workOrderNumber,
+                            employeePositionChangeTypeId: data.employeePositionChangeTypeId,
+                        },
+                    };
+                });
                 break;
             case '撤职':
-                this.dialog = {
-                    name: 's-dismiss',
-                    title: '撤职操作',
-                    visible: true,
-                    data: {
-                        name: target.name,
-                        num: target.num,
-                        id: target.key,
-                        employeeId: target.employeeId,
-                        effectiveDate: target.effectiveDate,
-                        reason: target.reason,
-                    },
-                };
+                getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                    const data = res.data;
+                    this.dialog = {
+                        name: 's-dismiss',
+                        title: '撤职操作',
+                        visible: true,
+                        data: {
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            id: data.id,
+                            employeeId: data.employeeId,
+                            effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                            reason: data.reason,
+                            orderNum: data.workOrderNumber,
+                            dismissTypeId: data.orginalPositionId,
+                        },
+                    };
+                });
                 break;
             case '复职':
                 this.dialog = {
@@ -265,86 +279,6 @@ export default class RecordTable extends Vue {
                 break;
             default:
                 break;
-        }
-        if (_.isEqual(target.transfer, '调职')) {
-            getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
-                const data = res.data;
-                this.dialog = {
-                    name: 's-transfer',
-                    title: '调职操作',
-                    visible: true,
-                    data: {
-                        name: data.employeeFullName,
-                        num: data.employeeStringID,
-                        orderNum: data.workOrderNumber,
-                        reason: data.reason,
-                        employeePositionChangeTypeId: data.employeePositionChangeTypeId,
-                        effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
-                        position: data.orginalPositionId,
-                    },
-                };
-            });
-        } else if (_.isEqual(target.transfer, '离职')) {
-            getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
-                const data = res.data;
-                this.dialog = {
-                    name: 's-departure',
-                    title: '离职操作',
-                    visible: true,
-                    data: {
-                        name: data.employeeFullName,
-                        num: data.employeeStringID,
-                        id: data.id,
-                        employeeId: data.employeeId,
-                        effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
-                        reason: data.reason,
-                        orderNum: data.workOrderNumber,
-                        employeePositionChangeTypeId: data.employeePositionChangeTypeId,
-                    },
-                };
-            });
-        } else if (_.isEqual(target.transfer, '撤职')) {
-            this.dialog = {
-                name: 's-dismiss',
-                title: '撤职操作',
-                visible: true,
-                data: {
-                    name: target.name,
-                    num: target.num,
-                    id: target.key,
-                    employeeId: target.employeeId,
-                    effectiveDate: target.effectiveDate,
-                    reason: target.reason,
-                },
-            };
-        } else if (_.isEqual(target.transfer, '复职')) {
-            this.dialog = {
-                name: 's-rehab',
-                title: '复职操作',
-                visible: true,
-                data: {
-                    name: target.name,
-                    num: target.num,
-                    id: target.key,
-                    employeeId: target.employeeId,
-                    effectiveDate: target.effectiveDate,
-                    reason: target.reason,
-                },
-            };
-        } else if (_.isEqual(target.transfer, '入职')) {
-            this.dialog = {
-                name: 's-serve',
-                title: '入职操作',
-                visible: true,
-                data: {
-                    name: target.name,
-                    num: target.num,
-                    id: target.key,
-                    employeeId: target.employeeId,
-                    effectiveDate: target.effectiveDate,
-                    reason: target.reason,
-                },
-            };
         }
     }
     private cancelHandle() {
