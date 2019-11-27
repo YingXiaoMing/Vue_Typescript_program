@@ -3,10 +3,10 @@
         <div class='staff-head'>
             <a-row :gutter="24">
                 <a-form :form="form">
-                    <a-col :lg="6" :md="12" :sm="24">
-                        <a-form-item>
+                    <a-col :lg="8" :md="12" :sm="24">
+                        <a-form-item label="输入员工姓名或工号" v-bind="formItemLayout">
                             <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
-                            @search="handleChange" @select="onSelect" @focus="focusHandle">
+                            @search="handleChange" @select="onSelect" @focus="focusHandle" v-decorator="['searchKey']">
                                 <template slot="dataSource">
                                     <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
                                 </template>
@@ -14,12 +14,17 @@
                             </a-auto-complete>
                         </a-form-item>
                     </a-col>
-                    <a-col :lg="3" :md="12" :sm="24">
+                    <a-col :lg="6" :md="12" :sm="24">
+                        <a-form-item label="输入工单号" v-bind="formItemLayout">
+                            <a-input v-decorator="['WorkOrderNumber']"></a-input>
+                        </a-form-item>
+                    </a-col>
+                    <a-col :lg="4" :md="12" :sm="24">
                         <a-form-item>
                             <a-checkbox v-decorator="['IsIncludeTerminated', { valuePropName: 'checked', initialValue: false }]">包含离职员工</a-checkbox>
                         </a-form-item>
                     </a-col>
-                    <a-col :lg="6" :md="12" :sm="24">
+                    <a-col :lg="4" :md="12" :sm="24">
                         <a-form-item>
                             <a-button type="primary" @click="fastQuery">快速查询</a-button>
                         </a-form-item>
@@ -28,7 +33,8 @@
             </a-row>
             <a-row :gutter="24">
                 <a-col :span="24">
-                    <a-recordTable :tabList="recordData" :vloading="loading" @loadData="loadData"></a-recordTable>
+                    <a-recordTable :tabList="recordData" :vloading="loading" 
+                    @loadData="loadData" :paginationData="pagination" @tableChange="pageChange"></a-recordTable>
                 </a-col>
             </a-row>
         </div>
@@ -77,10 +83,25 @@ interface TableData {
 })
 export default class Record extends Vue {
     private dateFormat = 'YYYY-MM-DD';
+    private dateTimeFormat = 'YYYY-MM-DD HH:mm';
     private employeeDataList: EmployeeData[] = [];
     private searchKey: string = '';
     private recordData: TableData[] = [];
     private loading: boolean = false;
+    private param: URLSearchParams = new URLSearchParams();
+    private pagination: Pagination = {
+        pageSize: 0,
+        total: 0,
+        current: 0,
+        onChange: this.pageChange,
+        pageSizeOptions: ['5', '10', '15'],
+        showSizeChanger: true,
+        showTotal: this.showTotal,
+    };
+    private formItemLayout = {
+        labelCol: { xs: {span: 24}, sm: {span: 8}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 16}},
+    };
     private form: any;
     private $form: any;
     private created() {
@@ -96,6 +117,14 @@ export default class Record extends Vue {
         if (data) {
             params.set(paramName, data.toString());
         }
+    }
+    private pageChange(current: number, pageSize: number) {
+        this.param.set('PageNumber', current.toString());
+        this.param.set('PageSize', pageSize.toString());
+        this.loadData();
+    }
+    private showTotal(total: string, range: any) {
+        return  `总记录数: ${total}条`;
     }
     private fetch(value: string) {
         const params = new URLSearchParams();
@@ -118,18 +147,29 @@ export default class Record extends Vue {
         this.searchKey = value;
     }
     private fastQuery() {
-        if (_.isEqual(this.searchKey, '')) {
-            message.error('员工输入框不能为空');
-        } else {
-            this.loadData();
-        }
+        this.form.validateFields((err: any, values: any) => {
+                const params = new URLSearchParams();
+                params.set('PageNumber', '1');
+                params.set('PageSize', '10');
+                if (values.searchKey) {
+                    params.set('FilterProperties.EmployeeId', values.searchKey);
+                }
+                if (values.WorkOrderNumber) {
+                    params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
+                }
+                if (values.IsIncludeTerminated) {
+                    params.set('FilterProperties.IsIncludeEmploymentTerminated', values.IsIncludeTerminated);
+                }
+                this.param = params;
+                this.loadData();
+        });
     }
     private focusHandle() {
         this.handleChange(this.searchKey);
     }
     private loadData() {
         this.loading = true;
-        getEmployeeModificationRecord(this.searchKey).then((res: any) => {
+        getEmployeeModificationRecord(this.param).then((res: any) => {
             this.loading = false;
             const records: RemotePostionChangeRecord[] = res.data;
             this.recordData = _.map(records, (item) => {
@@ -150,8 +190,13 @@ export default class Record extends Vue {
                     recordStateName: item.recordStateName,
                     workOrderNumber: item.workOrderNumber,
                     isAllowModification: item.isAllowModification,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         });
     }
     private onSelect(value: string) {
