@@ -130,7 +130,7 @@ export const getEmployeePositionTransferRecord = (employeeId: string, recordId: 
 
 // 查询员工更新调职记录的职位
 export const getEmployeePositionForUpdatePositionTransferRrcord = (employeeId: string, recordId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionTransfer/' + recordId + '/GetEmployeePositionForUpdatePositionTransferRrcord');
+    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/' + recordId + '/EmployeePositionTransfer');
 
 // 修改员工调职记录
 export const updateEmployeePositionTransferRecord = (employeeId: string, recordId: string, param: any) =>
@@ -139,7 +139,7 @@ export const updateEmployeePositionTransferRecord = (employeeId: string, recordI
 
 // 查询员工更新撤职记录的职位
 export const getEmployeePositionForUpdatePositionDismissedRecord = (employeeId: string, recordId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/GetEmployeePositionForUpdatePositionDismissedRecord');
+    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/' + recordId + '/EmployeePositionDismissed');
 
 // 修改员工撤职记录
 export const updateEmployeePositionDismissedRecord = (employeeId: string, recordId: string, param: any) =>
@@ -170,6 +170,7 @@ export const getEmployeePositionDismissType = () =>
 // 新增 调职/任职/离职类型数据
 export const putEmployeePositionModification = (employeeId: string, param: any) =>
     request.put('/employee/' + employeeId + '/EmployeePositionModification', param);
+
 
 
 
