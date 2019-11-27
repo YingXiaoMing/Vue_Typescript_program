@@ -26,7 +26,7 @@ interface TableData {
     effectedDate: string;
     status: string;
     operator: string;
-    operateTime: string;
+    createDateTime: string;
 }
 @Component({
     components: {},
@@ -91,9 +91,9 @@ export default class RecordTable extends Vue {
         scopedSlots: { customRender: 'operator' },
     }, {
         title: '操作时间',
-        dataIndex: 'operateTime',
+        dataIndex: 'createDateTime',
         align: 'center',
-        scopedSlots: { customRender: 'operateTime' },
+        scopedSlots: { customRender: 'createDateTime' },
     }];
     @Watch('loading')
     private loadingChange(value: boolean) {
