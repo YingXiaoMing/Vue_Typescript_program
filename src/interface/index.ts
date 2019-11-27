@@ -568,6 +568,7 @@ export interface RemotePostionChangeRecord {
     recordStateName: string;
     workOrderNumber: string;
     isAllowModification: boolean;
+    createDateTime: string;
 }
 
 export interface PositionReinstatedRecordData {
