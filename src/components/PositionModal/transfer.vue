@@ -1,6 +1,13 @@
 <template>
     <a-form :form="form">
         <a-row>
+            <a-col :span="12">
+                <a-form-item label="工单号" v-bind="formItemLayout">
+                    <span>{{ data.orderNum }}</span>
+                </a-form-item>
+            </a-col>
+        </a-row>
+        <a-row>
           <a-col :span="12">
               <a-form-item label="员工工号" v-bind="formItemLayout">
                   <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
@@ -45,13 +52,20 @@
               </a-form-item>
           </a-col>
         </a-row>
+        <a-row>
+            <a-col :span="18">
+                <a-form-item label="原因" v-bind="formItemLayout2">
+                    <a-textarea v-decorator="['reason', { initialValue: data.reason }]" rows="4"></a-textarea>
+                </a-form-item>
+            </a-col>
+        </a-row>
     </a-form>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { CascderOption, SelectValues, BasicData, CascderOptionItem } from '@/interface';
 import { getOrginzationData, getEmployeePositionChangeType } from '@/api/basic';
-import { getEmployeePositionForUpdatePositionTransferRrcord, updateEmployeePositionTransferRecord } from '@/api/operation';
+import { getEmployeePositionForUpdatePositionTransferRrcord, putEmployeeModificationByRecordId } from '@/api/operation';
 import moment from 'moment';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
@@ -176,13 +190,14 @@ export default class TransferForm extends Vue {
                     message.error('请选择一个有效职位');
                     callback(false);
                 }
-                updateEmployeePositionTransferRecord(this.data.employeeId, this.data.id, {
+                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
                     orginalPositionId: values.orginalPositionId,
                     newPositionCompanyId: this.newCompanyId,
                     newPositionDepartmentId: this.newDepartmentId,
                     newPositionId: this.newPositionId,
                     employeePositionChangeTypeId: values.employeePositionChangeType,
                     effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
+                    reason : values.reason,
                 }).then(() => {
                     message.success('更新成功');
                     callback(true);
