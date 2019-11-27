@@ -3,7 +3,7 @@
         <a-row>
             <a-col :span="12">
                 <a-form-item label="工单号" v-bind="formItemLayout">
-                    <span>{{ data.orderNum }}</span>
+                    <a-input disabled v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -103,6 +103,7 @@ export default class TransferForm extends Vue {
         wrapperCol: { xs: {span: 24}, sm: {span: 20}},
     };
     private created() {
+        console.log(this.data);
         this.form = this.$form.createForm(this);
         getEmployeePositionChangeType().then((res: any) => {
             const data = res.data;
