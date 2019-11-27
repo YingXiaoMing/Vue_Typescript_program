@@ -1,7 +1,7 @@
 <template>
     <div>
-        <a-table :pagination="false" :columns="column" size="small"
-        bordered :dataSource="data" :loading="vloading">
+        <a-table :columns="column" size="small"
+        bordered :dataSource="data" :loading="vloading" :pagination="pagination" @change="tableChange">
             <template slot="Index" slot-scope="text,record, index">
                 <span>{{ index + 1 }}</span>
             </template>
@@ -21,7 +21,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
-import { ColumnList } from '@/interface';
+import { ColumnList, Pagination } from '@/interface';
 import { Table, Divider } from 'ant-design-vue';
 import { ScopedSlot } from 'vue/types/vnode';
 import TransferModal from '@/components/PositionModal/transfer.vue';
@@ -47,6 +47,7 @@ interface TableData {
     employeeId: string;
     employeePositionChangeTypeId: string;
     effectiveDate: string;
+    createDateTime: string;
 }
 interface FormData {
     name: string;
@@ -75,6 +76,8 @@ export default class RecordTable extends Vue {
     };
     @Prop() private vloading!: boolean;
     @Prop() private tabList!: TableData[];
+    @Prop() private paginationData!: Pagination;
+    private pagination: Pagination = this.paginationData;
     private dateFormat = 'YYYY-MM-DD';
     private dialog = {
         visible: false,
@@ -147,10 +150,24 @@ export default class RecordTable extends Vue {
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
+    }, {
+        title: '操作时间',
+        dataIndex: 'createDateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'createDateTime' },
     }];
     @Watch('tabList')
     private tabListChange(value: any) {
         this.data = value;
+    }
+    @Watch('paginationData')
+    private paginationDataChange(value: any) {
+        this.pagination = value;
+    }
+    private tableChange(pagination: any, filters: any, sorter: any) {
+        const pageSize = pagination.pageSize;
+        const pageNum = pagination.current;
+        this.$emit('tableChange', pageNum, pageSize);
     }
     private okHandle() {
         this.$refs.dialog.sumbitData((run: boolean) => {
@@ -250,42 +267,42 @@ export default class RecordTable extends Vue {
                 break;
         }
         if (_.isEqual(target.transfer, '调职')) {
-            this.formData = {
-                name: target.name,
-                num: target.num,
-                effectiveDate: target.lastOperatorDateTime,
-                id: target.key,
-                employeeId: target.employeeId,
-            };
-            this.dialog = {
-                name: 's-transfer',
-                title: '调职操作',
-                visible: true,
-                data: {
-                    name: target.name,
-                    num: target.num,
-                    id: target.key,
-                    employeeId: target.employeeId,
-                    effectiveDate: target.effectiveDate,
-                    employeePositionChangeTypeId: target.employeePositionChangeTypeId,
-                    position: target.position,
-                },
-            };
+            getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                const data = res.data;
+                this.dialog = {
+                    name: 's-transfer',
+                    title: '调职操作',
+                    visible: true,
+                    data: {
+                        name: data.employeeFullName,
+                        num: data.employeeStringID,
+                        orderNum: data.workOrderNumber,
+                        reason: data.reason,
+                        employeePositionChangeTypeId: data.employeePositionChangeTypeId,
+                        effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                        position: data.orginalPositionId,
+                    },
+                };
+            });
         } else if (_.isEqual(target.transfer, '离职')) {
-            this.dialog = {
-                name: 's-departure',
-                title: '离职操作',
-                visible: true,
-                data: {
-                    name: target.name,
-                    num: target.num,
-                    id: target.key,
-                    employeeId: target.employeeId,
-                    effectiveDate: target.effectiveDate,
-                    reason: target.reason,
-                    employeePositionChangeTypeId: target.employeePositionChangeTypeId,
-                },
-            };
+            getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+                const data = res.data;
+                this.dialog = {
+                    name: 's-departure',
+                    title: '离职操作',
+                    visible: true,
+                    data: {
+                        name: data.employeeFullName,
+                        num: data.employeeStringID,
+                        id: data.id,
+                        employeeId: data.employeeId,
+                        effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                        reason: data.reason,
+                        orderNum: data.workOrderNumber,
+                        employeePositionChangeTypeId: data.employeePositionChangeTypeId,
+                    },
+                };
+            });
         } else if (_.isEqual(target.transfer, '撤职')) {
             this.dialog = {
                 name: 's-dismiss',
