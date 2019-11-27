@@ -51,6 +51,7 @@ interface EmployeeData {
     id: string;
 }
 @Component({
+    name: 'operationStaffRecord',
     components: {
         'a-operation-recordTable': OperationRecordTable,
     },
