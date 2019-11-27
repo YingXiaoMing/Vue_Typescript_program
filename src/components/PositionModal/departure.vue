@@ -1,6 +1,13 @@
 <template>
     <a-form :form="form">
       <a-row>
+          <a-col :span="12">
+              <a-form-item label="工单号" v-bind="formItemLayout">
+                    <span>{{ data.orderNum }}</span>
+              </a-form-item>
+          </a-col>
+      </a-row>
+      <a-row>
             <a-col :span="12">
                 <a-form-item label="员工工号" v-bind="formItemLayout">
                     <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
@@ -42,7 +49,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { SelectValues, BasicData } from '@/interface';
 import { getEmployeeEndJonType } from '@/api/basic';
-import { UpdatePositionEnded } from '@/api/operation';
+import { putEmployeeModificationByRecordId } from '@/api/operation';
 import moment from 'moment';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
@@ -99,9 +106,9 @@ export default class DismissForm extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                UpdatePositionEnded(this.data.employeeId, this.data.id, {
+                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
                     employeePositionChangeTypeId: values.employeePositionChangeTypeId,
-                    employmentEndedDate: moment(values.effectiveDate).format(this.dateFormat),
+                    effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then(() => {
                     message.success('更新成功');
