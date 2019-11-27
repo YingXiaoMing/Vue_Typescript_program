@@ -21,8 +21,8 @@ export const getEmployeeDismissedPosition = (employeeId: string) =>
     request.get('/employee/' + employeeId + '/EmployeePositionReinstated/GetEmployeePositionToPositionReinstated');
 
 // 查看员工调离职的记录
-export const getEmployeeModificationRecord = (employeeId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionModification/Collection');
+export const getEmployeeModificationRecord = ( param: any) =>
+    request.get('/EmployeePositionModification/Collection?' + param);
 
 // 根据记录ID来查询员工的操作记录
 export const getEmployeeModificationByRecordId = (employeeId: string, recordId: string) =>
@@ -163,10 +163,14 @@ export const UpdatePositionDelegated = (employeeId: string, recordId: string, pa
 export const getEmployeePositionDelegatedType = () =>
     request.get('/EmployeePositionChangeType/PositionDelegated');
 
+// 获取撤职类型
+export const getEmployeePositionDismissType = () =>
+    request.get('/EmployeePositionChangeType/PositionDismiss');
 
-// 新增 调职/任职/离职类型是数据
+// 新增 调职/任职/离职类型数据
 export const putEmployeePositionModification = (employeeId: string, param: any) =>
     request.put('/employee/' + employeeId + '/EmployeePositionModification', param);
+
 
 
 
