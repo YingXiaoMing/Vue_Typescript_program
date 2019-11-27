@@ -30,7 +30,7 @@ interface TableData {
     orderNum: string;
     status: string;
     operator: string;
-    operateTime: string;
+    createDateTime: string;
     name: string;
     num: string;
     position: string;
@@ -143,9 +143,9 @@ export default class Tab1Table extends Vue {
         scopedSlots: { customRender: 'operator' },
     }, {
         title: '最后操作时间',
-        dataIndex: 'operateTime',
+        dataIndex: 'createDateTime',
         align: 'center',
-        scopedSlots: { customRender: 'operateTime' },
+        scopedSlots: { customRender: 'createDateTime' },
     }];
     @Watch('tabList')
     private tableDataChange(value: any) {
