@@ -41,7 +41,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { SelectValues } from '@/interface';
-import { getEmployeePositionReinstatedRecord, updateEmployeePositionReinstatedRecord } from '@/api/operation';
+import { getEmployeePositionReinstatedRecord, putEmployeeModificationByRecordId } from '@/api/operation';
 import moment from 'moment';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
@@ -94,7 +94,7 @@ export default class Rehab extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                updateEmployeePositionReinstatedRecord(this.data.employeeId, this.data.id, {
+                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
                     reinstatedPositionId: values.reinstatedPositionId,
                     effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                 }).then(() => {
