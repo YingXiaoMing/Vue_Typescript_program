@@ -23,23 +23,25 @@
       <a-row>
         <a-col :span="18">
             <a-form-item label="离职类型" v-bind="formItemLayout2">
-                  <a-select v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId, rules: [{ required: true, message: ' ' }]}]">
+                  <a-select v-if="data.isEdit" v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId, rules: [{ required: true, message: ' ' }]}]">
                     <a-select-option v-for="item in endJobTypeOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
+                  <a-input disabled v-else v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId}]"></a-input>
             </a-form-item>
         </a-col>
       </a-row>
       <a-row>
         <a-col :span="18">
             <a-form-item label="生效日期" v-bind="formItemLayout2">
-                  <a-date-picker v-decorator="['effectiveDate', {initialValue: momentFromDate(data.effectiveDate), rules: [{ required: true, message: ' ' }] }]"></a-date-picker>
+                  <a-date-picker v-if="data.isEdit" v-decorator="['effectiveDate', {initialValue: momentFromDate(data.effectiveDate), rules: [{ required: true, message: ' ' }] }]"></a-date-picker>
+                  <a-input disabled v-else v-decorator="['effectiveDate', { initialValue: data.effectiveDate }]"></a-input>   
             </a-form-item>
         </a-col>
       </a-row>
       <a-row>
         <a-col :span="24">
             <a-form-item label="离职原因" v-bind="formItemLayout3">
-                <a-textarea v-decorator="['reason', {initialValue: data.reason}]" rows="4"></a-textarea>
+                <a-textarea :disabled="!data.isEdit" v-decorator="['reason', {initialValue: data.reason}]" rows="4"></a-textarea>
             </a-form-item>
         </a-col>
       </a-row>
@@ -61,6 +63,7 @@ interface FormData {
     effectiveDate: string;
     reason: string;
     employeePositionChangeTypeId: string;
+    isEdit: boolean;
 }
 @Component({
     name: 's-departure',
@@ -106,14 +109,18 @@ export default class DismissForm extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
-                    employeePositionChangeTypeId: values.employeePositionChangeTypeId,
-                    effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
-                    reason: values.reason,
-                }).then(() => {
-                    message.success('更新成功');
+                if (this.data.isEdit) {
+                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                        employeePositionChangeTypeId: values.employeePositionChangeTypeId,
+                        effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
+                        reason: values.reason,
+                    }).then(() => {
+                        message.success('更新成功');
+                        callback(true);
+                    });
+                } else {
                     callback(true);
-                });
+                }
             }
         });
     }
