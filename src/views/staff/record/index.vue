@@ -93,7 +93,7 @@ export default class Record extends Vue {
         pageSize: 0,
         total: 0,
         current: 0,
-        onChange: this.pageChange,
+        // onChange: this.pageChange,
         pageSizeOptions: ['5', '10', '15'],
         showSizeChanger: true,
         showTotal: this.showTotal,
@@ -119,6 +119,7 @@ export default class Record extends Vue {
         }
     }
     private pageChange(current: number, pageSize: number) {
+        console.log('请求了2次吗');
         this.param.set('PageNumber', current.toString());
         this.param.set('PageSize', pageSize.toString());
         this.loadData();

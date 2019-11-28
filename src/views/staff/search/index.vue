@@ -109,7 +109,7 @@ export default class Search extends Vue {
         current: 1,
         showSizeChanger: true,
         pageSizeOptions: ['5', '10', '15'],
-        onChange: (current: number, pageSize: number) => this.pageChange,
+        // onChange: (current: number, pageSize: number) => this.pageChange,
         showTotal: this.showTotal,
     };
     private form: any;

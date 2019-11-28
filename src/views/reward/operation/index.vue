@@ -68,7 +68,7 @@ export default class Operation extends Vue {
         pageSize: 0,
         total: 0,
         current: 0,
-        onChange: this.pageChange,
+        // onChange: this.pageChange,
         pageSizeOptions: ['5', '10', '15'],
         showSizeChanger: true,
         showTotal: this.showTotal,
