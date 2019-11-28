@@ -144,6 +144,13 @@ export const asyncRouterMap: RouterItem[] = [
             name: 'attendRecord',
             component: () => import('../views/attendance/record/index.vue'),
             meta: { key: 'attendRecord', title: '加班/请假/出差 记录' },
+        }, {
+            path: 'operationRecord',
+            icon: 'read',
+            isShow: true,
+            name: 'attendOperationRecord',
+            component: () => import('../views/attendance/operation/index.vue'),
+            meta: { key: 'attendOperationRecord', title: '操作记录查询' },
         }],
     },
     {
