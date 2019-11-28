@@ -2,6 +2,13 @@
     <a-form :form="form">
         <a-row>
             <a-col :span="12">
+                <a-form-item label="工单号" v-bind="formItemLayout">
+                    <a-input disabled v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
+                </a-form-item>
+            </a-col>
+        </a-row>
+        <a-row>
+            <a-col :span="12">
                 <a-form-item label="员工工号" v-bind="formItemLayout">
                     <a-input disabled v-decorator="['num', {initialValue: data.num}]"></a-input>
                 </a-form-item>

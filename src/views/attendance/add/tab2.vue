@@ -1,14 +1,22 @@
 <template>
     <div>
         <a-form :form="form">
-        <a-row :gutter="24">
-            <a-col :lg="6" :md="12" :sm="24">
-                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="出差类型">
-                    <a-select labelInValue v-decorator="['type',{initialValue: options[0]}]">
-                        <a-select-option v-for="item in options" :value="item.key">{{item.label}}</a-select-option>
-                    </a-select>
-                </a-form-item>
-            </a-col>
+            <a-row>
+                <a-col :lg="6" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="工单号">
+                        <a-input disabled v-decorator="['orderNum', { initialValue: '系统自动生成' }]"></a-input>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row>
+                <a-col :lg="6" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="出差类型">
+                        <a-select labelInValue v-decorator="['type',{initialValue: options[0]}]">
+                            <a-select-option v-for="item in options" :value="item.key">{{item.label}}</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
             <a-divider>出差详情</a-divider>
             <a-row>
               <a-col :lg="6" :md="12" :sm="24">

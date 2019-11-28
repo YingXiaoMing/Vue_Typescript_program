@@ -1,7 +1,14 @@
 <template>
     <div>
         <a-form :form="form">
-        <a-row :gutter="24">
+        <a-row>
+            <a-col :lg="6" :md="12" :sm="24">
+                <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="工单号">
+                    <a-input disabled v-decorator="['orderNum', { initialValue: '系统自动生成' }]"></a-input>
+                </a-form-item>
+            </a-col>
+        </a-row>
+        <a-row>
           <a-col :lg="6" :md="12" :sm="24">
               <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="加班类型">
                   <a-select labelInValue v-decorator="['type',{initialValue: options[0]}]">
