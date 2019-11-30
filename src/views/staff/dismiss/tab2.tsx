@@ -1,7 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Form, Row, Col, Select, DatePicker, Button, Input, message } from 'ant-design-vue';
 import { BasicData, SelectValue } from '@/interface';
-import { employeeRenistatedPosition } from '@/api/operation';
+import { putEmployeePositionModification, getEmployeePositionReinstatedType } from '@/api/operation';
 import _ from 'lodash';
 import moment from 'moment';
 @Component({
@@ -23,6 +23,7 @@ class Tab1 extends Vue {
     @Prop({default: ''}) private employeeId!: string;
     @Prop({default: []}) private valueOption!: SelectValue[];
     private dateFormat: string = 'YYYY-MM-DD';
+    private typeOption: SelectValue[] = [];
     private basicItemLayout = {
         lg: {span: 20},
         md: {span: 24},
@@ -42,6 +43,12 @@ class Tab1 extends Vue {
         wrapperCol: { span: 18 },
     };
     private Form: any;
+    private created() {
+        getEmployeePositionReinstatedType().then((res: any) => {
+            const data = res.data;
+            this.typeOption = this.transformSelectData(data);
+        });
+    }
     private transformSelectData(data: any) {
         return _.map(data, (item: BasicData) => {
             return {
@@ -53,8 +60,9 @@ class Tab1 extends Vue {
     private leaveClick() {
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
-                employeeRenistatedPosition(this.employeeId, {
-                    reinstatedPositionId: values.position.key,
+                putEmployeePositionModification(this.employeeId, {
+                    orginalPositionId: values.position.key,
+                    employeePositionChangeTypeId: values.typeId.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then((res) => {
@@ -98,6 +106,20 @@ class Tab1 extends Vue {
                         </a-col>
                     </a-row>
                     <a-row>
+                        <a-col {...{props: this.basicItemLayout2}}>
+                            <a-form-item label='复职类型' {...{props: this.fromItemLayout2}}>
+                                {getFieldDecorator('typeId', {
+                                    initialValue: this.typeOption[0],
+                                    rules: [{
+                                        required: true,
+                                        message: ' ',
+                                    }],
+                                })(<a-select labelInValue>
+                                {this.typeOption.map((item: any, index: number) => <a-option
+                                        value={item.key}>{item.label}</a-option>)}
+                                </a-select>)}
+                            </a-form-item>
+                        </a-col>
                         <a-col {...{props: this.basicItemLayout2}}>
                             <a-form-item label='生效日期' {...{props: this.fromItemLayout2}}>
                                 {getFieldDecorator('issueDate', {
