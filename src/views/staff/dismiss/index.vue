@@ -88,8 +88,7 @@ export default class Dismiss extends Vue {
             this.employeeNum = item.id;
             this.employeeId = item.value;
             this.$nextTick(() => {
-                this.$refs.tabs.getEmployeePostionData();
-                this.$refs.tabs.getEmployeeDismissPositionData();
+                this.$refs.tabs.loadRemoteEmployeePositionData();
             });
         }
     }
