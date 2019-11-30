@@ -13,8 +13,6 @@ import _ from 'lodash';
         'a-menu-item-group': Menu.ItemGroup,
     },
 })
-
-
 export default class MenuList extends Vue {
     public keys: string[] = [];
     private $store: any;
