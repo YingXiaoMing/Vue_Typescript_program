@@ -18,7 +18,7 @@ export const employeeRenistatedPosition = (employeeId: string, param: any) =>
 
 // 查看员工被撤职的职位
 export const getEmployeeDismissedPosition = (employeeId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionReinstated/GetEmployeePositionToPositionReinstated');
+    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/EmployeePositionReinstated');
 
 // 查看员工调离职的记录
 export const getEmployeeModificationRecord = ( param: any) =>
@@ -105,20 +105,24 @@ export const operateBusinessRecord = (employeeId: string, id: string, params: an
 export const editPrizePenaltyRecord = (employeeId: string, id: string, params: any, headerObj: any) =>
     request.patch('/Employee/' + employeeId + '/PrizePenaltyRecord/' + id, params, { headers: headerObj });
 
+// 查看员工奖惩记录工单
+export const getPrizePenaltyRecordByEmployeeId = (employeeId: string, recordId: string) =>
+    request.get('/Employee/' + employeeId + '/PrizePenaltyRecord/' + recordId);
 
 // 员工任职
 export const newEmployeePositionDelegated = (employeeId: string, param: any) =>
     request.post('/employee/' + employeeId + '/PositionDelegated', param);
 
 
+
 // 查看员工撤职所需的职位
 export const getEmployeePositionDismissedRecord = (employeeId: string, recordId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/GetEmployeePositionForUpdatePositionDismissedRecord');
+request.get('/employee/' + employeeId + '/EmployeePositionDismissed/' + recordId + '/GetEmployeePositionForUpdatePositionDismissedRecord');
 
 
 // 查询员工复职所需的职位
 export const getEmployeePositionReinstatedRecord = (employeeId: string, recordId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionReinstated/' + recordId + '/GetEmployeePositionForUpdateEmployeePositionReinstatedRecord');
+    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/' + recordId + '/EmployeePositionReinstated');
 
 // 更新员工复职记录
 export const updateEmployeePositionReinstatedRecord = (employeeId: string, recordId: string, param: any) =>
@@ -166,6 +170,10 @@ export const getEmployeePositionDelegatedType = () =>
 // 获取撤职类型
 export const getEmployeePositionDismissType = () =>
     request.get('/EmployeePositionChangeType/PositionDismiss');
+
+// 获取复职类型
+export const getEmployeePositionReinstatedType = () =>
+    request.get('/EmployeePositionChangeType/PositionReinstated');
 
 // 新增 调职/任职/离职类型数据
 export const putEmployeePositionModification = (employeeId: string, param: any) =>
