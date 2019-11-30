@@ -26,7 +26,7 @@
                   <a-select v-if="data.isEdit" v-decorator="['employeePositionChangeType', {initialValue: typeOption[0].key, rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in typeOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
-                  <a-input v-else disabled v-decorator="['employeePositionChangeType', {initialValue: data.employeePositionChangeType}]"></a-input>
+                  <a-input v-else disabled v-decorator="['employeePositionChangeTypeName', {initialValue: data.employeePositionChangeTypeName}]"></a-input>
               </a-form-item>
           </a-col>
       </a-row>
