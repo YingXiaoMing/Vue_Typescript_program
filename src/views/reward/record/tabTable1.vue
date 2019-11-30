@@ -7,9 +7,10 @@
             </template>
             <template slot="action" slot-scope="text, record">
                 <span>
-                    <a class="disabled-button">撤销</a>
+                    <a v-if="!record.isAllowModification"  @click="makeTableRowEditable(record.key, false)">查看</a>
+                    <a v-else @click="makeTableRowEditable(record.key, true)">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a @click="makeTableRowEditable(record.key)">编辑</a>
+                    <a class="disabled-button">撤销</a>
                 </span>
             </template>
         </a-table>
@@ -23,7 +24,9 @@ import Component from 'vue-class-component';
 import { Table } from 'ant-design-vue';
 import { ColumnList, Pagination } from '@/interface';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
+import moment from 'moment';
 import _ from 'lodash';
+import { getPrizePenaltyRecordByEmployeeId } from '@/api/operation';
 import RewardModal from '@/components/RewardModal/index.vue';
 interface TableData {
     key: string;
@@ -42,6 +45,7 @@ interface TableData {
     typeId: string;
     id: string;
     employeeId: string;
+    isAllowModification: string;
 }
 interface FormData {
     situationDescription: string;
@@ -53,9 +57,11 @@ interface FormData {
         key: string;
         label: string;
     };
+    workOrderNumber: string;
     id: string;
     employeeId: string;
     type: number;
+    isEdit: boolean;
 }
 @Component({
     components: {
@@ -68,6 +74,7 @@ export default class Tab1Table extends Vue {
     @Prop() private tabList!: TableData[];
     @Prop() private paginationData!: Pagination;
     private modalVisible: boolean = false;
+    private dateFormat = 'YYYY-MM-DD';
     private etag: string = '';
     private formData: FormData = {
         solution: '',
@@ -80,8 +87,10 @@ export default class Tab1Table extends Vue {
             label: '',
         },
         id: '',
+        workOrderNumber: '',
         employeeId: '',
         type: 0,
+        isEdit: true,
     };
     private data: TableData[] = this.tabList;
     private pagination: Pagination = this.paginationData;
@@ -160,27 +169,32 @@ export default class Tab1Table extends Vue {
         const pageNum = pagination.current;
         this.$emit('tableChange', pageNum, pageSize);
     }
-    private makeTableRowEditable(key: string) {
+    private makeTableRowEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         let type = 0;
         if (_.isEqual(target.isReward, '奖励类')) {
             type = 1;
         }
-        this.formData = {
-            name: target.name,
-            num: target.num,
-            effectiveDate: target.date,
-            situationDescription: target.situationDescription,
-            solution: target.solution,
-            prizePenaltyTypeId: {
-                key: target.typeId,
-                label: target.rewardType,
-            },
-            employeeId: target.employeeId,
-            id: target.id,
-            type,
-        };
-        this.modalVisible = true;
+        getPrizePenaltyRecordByEmployeeId(target.employeeId, target.id).then((res: any) => {
+            const data = res.data;
+            this.formData = {
+                name: data.employeeFullName,
+                num: data.employeeStringID,
+                effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                situationDescription: data.situationDescription,
+                solution: data.solution,
+                prizePenaltyTypeId: {
+                    key: data.prizePenaltyTypeId,
+                    label: data.prizePenaltyTypeName,
+                },
+                employeeId: data.employeeId,
+                id: data.id,
+                workOrderNumber: data.workOrderNumber,
+                type,
+                isEdit,
+            };
+            this.modalVisible = true;
+        });
     }
     private cancelHandle() {
         this.modalVisible = false;

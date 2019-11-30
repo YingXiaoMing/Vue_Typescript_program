@@ -1,7 +1,14 @@
 <template>
-    <a-modal :visible="isVisible" title="奖惩记录" @cancel="cancelHandle" :width="728"
+    <a-modal :visible="isVisible" title="奖惩记录" @cancel="cancelHandle" :width="828"
     class='rewardModal' @ok="confirmHandle">
         <a-form :form="form">
+        <a-row>
+            <a-col :span="12">
+                <a-form-item label="工单号" v-bind="formItemLayout">
+                    <a-input disabled v-decorator="['workOrderNumber', {initialValue: formModal.workOrderNumber}]"></a-input>
+                </a-form-item>
+            </a-col>
+        </a-row>
         <a-row>
             <a-col :span="12">
                 <a-form-item label="员工工号" v-bind="formItemLayout">
@@ -15,32 +22,36 @@
             </a-col>
             <a-col :span="12">
                 <a-form-item label="奖励类型" v-bind="formItemLayout" v-if="formModal.type === 1">
-                    <a-select labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
+                    <a-select v-if="formModal.isEdit" labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in RewardType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
+                    <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
                 </a-form-item>
-                <a-form-item label="惩罚类型" v-bind="formItemLayout" v-else>
-                    <a-select v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
+                <a-form-item  label="惩罚类型" v-bind="formItemLayout" v-else>
+                    <a-select v-if="formModal.isEdit" v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in PenaltyType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
+                    <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
                 </a-form-item>
             </a-col>
             <a-col :span="12">
-                <a-form-item label="执行日期" v-bind="formItemLayout">
-                    <a-date-picker :format="dateForm" v-decorator="['effectiveDate',{initialValue: momentDate(formModal.effectiveDate) ,rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                <a-form-item  label="执行日期" v-bind="formItemLayout">
+                    <a-date-picker v-if="formModal.isEdit" :format="dateForm" v-decorator="['effectiveDate',{initialValue: momentDate(formModal.effectiveDate) ,rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                    <a-input v-else disabled v-decorator="['effectiveDate', {initialValue: formModal.effectiveDate}]"></a-input>
                 </a-form-item>
+                
             </a-col>
         </a-row>
         <a-divider>具体情况</a-divider>
         <a-row :gutter="24">
             <a-col :span="24">
                 <a-form-item label="情况描述" v-bind="formItemLayout2">
-                    <a-textarea rows="4" v-decorator="['situationDescription', {initialValue: formModal.situationDescription}]"></a-textarea>
+                    <a-textarea :disabled="!formModal.isEdit" rows="4" v-decorator="['situationDescription', {initialValue: formModal.situationDescription}]"></a-textarea>
                 </a-form-item>
             </a-col>
             <a-col :span="24" style="marginTop:20px">
                 <a-form-item label="处理方式" v-bind="formItemLayout2">
-                    <a-textarea rows="4" v-decorator="['solution', {initialValue: formModal.solution}]"></a-textarea>
+                    <a-textarea :disabled="!formModal.isEdit" rows="4" v-decorator="['solution', {initialValue: formModal.solution}]"></a-textarea>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -72,6 +83,7 @@ interface FormData {
     id?: string;
     employeeId?: string;
     type?: number;
+    isEdit: boolean;
 }
 
 @Component({
@@ -145,26 +157,30 @@ export default class RewardModal extends Vue {
         });
     }
     private confirmHandle() {
-        this.form.validateFields((err: any, values: FormData) => {
-            if (!err) {
-                const employeeId = this.formModal.employeeId;
-                const id = this.formModal.id;
-                const oldValue = this.transformCompareData(this.formModal);
-                const newValue = this.transformCompareData(values);
-                const puma = this.compareNewAndOldValue(newValue, oldValue);
-                if (employeeId && id && puma.length > 0) {
-                    editPrizePenaltyRecord(employeeId, id, puma, {
-                        'If-Match': this.ETag,
-                    }).then((res) => {
+        if (this.formModal.isEdit) {
+            this.form.validateFields((err: any, values: FormData) => {
+                if (!err) {
+                    const employeeId = this.formModal.employeeId;
+                    const id = this.formModal.id;
+                    const oldValue = this.transformCompareData(this.formModal);
+                    const newValue = this.transformCompareData(values);
+                    const puma = this.compareNewAndOldValue(newValue, oldValue);
+                    if (employeeId && id && puma.length > 0) {
+                        editPrizePenaltyRecord(employeeId, id, puma, {
+                            'If-Match': this.ETag,
+                        }).then((res) => {
+                            this.form.resetFields();
+                            this.$emit('refreshTableData');
+                        });
+                    } else {
                         this.form.resetFields();
                         this.$emit('refreshTableData');
-                    });
-                } else {
-                    this.form.resetFields();
-                    this.$emit('refreshTableData');
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            this.$emit('refreshTableData');
+        }
     }
     private transformCompareData(oldValue: FormData) {
         return {

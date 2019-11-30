@@ -179,6 +179,7 @@ export default class Tab1 extends Vue {
                     typeId: item.prizePenaltyTypeId,
                     id: item.id,
                     employeeId: item.employeeId,
+                    isAllowModification: item.isAllowModification,
                     createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
