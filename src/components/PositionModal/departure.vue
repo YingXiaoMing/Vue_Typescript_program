@@ -26,7 +26,7 @@
                   <a-select v-if="data.isEdit" v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId, rules: [{ required: true, message: ' ' }]}]">
                     <a-select-option v-for="item in endJobTypeOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
-                  <a-input disabled v-else v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId}]"></a-input>
+                  <a-input disabled v-else v-decorator="['employeePositionChangeTypeName', {initialValue: data.employeePositionChangeTypeName}]"></a-input>
             </a-form-item>
         </a-col>
       </a-row>
@@ -63,6 +63,7 @@ interface FormData {
     effectiveDate: string;
     reason: string;
     employeePositionChangeTypeId: string;
+    employeePositionChangeTypeName: string;
     isEdit: boolean;
 }
 @Component({
