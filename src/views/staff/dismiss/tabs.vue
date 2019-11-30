@@ -29,6 +29,7 @@ export default class Tab extends Vue {
     @Prop() private orginData!: SelectValue[];
     @Prop() private dismissData!: SelectValue[];
     @Prop({default: ''}) private employeeIds!: string;
+    private tabKey: string = '1';
     private employeeId: string = this.employeeIds;
     private originOptionData: SelectValue[] = this.orginData;
     private dismissOptionData: SelectValue[] = this.dismissData;
@@ -45,8 +46,19 @@ export default class Tab extends Vue {
         this.employeeId = value;
     }
     private tabChange(key: string) {
+        this.tabKey = key;
         if (_.isEqual(this.employeeId, '')) { return; }
         switch (key) {
+            case '1':
+                this.getEmployeePostionData();
+                break;
+            default:
+                this.getEmployeeDismissPositionData();
+                break;
+        }
+    }
+    private loadRemoteEmployeePositionData() {
+        switch (this.tabKey) {
             case '1':
                 this.getEmployeePostionData();
                 break;
@@ -64,6 +76,8 @@ export default class Tab extends Vue {
                     label: item.positionFullPath,
                 };
             });
+        }).catch(() => {
+            this.originOptionData = [];
         });
     }
     private getEmployeeDismissPositionData() {
@@ -75,6 +89,8 @@ export default class Tab extends Vue {
                     label: item.positionFullPath,
                 };
             });
+        }).catch(() => {
+            this.dismissOptionData = [];
         });
     }
 }
