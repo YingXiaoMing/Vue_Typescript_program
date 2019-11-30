@@ -36,7 +36,7 @@
                   <a-select v-if="data.isEdit" v-decorator="['employeePositionChangeType', {initialValue: data.employeePositionChangeTypeId, rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in transferTypeOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
-                  <a-input v-else disabled v-decorator="['employeePositionChangeTypeId', {initialValue: data.employeePositionChangeTypeId}]"></a-input>
+                  <a-input v-else disabled v-decorator="['employeePositionChangeTypeName', {initialValue: data.employeePositionChangeTypeName}]"></a-input>
               </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -85,6 +85,8 @@ interface FormData {
     isEdit: boolean;
     orginPositionName: string;
     newPositionName: string;
+    employeePositionChangeTypeName: string;
+    newPositionId: string;
 }
 @Component({
     name: 's-transfer',
@@ -172,6 +174,12 @@ export default class TransferForm extends Vue {
                     // tslint:disable-next-line:no-shadowed-variable
                     node.positions.forEach((node: any, index: number) => {
                         index ++;
+                        if (_.isEqual(this.data.newPositionId, node.id)) {
+                            this.newPositionId = node.id;
+                            this.newCompanyId = TopParentNode.companyId;
+                            this.newDepartmentId = node.departmentId;
+                            this.isNewPosition = true;
+                        }
                         const object: CascderOptionItem = {
                             value: node.id,
                             label: node.name,
@@ -198,6 +206,7 @@ export default class TransferForm extends Vue {
                     if (!this.isNewPosition) {
                         message.error('请选择一个有效职位');
                         callback(false);
+                        return;
                     }
                     putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
                         orginalPositionId: values.orginalPositionId,
