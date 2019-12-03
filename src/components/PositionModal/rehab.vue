@@ -131,15 +131,19 @@ export default class Rehab extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
-                    EmployeePositionChangeTypeId: values.employeePositionChangeTypeId,
-                    orginalPositionId: values.reinstatedPositionId,
-                    effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
-                    reason: values.reason,
-                }).then(() => {
-                    message.success('更新成功');
+                if (this.data.isEdit) {
+                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                        EmployeePositionChangeTypeId: values.employeePositionChangeTypeId,
+                        orginalPositionId: values.reinstatedPositionId,
+                        effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
+                        reason: values.reason,
+                    }).then(() => {
+                        message.success('更新成功');
+                        callback(true);
+                    });
+                } else {
                     callback(true);
-                });
+                }
             }
         });
     }

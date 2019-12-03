@@ -192,17 +192,21 @@ export default class Serve extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
-                    newPositionCompanyId: this.newCompanyId,
-                    newPositionDepartmentId: this.newDepartmentId,
-                    newPositionId: this.newPositionId,
-                    effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
-                    reason: values.reason,
-                    employeePositionChangeTypeId: values.typeId.key,
-                }).then(() => {
-                    message.success('更新成功');
+                if (this.data.isEdit) {
+                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                        newPositionCompanyId: this.newCompanyId,
+                        newPositionDepartmentId: this.newDepartmentId,
+                        newPositionId: this.newPositionId,
+                        effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
+                        reason: values.reason,
+                        employeePositionChangeTypeId: values.typeId.key,
+                    }).then(() => {
+                        message.success('更新成功');
+                        callback(true);
+                    });
+                } else {
                     callback(true);
-                });
+                }
             }
         });
     }
