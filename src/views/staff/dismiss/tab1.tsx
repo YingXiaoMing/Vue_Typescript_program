@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Form, Row, Col, Select, DatePicker, Button, Input, message } from 'ant-design-vue';
 import { BasicData, SelectValue } from '@/interface';
 import { putEmployeePositionModification, getEmployeePositionDismissType } from '@/api/operation';
@@ -44,6 +44,12 @@ class Tab1 extends Vue {
         wrapperCol: { span: 18 },
     };
     private Form: any;
+    @Watch('valueOption')
+    private valueOptionChange(value: SelectValue[]) {
+        this.Form.setFieldsValue({
+            position: value[0],
+        });
+    }
     private created() {
         getEmployeePositionDismissType().then((res: any) => {
             const data = res.data;

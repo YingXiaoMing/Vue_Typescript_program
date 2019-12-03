@@ -55,6 +55,9 @@ class Tab1 extends Vue {
     @Watch('OriginPostionOption')
     private OriginPostionOptionChange(value: SelectValue[]) {
         this.OriginPostionOptions = value;
+        this.Form.setFieldsValue({
+            originPostion: value[0],
+        });
     }
     private created() {
         getEmployeePositionChangeType().then((res: any) => {
