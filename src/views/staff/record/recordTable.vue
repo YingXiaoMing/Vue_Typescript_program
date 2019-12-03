@@ -272,6 +272,26 @@ export default class RecordTable extends Vue {
                         },
                     };
                     break;
+                case '任职':
+                    this.dialog = {
+                        name: 's-serve',
+                        title: '任职操作',
+                        visible: true,
+                        data: {
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            id: data.id,
+                            employeeId: data.employeeId,
+                            typeId: data.employeePositionChangeTypeName,
+                            effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
+                            reason: data.reason,
+                            position: data.newPositionFullIds,
+                            orderNum: data.workOrderNumber,
+                            positionName: data.newPositionFullPath,
+                            isEdit,
+                        },
+                    };
+                    break;
                 default:
                     break;
             }
