@@ -36,7 +36,7 @@ class Tab1 extends Vue {
     };
     private fromItemLayout = {
         labelCol: { span: 3 },
-        wrapperCol: { span: 20 },
+        wrapperCol: { span: 21 },
     };
     private fromItemLayout2 = {
         labelCol: { span: 6 },

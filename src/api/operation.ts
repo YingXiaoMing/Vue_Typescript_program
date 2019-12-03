@@ -7,7 +7,7 @@ export const employeeDismissedPosition = (employeeId: string, param: any) =>
 
 // 查看员工被撤职的职位
 export const getEmployeeDismissedPosition = (employeeId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/EmployeePositionReinstated');
+    t_request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/EmployeePositionReinstated');
 
 // 查看员工调离职的记录
 export const getEmployeeModificationRecord = ( param: any) =>
