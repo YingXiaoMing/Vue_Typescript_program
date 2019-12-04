@@ -145,19 +145,19 @@ export const asyncRouterMap: RouterItem[] = [
             component: () => import('../views/attendance/record/index.vue'),
             meta: { key: 'attendRecord', title: '加班/请假/出差 记录' },
         }, {
-            path: 'operationRecord',
-            icon: 'read',
-            isShow: true,
-            name: 'attendOperationRecord',
-            component: () => import('../views/attendance/operation/index.vue'),
-            meta: { key: 'attendOperationRecord', title: '操作记录查询' },
-        }, {
             path: 'salaryRecord',
             icon: 'money-collect',
             isShow: true,
             name: 'salaryRecord',
             component: () => import('../views/attendance/salaryRecord/index.vue'),
             meta: { key: 'salaryRecord', title: '有薪假查询' },
+        }, {
+            path: 'operationRecord',
+            icon: 'read',
+            isShow: true,
+            name: 'attendOperationRecord',
+            component: () => import('../views/attendance/operation/index.vue'),
+            meta: { key: 'attendOperationRecord', title: '操作记录查询' },
         }],
     },
     {
