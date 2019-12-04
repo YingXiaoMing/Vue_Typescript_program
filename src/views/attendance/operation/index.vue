@@ -31,6 +31,7 @@
                     </a-col>
                 </a-form>
             </a-row>
+            <a-operation-recordTable :tabList="tabData" :loading="searchLoading" :paginationData="pagination" @tableChange="pageChange"></a-operation-recordTable>
         </div>
     </div>
 </template>
@@ -38,7 +39,8 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { searchEmployeeData } from '@/api/staff';
-import { getEmployeeModificationRecord } from '@/api/operation';
+import OperationRecordTable from './recordTable.vue';
+import { searchBusinessRecord } from '@/api/operation';
 import { Pagination } from '@/interface';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
@@ -50,7 +52,9 @@ interface EmployeeData {
 }
 @Component({
     name: 'attendOperationRecord',
-    components: {},
+    components: {
+        'a-operation-recordTable': OperationRecordTable,
+    },
 })
 export default class Operation extends Vue {
     private form: any;
@@ -121,7 +125,7 @@ export default class Operation extends Vue {
                 params.set('PageNumber', '1');
                 params.set('PageSize', '10');
                 if (values.searchKey) {
-                    params.set('FilterProperties.EmployeeId', values.searchKey);
+                    params.set('FilterProperties.EmployeeIds', values.searchKey);
                 }
                 if (values.WorkOrderNumber) {
                     params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
@@ -137,7 +141,7 @@ export default class Operation extends Vue {
     }
     private loadData(param: URLSearchParams) {
         this.searchLoading = true;
-        getEmployeeModificationRecord(param).then((res) => {
+        searchBusinessRecord(param).then((res) => {
             const data = res.data;
             this.tabData = _.map(data, (item) => {
                 return {
@@ -145,11 +149,13 @@ export default class Operation extends Vue {
                     orderNum: item.workOrderNumber,
                     num: item.employeeStringID,
                     name: item.employeeFullName,
-                    orginPosition: item.orginalPositionFullPath,
-                    newPosition: item.newPositionFullPath,
-                    typeName: item.employeePositionChangeClassifyName,
-                    type: item.employeePositionChangeTypeName,
-                    effectedDate: moment(item.effectiveDate).format(this.dateFormat),
+                    position: item.employeePrincipalPositionFullPath,
+                    typeName: item.askforLeaveOvertimeBusinesstripTypeClassifyName,
+                    type: item.askforLeaveOvertimeBusinesstripTypeName,
+                    isWithSalary: item.isWithSalary ? '是' : '否',
+                    startDateTime: moment(item.startDateTime).format(this.dateTimeFormat),
+                    endedDateTime: moment(item.endedDateTime).format(this.dateTimeFormat),
+                    totalHours: item.totalHours,
                     status: item.recordStateName,
                     createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
