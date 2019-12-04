@@ -54,6 +54,13 @@
             </a-row>
             <a-row>
                 <a-col :lg="12" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="请假原因">
+                        <a-textarea v-decorator="['reason',{rules: [{ required: true, message: ' ' }]}]"></a-textarea>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row>
+                <a-col :lg="12" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="备注">
                         <a-textarea v-decorator="['note']"></a-textarea>
                     </a-form-item>
@@ -130,6 +137,7 @@ export default class Tab1 extends Vue {
                     endedDateTime: moment(values.endedDateTime).format(this.dateForm),
                     isWithSalary: values.isWithSalary,
                     totalHours: values.totalHours,
+                    reason: values.reason,
                     note: values.note,
                 }).then(() => {
                     this.form.resetFields();
