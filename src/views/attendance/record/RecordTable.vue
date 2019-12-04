@@ -11,7 +11,10 @@
             </template>
             <template slot="action" slot-scope="text,record">
                 <span>
-                    <a @click="makeTableRowEditable(record.key)">编辑</a>
+                    <a v-if="!record.isAllowModification" @click="makeTableRowEditable(record.key, false)">查看</a>
+                    <a v-else @click="makeTableRowEditable(record.key, true)">编辑</a>
+                    <a-divider type="vertical"></a-divider>
+                    <a class="disabled-button">撤销</a>
                 </span>
             </template>
         </a-table>
@@ -50,6 +53,8 @@ interface TableData {
     note: string;
     timeoffOvertimeBusinesstripTypeId: string;
     businesstripLocaltion: string;
+    operateTime: string;
+    status: string;
 }
 interface FormData {
     timeoffOvertimeBusinesstripTypeId: string;
@@ -158,10 +163,25 @@ export default class RecordTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'endTime' },
     }, {
+        title: '状态',
+        dataIndex: 'status',
+        align: 'center',
+        scopedSlots: { customRender: 'status' },
+    }, {
         title: '操作',
         dataIndex: 'action',
         align: 'center',
         scopedSlots: { customRender: 'action' },
+    }, {
+        title: '操作人',
+        dataIndex: 'operator',
+        align: 'center',
+        scopedSlots: { customRender: 'operator' },
+    }, {
+        title: '操作时间',
+        dataIndex: 'operateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'operateTime' },
     }];
     @Watch('tabList')
     private tableDataChange(value: any) {
@@ -176,7 +196,7 @@ export default class RecordTable extends Vue {
         const pageNum = pagination.current;
         this.$emit('tableChange', pageNum, pageSize);
     }
-    private makeTableRowEditable(key: string) {
+    private makeTableRowEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         getAskforLeaveOvertimeBusinesstripRecordByEmployeeId(target.employeeId, target.key).then((res: any) => {
             const data = res.data;
@@ -200,6 +220,7 @@ export default class RecordTable extends Vue {
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,
+                            isEdit,
                         },
                     };
                     break;
@@ -222,6 +243,7 @@ export default class RecordTable extends Vue {
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,
+                            isEdit,
                         },
                     };
                     break;
@@ -244,6 +266,7 @@ export default class RecordTable extends Vue {
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,
+                            isEdit,
                         },
                     };
                     break;
