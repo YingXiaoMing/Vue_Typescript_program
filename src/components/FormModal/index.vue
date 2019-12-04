@@ -96,7 +96,7 @@
                         </fieldset>
                         <fieldset class="department">
                             <legend>部门组织条件</legend>
-                            <a-form-item v-bind="formItemLayout2" label="组织架构">
+                            <a-form-item v-bind="formItemLayout2" label="组织架构" class="form_control">
                                 <a-tree-select :treeData="treeData" :showCheckedStrategy="SHOW_PARENT" 
                                 treeCheckable v-decorator="['positions']"></a-tree-select>
                             </a-form-item>

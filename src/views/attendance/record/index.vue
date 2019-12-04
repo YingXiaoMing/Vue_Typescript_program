@@ -4,7 +4,7 @@
             <a-form :form="form">
             <a-row :gutter="24">
                 <a-col :lg="7" :md="12" :sm="24">
-                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="类型">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="类型" class="form_control">
                         <a-select mode="multiple" v-decorator="['AskforLeaveOvertimeBusinesstripTypeIds']">
                             <a-select-opt-group v-for="item in businessData" :label="item.name">
                                 <a-select-option v-for="it in item.children" :value="it.id">{{it.name}}</a-select-option>
