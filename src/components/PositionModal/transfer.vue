@@ -23,7 +23,7 @@
         <a-row>
           <a-col :span="18">
               <a-form-item label="原职位" v-bind="formItemLayout2">
-                  <a-select v-if="data.isEdit" v-decorator="['orginalPositionId', {initialValue: orginPositionOption[0].key, rules: [{ required: true, message: ' ' }]}]">
+                  <a-select v-if="data.isEdit" v-decorator="['orginalPositionId', {initialValue: data.position, rules: [{ required: true, message: ' ' }]}]">
                     <a-select-option v-for="item in orginPositionOption" :value="item.key">{{item.label}}</a-select-option>
                   </a-select>
                   <a-input v-else disabled v-decorator="['orginPosition', { initialValue: data.orginPositionName }]"></a-input>
