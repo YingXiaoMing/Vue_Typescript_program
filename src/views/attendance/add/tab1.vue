@@ -125,7 +125,7 @@ export default class Tab1 extends Vue {
         this.form.validateFields((err: any, values: any) => {
             if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
                 newBusinesstrip(this.employeeId, {
-                    timeoffOvertimeBusinesstripTypeId: values.type.key,
+                    askforLeaveOvertimeBusinesstripTypeId: values.type.key,
                     startDateTime: moment(values.startDateTime).format(this.dateForm),
                     endedDateTime: moment(values.endedDateTime).format(this.dateForm),
                     isWithSalary: values.isWithSalary,
