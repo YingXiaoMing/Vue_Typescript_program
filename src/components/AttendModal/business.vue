@@ -22,7 +22,7 @@
          <a-row>
             <a-col :lg="12" :md="12" :sm="24">
                 <a-form-item label="出差类型" v-bind="formItemLayout">
-                    <a-select v-decorator="['timeoffOvertimeBusinesstripTypeId',  {initialValue: data.timeoffOvertimeBusinesstripTypeId, rules: [{ required: true, message: ' ' }]}]">
+                    <a-select :disabled="!data.isEdit" v-decorator="['timeoffOvertimeBusinesstripTypeId',  {initialValue: data.timeoffOvertimeBusinesstripTypeId, rules: [{ required: true, message: ' ' }]}]">
                         <a-select-option v-for="item in businessType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
                 </a-form-item>
@@ -32,47 +32,47 @@
         <a-row>
             <a-col :span="12">
                 <a-form-item label="是否有薪" v-bind="formItemLayout">
-                    <a-checkbox v-decorator="['isWithSalary', { valuePropName: 'checked', initialValue: data.isWithSalary}]"></a-checkbox>
+                    <a-checkbox :disabled="!data.isEdit" v-decorator="['isWithSalary', { valuePropName: 'checked', initialValue: data.isWithSalary}]"></a-checkbox>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row>
             <a-col :span="12">
                 <a-form-item label="开始日期时间" v-bind="formItemLayout">
-                    <a-date-picker style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat" v-decorator="['startDateTime', {initialValue: momentFromDate(data.startDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                    <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat" v-decorator="['startDateTime', {initialValue: momentFromDate(data.startDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                 </a-form-item>
             </a-col>
             <a-col :span="12">
                 <a-form-item label="结束日期时间" v-bind="formItemLayout">
-                <a-date-picker style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"  v-decorator="['endedDateTime', {initialValue: momentFromDate(data.endedDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"  v-decorator="['endedDateTime', {initialValue: momentFromDate(data.endedDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row>
             <a-col :span="12">
                 <a-form-item label="出差时长" v-bind="formItemLayout">
-                    <a-input-number style='width: 100%' v-decorator="['totalHours', {initialValue: data.totalHours, rules: [{ required: true, message: ' ' }]}]"></a-input-number>
+                    <a-input-number :disabled="!data.isEdit" style='width: 100%' v-decorator="['totalHours', {initialValue: data.totalHours, rules: [{ required: true, message: ' ' }]}]"></a-input-number>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row>
             <a-col :span="12">
                 <a-form-item label="出差地点" v-bind="formItemLayout">
-                    <a-input v-decorator="['businesstripLocaltion', {initialValue: data.businesstripLocaltion, rules: [{ required: true, message: ' ' }]}]"></a-input>
+                    <a-input :disabled="!data.isEdit" v-decorator="['businesstripLocaltion', {initialValue: data.businesstripLocaltion, rules: [{ required: true, message: ' ' }]}]"></a-input>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row style="marginTop: 6px">
             <a-col :span="24">
                 <a-form-item label="出差事由" v-bind="formItemLayout2">
-                    <a-textarea v-decorator="['reason', {initialValue: data.reason, rules: [{ required: true, message: ' ' }]}]"></a-textarea>
+                    <a-textarea :disabled="!data.isEdit" v-decorator="['reason', {initialValue: data.reason, rules: [{ required: true, message: ' ' }]}]"></a-textarea>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row style="marginTop: 6px">
             <a-col :span="24">
                 <a-form-item label="备注" v-bind="formItemLayout2">
-                    <a-textarea v-decorator="['note', {initialValue: data.note}]"></a-textarea>
+                    <a-textarea :disabled="!data.isEdit" v-decorator="['note', {initialValue: data.note}]"></a-textarea>
                 </a-form-item>
             </a-col>
         </a-row>
@@ -100,6 +100,7 @@ interface FormData {
     note: string;
     name: string;
     num: string;
+    isEdit: boolean;
 }
 @Component({
     name: 'a-vacate',
@@ -139,15 +140,19 @@ export default class Business extends Vue {
         });
     }
     private sumbitData(callback: any) {
-        this.form.validateFields((err: any, values: any) => {
-            if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
-                   const param = this.transformNewData(values);
-                   putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, param).then((res) => {
-                       message.success('更新成功');
-                       callback(true);
-                   });
-            }
-        });
+        if (this.data.isEdit) {
+            this.form.validateFields((err: any, values: any) => {
+                if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
+                    const param = this.transformNewData(values);
+                    putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, param).then((res) => {
+                        message.success('更新成功');
+                        callback(true);
+                    });
+                }
+            });
+        } else {
+            callback(true);
+        }
     }
     private transformNewData(value: any) {
         return {

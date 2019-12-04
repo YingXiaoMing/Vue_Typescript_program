@@ -289,8 +289,11 @@ export default class Record extends Vue {
                     timeoffOvertimeBusinesstripTypeId: item.timeoffOvertimeBusinesstripTypeId,
                     employeeId: item.employeeId,
                     businesstripLocaltion: item.businesstripLocaltion,
+                    status: item.recordStateName,
                     reason: item.reason,
+                    isAllowModification: item.recordStateValue === 1 ? true : false,
                     note: item.note,
+                    operateTime: moment(item.createDateTime).format(this.dateFormat),
                 };
             });
             this.searchLoading = false;
