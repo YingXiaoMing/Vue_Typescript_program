@@ -99,6 +99,7 @@ export default class Record extends Vue {
     private wrapperCol1 = { xs: {span: 24}, sm: {span: 22}};
     private employeeDataList: EmployeeData[] = [];
     private param: URLSearchParams = new URLSearchParams();
+    private employeePositionDataList: TableData[] = [];
     private SHOW_PARENT = TreeSelect.SHOW_PARENT;
     private treeData: TableData[] = [{ title: '', key: '', value: '', children: [], description: '' }];
     private searchLoading: boolean = false;
@@ -142,10 +143,11 @@ export default class Record extends Vue {
             const newData: TableData = {
                 title: data.name,
                 key: data.id,
-                value: data.name,
+                value: data.id,
                 description: 'company',
                 children: [],
             };
+            this.addEmployeePositionDataList(newData);
             if (data.subCompanies) {
                 this.traverseStepNodeChild(data.subCompanies, newData, 'company');
             }
@@ -164,17 +166,20 @@ export default class Record extends Vue {
                     newTarget = {
                         title: item.name,
                         key: item.id,
-                        value: TopParentNode.value + '->' + item.name,
+                        value: item.id,
                         description: descriptionName,
+                        children: [],
                     };
+                    this.addEmployeePositionDataList(newTarget);
                 } else {
                     newTarget = {
                         title: item.name,
                         key: item.id,
-                        value: TopParentNode.value + '->' + item.name,
+                        value: item.id,
                         description: descriptionName,
                         children: [],
                     };
+                    this.addEmployeePositionDataList(newTarget);
                 }
                 if (item.subCompanies) {
                     this.traverseStepNodeChild(item.subCompanies, newTarget, 'company');
@@ -192,6 +197,9 @@ export default class Record extends Vue {
             });
             TopParentNode.children = _.concat(TopParentNode.children, target);
         }
+    }
+    private addEmployeePositionDataList(data: TableData) {
+        this.employeePositionDataList.push(data);
     }
     private getAllBusinessTypeData() {
         getAllBusinessClassify().then((res) => {
@@ -222,7 +230,7 @@ export default class Record extends Vue {
                     params.set('FilterProperties.EndedDateTime', moment(values.endDateTime).format(this.dateFormat));
                 }
                 this.changeListDataToParams(params, values.AskforLeaveOvertimeBusinesstripTypeIds, 'FilterProperties.AskforLeaveOvertimeBusinesstripTypeIds');
-                this.changeListDataToParams(params, values.EmployeePrincipalPositionFullPaths, 'FilterProperties.EmployeePrincipalPositionFullPaths');
+                this.changePositionDataToParams(params, values.EmployeePrincipalPositionFullPaths);
                 this.param = params;
                 this.loadData(params);
             }
@@ -236,6 +244,33 @@ export default class Record extends Vue {
             });
         }
     }
+    private changePositionDataToParams(params: URLSearchParams, data: string[]) {
+        _.map(data, (item: string) => {
+            return _.find(this.employeePositionDataList, (it) => {
+                if (_.isEqual(it.value, item)) {
+                    switch (it.description) {
+                        case 'company':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.CompanyIds');
+                            break;
+                        case 'department':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.DepartmentIds');
+                            break;
+                        case 'position':
+                            this.changeValueToParamas(params, it.value, 'FilterProperties.PositionIds');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    // 单独处理字段
+    private changeValueToParamas(params: URLSearchParams, data: string, paramName: string) {
+        if (data && !_.isEmpty(data)) {
+            params.append(paramName, data);
+        }
+    }
     private loadData(param: URLSearchParams) {
         this.searchLoading = true;
         searchBusinessRecord(param).then((res: any) => {
@@ -245,8 +280,8 @@ export default class Record extends Vue {
                     num: item.employeeStringID,
                     name: item.employeeFullName,
                     position: item.employeePrincipalPositionFullPath,
-                    type: item.timeoffOvertimeBusinesstripTypeClassifyName,
-                    typeName: item.timeoffOvertimeBusinesstripTypeName,
+                    type: item.askforLeaveOvertimeBusinesstripTypeClassifyName,
+                    typeName: item.askforLeaveOvertimeBusinesstripTypeName,
                     totalHours: item.totalHours,
                     startTime: moment(item.startDateTime).format(this.dateFormat),
                     endTime: moment(item.endedDateTime).format(this.dateFormat),

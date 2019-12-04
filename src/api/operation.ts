@@ -84,7 +84,7 @@ export const searchPrizePenaltyRecord = (params: any) =>
 
 // 查询员工加班请假记录
 export const searchBusinessRecord = (params: any) =>
-    request.get('/AskforLeaveOvertimeBusinesstripRecord?' + params);
+    request.get('/AskforLeaveOvertimeBusinesstrip/Collection?' + params);
 
 // 操作员工加班请假记录
 export const operateBusinessRecord = (employeeId: string, id: string, params: any) =>
