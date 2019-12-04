@@ -30,7 +30,9 @@ import { Emit, Prop, Watch } from 'vue-property-decorator';
 import AttendModal from '@/components/AttendModal/index.vue';
 import Vacate from '@/components/AttendModal/vacate.vue';
 import Business from '@/components/AttendModal/business.vue';
+import { getAskforLeaveOvertimeBusinesstripRecordByEmployeeId } from '@/api/operation';
 import Overtime from '@/components/AttendModal/overtime.vue';
+import moment from 'moment';
 import _ from 'lodash';
 interface TableData {
     key: string;
@@ -79,6 +81,7 @@ export default class RecordTable extends Vue {
     @Prop({ default: false }) private loading!: boolean;
     @Prop() private tabList!: TableData[];
     @Prop() private paginationData!: Pagination;
+    private dateFormat = 'YYYY-MM-DD hh:mm';
     private data: TableData[] = this.tabList;
     private type: number = 0;
     private pagination: Pagination = this.paginationData;
@@ -175,67 +178,79 @@ export default class RecordTable extends Vue {
     }
     private makeTableRowEditable(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        if (_.isEqual(target.type, '出差')) {
-            this.dialog = {
-                name: 'a-business',
-                title: '出差记录',
-                visible: true,
-                data: {
-                    startDateTime: target.startTime,
-                    endedDateTime: target.endTime,
-                    isWithSalary: target.isWithSalary,
-                    totalHours: target.totalHours,
-                    id: target.key,
-                    businesstripLocaltion: target.businesstripLocaltion,
-                    employeeId: target.employeeId,
-                    reason: target.reason,
-                    note: target.note,
-                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
-                    name: target.name,
-                    num: target.num,
-                },
-            };
-        } else if (_.isEqual(target.type, '请假')) {
-            this.dialog = {
-                name: 'a-vacate',
-                title: '请假记录',
-                visible: true,
-                data: {
-                    startDateTime: target.startTime,
-                    endedDateTime: target.endTime,
-                    isWithSalary: target.isWithSalary,
-                    totalHours: target.totalHours,
-                    id: target.key,
-                    businesstripLocaltion: target.businesstripLocaltion,
-                    employeeId: target.employeeId,
-                    reason: target.reason,
-                    note: target.note,
-                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
-                    name: target.name,
-                    num: target.num,
-                },
-            };
-        } else if (_.isEqual(target.type, '加班')) {
-            this.dialog = {
-                name: 'a-overtime',
-                title: '加班记录',
-                visible: true,
-                data: {
-                    startDateTime: target.startTime,
-                    endedDateTime: target.endTime,
-                    isWithSalary: target.isWithSalary,
-                    totalHours: target.totalHours,
-                    id: target.key,
-                    businesstripLocaltion: target.businesstripLocaltion,
-                    employeeId: target.employeeId,
-                    reason: target.reason,
-                    note: target.note,
-                    timeoffOvertimeBusinesstripTypeId: target.timeoffOvertimeBusinesstripTypeId,
-                    name: target.name,
-                    num: target.num,
-                },
-            };
-        }
+        getAskforLeaveOvertimeBusinesstripRecordByEmployeeId(target.employeeId, target.key).then((res: any) => {
+            const data = res.data;
+            switch (target.type) {
+                case '出差':
+                    this.dialog = {
+                        name: 'a-business',
+                        title: '出差记录',
+                        visible: true,
+                        data: {
+                            startDateTime: moment(data.startDateTime).format(this.dateFormat),
+                            endedDateTime: moment(data.endedDateTime).format(this.dateFormat),
+                            isWithSalary: data.isWithSalary,
+                            totalHours: data.totalHours,
+                            id: data.id,
+                            businesstripLocaltion: data.businesstripLocaltion,
+                            employeeId: data.employeeId,
+                            reason: data.reason,
+                            note: data.note,
+                            timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            orderNum: data.workOrderNumber,
+                        },
+                    };
+                    break;
+                case '请假':
+                    this.dialog = {
+                        name: 'a-vacate',
+                        title: '请假记录',
+                        visible: true,
+                        data: {
+                            startDateTime: moment(data.startDateTime).format(this.dateFormat),
+                            endedDateTime: moment(data.endedDateTime).format(this.dateFormat),
+                            isWithSalary: data.isWithSalary,
+                            totalHours: data.totalHours,
+                            id: data.id,
+                            businesstripLocaltion: data.businesstripLocaltion,
+                            employeeId: data.employeeId,
+                            reason: data.reason,
+                            note: data.note,
+                            timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            orderNum: data.workOrderNumber,
+                        },
+                    };
+                    break;
+                case '加班':
+                    this.dialog = {
+                        name: 'a-overtime',
+                        title: '加班记录',
+                        visible: true,
+                        data: {
+                            startDateTime: moment(data.startDateTime).format(this.dateFormat),
+                            endedDateTime: moment(data.endedDateTime).format(this.dateFormat),
+                            isWithSalary: data.isWithSalary,
+                            totalHours: data.totalHours,
+                            id: data.id,
+                            businesstripLocaltion: data.businesstripLocaltion,
+                            employeeId: data.employeeId,
+                            reason: data.reason,
+                            note: data.note,
+                            timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            name: data.employeeFullName,
+                            num: data.employeeStringID,
+                            orderNum: data.workOrderNumber,
+                        },
+                    };
+                    break;
+                default:
+                    break;
+            }
+        });
     }
     private cancelHandle() {
         this.dialog = {

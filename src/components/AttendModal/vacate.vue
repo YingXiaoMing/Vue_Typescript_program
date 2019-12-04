@@ -60,6 +60,13 @@
         </a-row>
         <a-row style="marginTop: 10px">
             <a-col :span="24">
+                <a-form-item label="请假原因" v-bind="formItemLayout2">
+                    <a-textarea v-decorator="['reason', {initialValue: data.reason, rules: [{ required: true, message: ' ' }]}]"></a-textarea>
+                </a-form-item>
+            </a-col>
+        </a-row>
+        <a-row style="marginTop: 10px">
+            <a-col :span="24">
                 <a-form-item label="备注" v-bind="formItemLayout2">
                     <a-textarea v-decorator="['note', {initialValue: data.note}]"></a-textarea>
                 </a-form-item>
@@ -72,7 +79,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import moment from 'moment';
 import { getLeaveOptions } from '@/api/basic';
 import { SelectValue, BasicData } from '@/interface';
-import { patchAskforLeaveOvertimeBusinesstripRecord } from '@/api/operation';
+import { putAskforLeaveOvertimeBusinesstripRecord } from '@/api/operation';
 import jsonpatch from 'fast-json-patch';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
@@ -130,10 +137,15 @@ export default class Vacate extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
-                   const oldValue = _.omit(this.data, ['id', 'employeeId', 'name', 'num']);
-                   const newValue = this.transformNewData(values);
-                   const diff = jsonpatch.compare(oldValue, newValue);
-                   patchAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, diff).then((res) => {
+                   putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, {
+                       askforLeaveOvertimeBusinesstripTypeId: values.timeoffOvertimeBusinesstripTypeId,
+                       startDateTime: moment(values.startDateTime).format(this.dateFormat),
+                       endedDateTime: moment(values.endedDateTime).format(this.dateFormat),
+                       isWithSalary: values.isWithSalary,
+                       totalHours: values.totalHours,
+                       reason: values.reason,
+                       note: values.note,
+                   }).then((res) => {
                        message.success('更新成功');
                        callback(true);
                    });

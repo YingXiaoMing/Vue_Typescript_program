@@ -138,10 +138,8 @@ export default class Overtime extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
-                   const oldValue = _.omit(this.data, ['id', 'employeeId', 'name', 'num']);
-                   const newValue = this.transformNewData(values);
-                   const diff = jsonpatch.compare(oldValue, newValue);
-                   patchAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, diff).then((res) => {
+                   const value = this.transformNewData(values);
+                   patchAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, value).then((res) => {
                        message.success('更新成功');
                        callback(true);
                    });
@@ -150,7 +148,7 @@ export default class Overtime extends Vue {
     }
     private transformNewData(value: any) {
         return {
-            timeoffOvertimeBusinesstripTypeId: value.timeoffOvertimeBusinesstripTypeId,
+            askforLeaveOvertimeBusinesstripTypeId: value.timeoffOvertimeBusinesstripTypeId,
             startDateTime: moment(value.startDateTime).format(this.dateFormat),
             endedDateTime: moment(value.endedDateTime).format(this.dateFormat),
             isWithSalary: value.isWithSalary,

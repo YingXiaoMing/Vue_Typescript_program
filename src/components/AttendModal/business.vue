@@ -82,7 +82,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import moment from 'moment';
 import { getBusinessOptions } from '@/api/basic';
-import { patchAskforLeaveOvertimeBusinesstripRecord } from '@/api/operation';
+import { putAskforLeaveOvertimeBusinesstripRecord } from '@/api/operation';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
 import { SelectValue, BasicData } from '@/interface';
@@ -141,10 +141,8 @@ export default class Business extends Vue {
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
             if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
-                   const oldValue = _.omit(this.data, ['id', 'employeeId', 'name', 'num']);
-                   const newValue = this.transformNewData(values);
-                   const diff = jsonpatch.compare(oldValue, newValue);
-                   patchAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, diff).then((res) => {
+                   const param = this.transformNewData(values);
+                   putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, param).then((res) => {
                        message.success('更新成功');
                        callback(true);
                    });
@@ -153,7 +151,7 @@ export default class Business extends Vue {
     }
     private transformNewData(value: any) {
         return {
-            timeoffOvertimeBusinesstripTypeId: value.timeoffOvertimeBusinesstripTypeId,
+            askforLeaveOvertimeBusinesstripTypeId: value.timeoffOvertimeBusinesstripTypeId,
             startDateTime: moment(value.startDateTime).format(this.dateFormat),
             endedDateTime: moment(value.endedDateTime).format(this.dateFormat),
             isWithSalary: value.isWithSalary,

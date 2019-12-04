@@ -86,6 +86,10 @@ export const searchPrizePenaltyRecord = (params: any) =>
 export const searchBusinessRecord = (params: any) =>
     request.get('/AskforLeaveOvertimeBusinesstrip/Collection?' + params);
 
+// 查看员工加班请假记录工单
+export const getAskforLeaveOvertimeBusinesstripRecordByEmployeeId = (employeeId: string, recordId: string) =>
+    request.get('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId);
+
 // 操作员工加班请假记录
 export const operateBusinessRecord = (employeeId: string, id: string, params: any) =>
     request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + id, params);
@@ -116,8 +120,8 @@ export const getEmployeePositionForUpdatePositionDismissedRecord = (employeeId: 
     request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/' + recordId + '/EmployeePositionDismissed');
 
 // 更新员工加班请假出差记录
-export const patchAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, recordId: string, param: any) =>
-    request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId, param);
+export const putAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, recordId: string, param: any) =>
+    request.put('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId, param);
 
 // 获取任职类型
 export const getEmployeePositionDelegatedType = () =>
