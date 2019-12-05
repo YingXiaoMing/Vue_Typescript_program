@@ -31,7 +31,7 @@
                     </a-col>
                 </a-form>
             </a-row>
-            <a-operation-recordTable :tabList="tabData" :loading="searchLoading" :paginationData="pagination" @tableChange="pageChange"></a-operation-recordTable>
+            <a-operation-recordTable :columnList="column" :tabList="tabData" :loading="searchLoading" :paginationData="pagination" @tableChange="pageChange"></a-operation-recordTable>
         </div>
     </div>
 </template>
@@ -39,9 +39,9 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { searchEmployeeData } from '@/api/staff';
-import OperationRecordTable from './recordTable.vue';
+import OperationRecordTable from '@/components/Table/PageTable.vue';
 import { searchBusinessRecord } from '@/api/operation';
-import { Pagination } from '@/interface';
+import { Pagination, ColumnList } from '@/interface';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
 import moment from 'moment';
@@ -74,6 +74,78 @@ export default class Operation extends Vue {
         showSizeChanger: true,
         showTotal: this.showTotal,
     };
+    private column: ColumnList[] = [{
+        title: '序号',
+        width: 44,
+        dataIndex: 'Index',
+        align: 'center',
+        scopedSlots: { customRender: 'Index' },
+    }, {
+        title: '工单号',
+        dataIndex: 'orderNum',
+        align: 'center',
+        scopedSlots: { customRender: 'orderNum' },
+    }, {
+        title: '员工工号',
+        dataIndex: 'num',
+        align: 'center',
+        scopedSlots: { customRender: 'num' },
+    }, {
+        title: '员工姓名',
+        dataIndex: 'name',
+        align: 'center',
+        scopedSlots: { customRender: 'name' },
+    }, {
+        title: '职位',
+        dataIndex: 'position',
+        align: 'center',
+        scopedSlots: { customRender: 'position' },
+    }, {
+        title: '类别',
+        dataIndex: 'typeName',
+        align: 'center',
+        scopedSlots: { customRender: 'typeName' },
+    }, {
+        title: '类型',
+        dataIndex: 'type',
+        align: 'center',
+        scopedSlots: { customRender: 'type' },
+    }, {
+        title: '是否有薪',
+        dataIndex: 'isWithSalary',
+        align: 'center',
+        scopedSlots: { customRender: 'isWithSalary' },
+    }, {
+        title: '时长',
+        dataIndex: 'totalHours',
+        align: 'center',
+        scopedSlots: { customRender: 'totalHours' },
+    }, {
+        title: '开始时间',
+        dataIndex: 'startDateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'startDateTime' },
+    }, {
+        title: '结束时间',
+        dataIndex: 'endedDateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'endedDateTime' },
+    }, {
+        title: '状态',
+        dataIndex: 'status',
+        align: 'center',
+        scopedSlots: { customRender: 'status' },
+    }, {
+        title: '操作人',
+        dataIndex: 'operator',
+        align: 'center',
+        scopedSlots: { customRender: 'operator' },
+    }, {
+        title: '操作时间',
+        dataIndex: 'createDateTime',
+        align: 'center',
+        scopedSlots: { customRender: 'createDateTime' },
+    }];
     private tabData: any = [];
     private formItemLayout = {
         labelCol: { xs: {span: 24}, sm: {span: 10}},
