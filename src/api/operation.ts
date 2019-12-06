@@ -125,15 +125,15 @@ export const putAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, rec
 
 // 获取任职类型
 export const getEmployeePositionDelegatedType = () =>
-    request.get('/EmployeePositionChangeType/PositionDelegated');
+    request.get('/EmployeePositionModificationType/PositionDelegated');
 
 // 获取撤职类型
 export const getEmployeePositionDismissType = () =>
-    request.get('/EmployeePositionChangeType/PositionDismiss');
+    request.get('/EmployeePositionModificationType/PositionDismiss');
 
 // 获取复职类型
 export const getEmployeePositionReinstatedType = () =>
-    request.get('/EmployeePositionChangeType/PositionReinstated');
+    request.get('/EmployeePositionModificationType/PositionReinstated');
 
 // 新增 调职/任职/离职类型数据
 export const putEmployeePositionModification = (employeeId: string, param: any) =>

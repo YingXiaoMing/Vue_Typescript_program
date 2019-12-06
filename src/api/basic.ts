@@ -73,14 +73,14 @@ export const getEmploymentTypeOption = () =>
 // 调职类型
 export const getEmployeePositionChangeType = () =>
     request({
-        url: '/EmployeePositionChangeType/PositionTransfer',
+        url: '/EmployeePositionModificationType/PositionTransfer',
         method: 'get',
     });
 
 // 离职类型
 export const getEmployeeEndJonType = () =>
     request({
-        url: '/EmployeePositionChangeType/PositionEnded',
+        url: '/EmployeePositionModificationType/PositionEnded',
         method: 'get',
     });
 
