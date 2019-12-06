@@ -98,7 +98,7 @@ export default class Transfer extends Vue {
     private created() {
         this.fetch('');
     }
-    private mounted() {
+    private activated() {
         if (this.$route.params.form) {
             const data = this.$route.params.form;
             this.employeeName = data.employeeName;
