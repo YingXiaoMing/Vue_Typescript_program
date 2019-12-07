@@ -213,7 +213,7 @@ export default class TransferForm extends Vue {
                         newPositionCompanyId: this.newCompanyId,
                         newPositionDepartmentId: this.newDepartmentId,
                         newPositionId: this.newPositionId,
-                        employeePositionChangeTypeId: values.employeePositionChangeType,
+                        employeePositionModificationTypeId: values.employeePositionChangeType,
                         effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                         reason : values.reason,
                     }).then(() => {

@@ -225,7 +225,7 @@ export default class Serve extends Vue {
                     newPositionCompanyId: this.companyId,
                     newPositionDepartmentId: this.departmentId,
                     newPositionId: this.positionId,
-                    employeePositionChangeTypeId: values.typeId.key,
+                    employeePositionModificationTypeId: values.typeId.key,
                     effectiveDate: moment(values.effectiveDate).format(this.dateForm),
                     reason: values.reason,
                 }).then(() => {

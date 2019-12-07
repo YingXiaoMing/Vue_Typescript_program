@@ -199,7 +199,7 @@ export default class Serve extends Vue {
                         newPositionId: this.newPositionId,
                         effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                         reason: values.reason,
-                        employeePositionChangeTypeId: values.typeId.key,
+                        employeePositionModificationTypeId: values.typeId.key,
                     }).then(() => {
                         message.success('更新成功');
                         callback(true);

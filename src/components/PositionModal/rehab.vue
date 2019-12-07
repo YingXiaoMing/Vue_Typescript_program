@@ -133,7 +133,7 @@ export default class Rehab extends Vue {
             if (!err) {
                 if (this.data.isEdit) {
                     putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
-                        EmployeePositionChangeTypeId: values.employeePositionChangeTypeId,
+                        employeePositionModificationTypeId: values.employeePositionChangeTypeId,
                         orginalPositionId: values.reinstatedPositionId,
                         effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
                         reason: values.reason,
