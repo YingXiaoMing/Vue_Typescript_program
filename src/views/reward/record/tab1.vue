@@ -34,7 +34,7 @@
                     <a-col :lg="8" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol">
                             <a-button type="primary" @click="searchClick">查询</a-button>
-                            <a-button style="marginLeft:15px">导出数据</a-button>
+                            <a-button style="marginLeft:15px" @click="exportDataClick">导出数据</a-button>
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -53,9 +53,11 @@ import { searchEmployeeData } from '@/api/staff';
 import Table1 from './tabTable1.vue';
 import moment from 'moment';
 import _ from 'lodash';
+import config from '@/utils/config';
 import { searchPrizePenaltyRecord } from '@/api/operation';
 import { Pagination } from '../../../interface/index';
 import URLSearchParams from 'url-search-params';
+import { message } from 'ant-design-vue';
 interface EmployeeData {
     value: string;
     text: string;
@@ -136,6 +138,17 @@ export default class Tab1 extends Vue {
         const item = _.find(this.employeeDataList, {value});
         if (item) {
             this.searchKey = item.name;
+        }
+    }
+    private exportDataClick() {
+        if (!_.isEmpty(this.param.toString())) {
+            let downLink;
+            downLink = config.baseUrl + '/employee/Export/ExportPrizePenaltyRecordRecord?' + this.param;
+            const link = document.createElement('a');
+            link.href = downLink;
+            link.click();
+        } else {
+            message.warning('暂无数据');
         }
     }
     private searchClick() {

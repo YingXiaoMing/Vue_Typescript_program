@@ -37,7 +37,7 @@
             <a-col :lg="8" :md="12" :sm="24">
                 <a-form-item class="rightBtn">
                     <a-button type="primary" @click="searchClick">查询</a-button>
-                    <a-button style="marginLeft:15px">导出数据</a-button>
+                    <a-button style="marginLeft:15px" @click="exportDataClick">导出数据</a-button>
                 </a-form-item>
             </a-col>
             <a-divider>查询结果</a-divider>
@@ -59,6 +59,8 @@ import { Pagination } from '@/interface';
 import moment from 'moment';
 import { searchPrizePenaltyRecord } from '@/api/operation';
 import URLSearchParams from 'url-search-params';
+import { message } from 'ant-design-vue';
+import config from '@/utils/config';
 interface Data {
     title: string;
     value: string;
@@ -198,6 +200,17 @@ export default class Tab2 extends Vue {
                 return newTarget;
             });
             TopParentNode.children = _.concat(TopParentNode.children, target);
+        }
+    }
+    private exportDataClick() {
+        if (!_.isEmpty(this.param.toString())) {
+            let downLink;
+            downLink = config.baseUrl + '/employee/Export/ExportPrizePenaltyRecordRecord?' + this.param;
+            const link = document.createElement('a');
+            link.href = downLink;
+            link.click();
+        } else {
+            message.warning('暂无数据');
         }
     }
     private searchClick() {
