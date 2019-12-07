@@ -553,8 +553,8 @@ export interface Pagination {
 
 export interface RemotePostionChangeRecord {
     id: string;
-    employeePositionChangeClassifyName: string;
-    employeePositionChangeTypeName: string;
+    employeePositionModificationClassifyName: string;
+    employeePositionModificationTypeName: string;
     orginalPositionFullPath: string;
     newPositionFullPath: string;
     lastOperatorDateTime: string;
@@ -563,7 +563,7 @@ export interface RemotePostionChangeRecord {
     reason: string;
     employeeId: string;
     effectiveDate: string;
-    employeePositionChangeTypeId: string;
+    employeePositionModificationTypeId: string;
     recordStateValue: number;
     recordStateName: string;
     workOrderNumber: string;
