@@ -108,7 +108,7 @@ class Tab1 extends Vue {
                     newPositionCompanyId: this.newCompanyId,
                     newPositionDepartmentId: this.newDepartmentId,
                     newPositionId: this.newPositionId,
-                    employeePositionChangeTypeId: values.transferType.key,
+                    employeePositionModificationTypeId: values.transferType.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then((res) => {
