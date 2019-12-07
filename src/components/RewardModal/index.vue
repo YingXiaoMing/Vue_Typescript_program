@@ -28,7 +28,7 @@
                     <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
                 </a-form-item>
                 <a-form-item  label="惩罚类型" v-bind="formItemLayout" v-else>
-                    <a-select v-if="formModal.isEdit" v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
+                    <a-select v-if="formModal.isEdit" labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in PenaltyType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
                     <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
