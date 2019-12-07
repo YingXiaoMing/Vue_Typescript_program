@@ -33,7 +33,7 @@
                 <a-col :lg="10" :md="12" :sm="24">
                     <a-form-item>
                         <a-button type="primary" @click="searchClick">查询</a-button>
-                        <a-button style="marginLeft: 20px">导出数据</a-button>
+                        <a-button style="marginLeft: 20px" @click="exportDataClick">导出数据</a-button>
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -56,8 +56,10 @@ import { getAllBusinessClassify } from '@/api/basic';
 import './index.less';
 import moment from 'moment';
 import { searchBusinessRecord, getCompanyOrganizationChart } from '@/api/operation';
+import config from '@/utils/config';
 import { Pagination } from '@/interface';
 import URLSearchParams from 'url-search-params';
+import { message } from 'ant-design-vue';
 interface EmployeeData {
     value: string;
     text: string;
@@ -212,6 +214,17 @@ export default class Record extends Vue {
                 };
             });
         });
+    }
+    private exportDataClick() {
+        if (!_.isEmpty(this.param.toString())) {
+            let downLink;
+            downLink = config.baseUrl + '/employee/Export/ExportAskforLeaveOvertimeBusinesstripRecord?' + this.param;
+            const link = document.createElement('a');
+            link.href = downLink;
+            link.click();
+        } else {
+            message.warning('暂无数据');
+        }
     }
     private searchClick() {
         this.form.validateFields((err: any, values: any) => {
