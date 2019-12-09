@@ -100,11 +100,6 @@ export default class RecordTable extends Vue {
         dataIndex: 'operator',
         align: 'center',
         scopedSlots: { customRender: 'operator' },
-    }, {
-        title: '指定查询日期',
-        dataIndex: 'createDateTime',
-        align: 'center',
-        scopedSlots: { customRender: 'createDateTime' },
     }];
     @Watch('loading')
     private loadingChange(value: boolean) {

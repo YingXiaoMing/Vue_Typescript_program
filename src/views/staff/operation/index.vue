@@ -211,7 +211,7 @@ export default class Operation extends Vue {
                     orderNum: item.workOrderNumber,
                     num: item.employeeStringID,
                     name: item.employeeFullName,
-                    orginPosition: item.orginalPositionFullPath,
+                    orginPosition: item.originalPositionFullPath,
                     newPosition: item.newPositionFullPath,
                     typeName: item.employeePositionModificationClassifyName,
                     type: item.employeePositionModificationTypeName,

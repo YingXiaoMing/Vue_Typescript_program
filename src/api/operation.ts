@@ -144,3 +144,15 @@ export const getEmployeeToken = (url: string, param: any) =>
 
 export const getEmployeeTokenByRrefreshToken = (url: string, param: any) =>
     t_request.post(url, param);
+
+// 撤销奖惩记录工单
+export const DeletePrizePenaltyRecord = (employeeId: string, recordId: string) =>
+    request.delete('/employee/' + employeeId + '/PrizePenaltyRecord/' + recordId);
+
+// 撤销考勤记录工单
+export const DeleteAttendRecord = (employeeId: string, recordId: string) =>
+    request.delete('/employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId);
+
+// 撤销职位变更记录工单
+export const DeletePositionRecord = (employeeId: string, recordId: string) =>
+    request.delete('/employee/' + employeeId + '/EmployeePositionModification/' + recordId);

@@ -180,7 +180,7 @@ export default class Record extends Vue {
                     name: item.employeeFullName,
                     transfer: item.employeePositionModificationClassifyName,
                     type: item.employeePositionModificationTypeName,
-                    position: item.orginalPositionFullPath,
+                    position: item.originalPositionFullPath,
                     newPosition: item.newPositionFullPath,
                     lastOperatorDateTime: moment(item.effectiveDate).format(this.dateFormat),
                     reason: item.reason ? item.reason : '',

@@ -14,7 +14,7 @@
                     <a v-if="!record.isAllowModification" @click="makeTableRowEditable(record.key, false)">查看</a>
                     <a v-else @click="makeTableRowEditable(record.key, true)">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a class="disabled-button">撤销</a>
+                    <a :class="{'disabled-button': !record.isAllowModification}" @click="revokeClick(record.key)">撤销</a>
                 </span>
             </template>
         </a-table>
@@ -33,7 +33,7 @@ import { Emit, Prop, Watch } from 'vue-property-decorator';
 import AttendModal from '@/components/AttendModal/index.vue';
 import Vacate from '@/components/AttendModal/vacate.vue';
 import Business from '@/components/AttendModal/business.vue';
-import { getAskforLeaveOvertimeBusinesstripRecordByEmployeeId } from '@/api/operation';
+import { getAskforLeaveOvertimeBusinesstripRecordByEmployeeId, DeleteAttendRecord } from '@/api/operation';
 import Overtime from '@/components/AttendModal/overtime.vue';
 import moment from 'moment';
 import _ from 'lodash';
@@ -89,6 +89,7 @@ export default class RecordTable extends Vue {
     private dateFormat = 'YYYY-MM-DD hh:mm';
     private data: TableData[] = this.tabList;
     private type: number = 0;
+    private $confirm: any;
     private pagination: Pagination = this.paginationData;
     private modalVisible: boolean = false;
     private dialog = {
@@ -196,6 +197,22 @@ export default class RecordTable extends Vue {
         const pageNum = pagination.current;
         this.$emit('tableChange', pageNum, pageSize);
     }
+    private revokeClick(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const thiz = this;
+        this.$confirm({
+            title: '撤销工单确认',
+            okText: '确认',
+            okType: 'danger',
+            content: '注意！当你撤职考勤工单的操作，当工单撤销后，该工单下的考勤记录将被取消，无法恢复，请谨慎操作。',
+            cancelText: '取消',
+            onOk() {
+                DeleteAttendRecord(target.employeeId, key).then(() => {
+                    thiz.$emit('refreshData');
+                });
+            },
+        });
+    }
     private makeTableRowEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         getAskforLeaveOvertimeBusinesstripRecordByEmployeeId(target.employeeId, target.key).then((res: any) => {
@@ -217,6 +234,7 @@ export default class RecordTable extends Vue {
                             reason: data.reason,
                             note: data.note,
                             timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            timeoffOvertimeBusinesstripTypeName: data.askforLeaveOvertimeBusinesstripTypeName,
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,
@@ -240,6 +258,7 @@ export default class RecordTable extends Vue {
                             reason: data.reason,
                             note: data.note,
                             timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            timeoffOvertimeBusinesstripTypeName: data.askforLeaveOvertimeBusinesstripTypeName,
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,
@@ -263,6 +282,7 @@ export default class RecordTable extends Vue {
                             reason: data.reason,
                             note: data.note,
                             timeoffOvertimeBusinesstripTypeId: data.askforLeaveOvertimeBusinesstripTypeId,
+                            timeoffOvertimeBusinesstripTypeName: data.askforLeaveOvertimeBusinesstripTypeName,
                             name: data.employeeFullName,
                             num: data.employeeStringID,
                             orderNum: data.workOrderNumber,

@@ -555,7 +555,7 @@ export interface RemotePostionChangeRecord {
     id: string;
     employeePositionModificationClassifyName: string;
     employeePositionModificationTypeName: string;
-    orginalPositionFullPath: string;
+    originalPositionFullPath: string;
     newPositionFullPath: string;
     lastOperatorDateTime: string;
     employeeStringID: string;

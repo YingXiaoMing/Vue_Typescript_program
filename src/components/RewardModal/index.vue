@@ -5,19 +5,19 @@
         <a-row>
             <a-col :span="12">
                 <a-form-item label="工单号" v-bind="formItemLayout">
-                    <a-input disabled v-decorator="['workOrderNumber', {initialValue: formModal.workOrderNumber}]"></a-input>
+                    <a-input readonly v-decorator="['workOrderNumber', {initialValue: formModal.workOrderNumber}]"></a-input>
                 </a-form-item>
             </a-col>
         </a-row>
         <a-row>
             <a-col :span="12">
                 <a-form-item label="员工工号" v-bind="formItemLayout">
-                    <a-input disabled v-decorator="['num', {initialValue: formModal.num}]"></a-input>
+                    <a-input readonly v-decorator="['num', {initialValue: formModal.num}]"></a-input>
                 </a-form-item>
             </a-col>
             <a-col :span="12">
                 <a-form-item label="员工姓名" v-bind="formItemLayout">
-                    <a-input disabled v-decorator="['name', {initialValue: formModal.name}]"></a-input>
+                    <a-input readonly v-decorator="['name', {initialValue: formModal.name}]"></a-input>
                 </a-form-item>
             </a-col>
             <a-col :span="12">
@@ -25,19 +25,19 @@
                     <a-select v-if="formModal.isEdit" labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in RewardType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
-                    <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
+                    <a-input v-else readonly v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
                 </a-form-item>
                 <a-form-item  label="惩罚类型" v-bind="formItemLayout" v-else>
                     <a-select v-if="formModal.isEdit" labelInValue v-decorator="['prizePenaltyTypeId',{initialValue: formModal.prizePenaltyTypeId,rules: [{ required: true, message: ' ' }]}]">
                       <a-select-option v-for="item in PenaltyType" :value="item.key">{{item.label}}</a-select-option>
                     </a-select>
-                    <a-input v-else disabled v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
+                    <a-input v-else readonly v-decorator="['typeName', {initialValue: formModal.prizePenaltyTypeId.label}]"></a-input>
                 </a-form-item>
             </a-col>
             <a-col :span="12">
                 <a-form-item  label="执行日期" v-bind="formItemLayout">
                     <a-date-picker v-if="formModal.isEdit" :format="dateForm" v-decorator="['effectiveDate',{initialValue: momentDate(formModal.effectiveDate) ,rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
-                    <a-input v-else disabled v-decorator="['effectiveDate', {initialValue: formModal.effectiveDate}]"></a-input>
+                    <a-input v-else readonly v-decorator="['effectiveDate', {initialValue: formModal.effectiveDate}]"></a-input>
                 </a-form-item>
                 
             </a-col>
@@ -46,12 +46,12 @@
         <a-row :gutter="24">
             <a-col :span="24">
                 <a-form-item label="情况描述" v-bind="formItemLayout2">
-                    <a-textarea :disabled="!formModal.isEdit" rows="4" v-decorator="['situationDescription', {initialValue: formModal.situationDescription}]"></a-textarea>
+                    <a-textarea :readonly="!formModal.isEdit" rows="4" v-decorator="['situationDescription', {initialValue: formModal.situationDescription}]"></a-textarea>
                 </a-form-item>
             </a-col>
             <a-col :span="24" style="marginTop:20px">
                 <a-form-item label="处理方式" v-bind="formItemLayout2">
-                    <a-textarea :disabled="!formModal.isEdit" rows="4" v-decorator="['solution', {initialValue: formModal.solution}]"></a-textarea>
+                    <a-textarea :readonly="!formModal.isEdit" rows="4" v-decorator="['solution', {initialValue: formModal.solution}]"></a-textarea>
                 </a-form-item>
             </a-col>
         </a-row>

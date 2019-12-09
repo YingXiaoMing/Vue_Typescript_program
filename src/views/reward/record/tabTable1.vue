@@ -10,7 +10,7 @@
                     <a v-if="!record.isAllowModification"  @click="makeTableRowEditable(record.key, false)">查看</a>
                     <a v-else @click="makeTableRowEditable(record.key, true)">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a class="disabled-button">撤销</a>
+                    <a :class="{'disabled-button': !record.isAllowModification}" @click="revokeClick(record.key)">撤销</a>
                 </span>
             </template>
         </a-table>
@@ -26,7 +26,7 @@ import { ColumnList, Pagination } from '@/interface';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import moment from 'moment';
 import _ from 'lodash';
-import { getPrizePenaltyRecordByEmployeeId } from '@/api/operation';
+import { getPrizePenaltyRecordByEmployeeId, DeletePrizePenaltyRecord } from '@/api/operation';
 import RewardModal from '@/components/RewardModal/index.vue';
 interface TableData {
     key: string;
@@ -76,6 +76,7 @@ export default class Tab1Table extends Vue {
     private modalVisible: boolean = false;
     private dateFormat = 'YYYY-MM-DD';
     private etag: string = '';
+    private $confirm: any;
     private formData: FormData = {
         solution: '',
         situationDescription: '',
@@ -168,6 +169,22 @@ export default class Tab1Table extends Vue {
         const pageSize = pagination.pageSize;
         const pageNum = pagination.current;
         this.$emit('tableChange', pageNum, pageSize);
+    }
+    private revokeClick(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const thiz = this;
+        this.$confirm({
+            title: '撤销工单确认',
+            okText: '确认',
+            okType: 'danger',
+            content: '注意！当你撤职奖惩工单的操作，当工单撤销后，该工单下的奖惩记录将被取消，无法恢复，请谨慎操作。',
+            cancelText: '取消',
+            onOk() {
+                DeletePrizePenaltyRecord(target.employeeId, key).then(() => {
+                    thiz.$emit('refreshData');
+                });
+            },
+        });
     }
     private makeTableRowEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];

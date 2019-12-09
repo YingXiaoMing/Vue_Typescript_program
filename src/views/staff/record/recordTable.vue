@@ -10,7 +10,7 @@
                     <a v-if="!record.isAllowModification" @click="makeEmployeeDataEditable(record.key, false)">查看</a>
                     <a v-else @click="makeEmployeeDataEditable(record.key, true)">编辑</a>
                     <a-divider type="vertical"></a-divider>
-                    <a class="disabled-button">撤销</a>
+                    <a :class="{'disabled-button': !record.isAllowModification}" @click="revokeClick(record.key)">撤销</a>
                 </span>
             </template>
         </a-table>
@@ -34,7 +34,7 @@ import RehabModal from '@/components/PositionModal/rehab.vue';
 import DepartureModal from '@/components/PositionModal/departure.vue';
 import ServeModal from '@/components/PositionModal/serve.vue';
 import './recordTable.less';
-import { getEmployeeModificationByRecordId } from '@/api/operation';
+import { getEmployeeModificationByRecordId, DeletePositionRecord } from '@/api/operation';
 import _ from 'lodash';
 
 interface TableData {
@@ -183,6 +183,22 @@ export default class RecordTable extends Vue {
             }
         });
     }
+    private revokeClick(key: string) {
+        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const thiz = this;
+        this.$confirm({
+            title: '撤销工单确认',
+            okText: '确认',
+            okType: 'danger',
+            content: '注意！当你撤销职位变更工单的操作，当工单撤销后，该工单下的职位变动记录将被取消，无法恢复，请谨慎操作。',
+            cancelText: '取消',
+            onOk() {
+                DeletePositionRecord(target.employeeId, key).then(() => {
+                    thiz.$emit('loadData');
+                });
+            },
+        });
+    }
     private makeEmployeeDataEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         const typeName = target.transfer;
@@ -205,8 +221,8 @@ export default class RecordTable extends Vue {
                             employeePositionChangeTypeName: data.employeePositionModificationTypeName,
                             effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
                             newPositionName: data.newPositionFullPath,
-                            orginPositionName: data.orginalPositionFullPath,
-                            position: data.orginalPositionId,
+                            orginPositionName: data.originalPositionFullPath,
+                            position: data.originalPositionId,
                             newPosition: data.newPositionFullIds,
                             newPositionId: data.newPositionId,
                             isEdit,
@@ -265,9 +281,9 @@ export default class RecordTable extends Vue {
                             effectiveDate: moment(data.effectiveDate).format(this.dateFormat),
                             reason: data.reason,
                             orderNum: data.workOrderNumber,
-                            dismissTypeId: data.orginalPositionId,
+                            dismissTypeId: data.originalPositionId,
                             isEdit,
-                            positionId: data.orginalPositionFullPath,
+                            positionId: data.originalPositionFullPath,
                             employeePositionChangeTypeName: data.employeePositionModificationTypeName,
                         },
                     };
