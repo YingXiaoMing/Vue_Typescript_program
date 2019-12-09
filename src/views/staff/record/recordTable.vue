@@ -305,6 +305,7 @@ export default class RecordTable extends Vue {
                             orderNum: data.workOrderNumber,
                             positionName: data.newPositionFullPath,
                             isEdit,
+                            newPositionId: data.newPositionId,
                         },
                     };
                     break;

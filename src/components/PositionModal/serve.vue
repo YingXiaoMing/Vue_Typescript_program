@@ -72,6 +72,7 @@ interface FormData {
     isEdit: boolean;
     position: string[];
     positionName: string;
+    newPositionId: string;
 }
 @Component({
     name: 's-serve',
@@ -157,6 +158,12 @@ export default class Serve extends Vue {
                     // tslint:disable-next-line:no-shadowed-variable
                     node.positions.forEach((node: any, index: number) => {
                         index ++;
+                        if (_.isEqual(this.data.newPositionId, node.id)) {
+                            this.newPositionId = node.id;
+                            this.newCompanyId = TopParentNode.companyId;
+                            this.newDepartmentId = node.departmentId;
+                            this.isNewPosition = true;
+                        }
                         const object: CascderOptionItem = {
                             value: node.id,
                             label: node.name,
