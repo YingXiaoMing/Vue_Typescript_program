@@ -33,7 +33,7 @@
           </a-col>
           <a-col :span="18">
               <a-form-item label="任职职位" v-bind="formItemLayout2">
-                  <a-cascader v-if="data.isEdit" :options="cascderOption"  :placeholder="请选择职位"
+                  <a-cascader v-if="data.isEdit" :options="cascderOption"  placeholder="请选择职位"
                   v-decorator="['newPostion',{ initialValue: data.position, rules: [{ required: true, message: ' ' }] }]"
                   @change="positionsChange"></a-cascader>
                   <a-input readonly v-else v-decorator="['newPosition', { initialValue: data.positionName }]"></a-input>
