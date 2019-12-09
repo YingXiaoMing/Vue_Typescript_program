@@ -69,7 +69,7 @@ class Tab1 extends Vue {
             if (!err) {
                 putEmployeePositionModification(this.employeeId, {
                     employeePositionModificationTypeId: values.typeId.key,
-                    orginalPositionId: values.position.key,
+                    originalPositionId: values.position.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
                 }).then((res) => {
