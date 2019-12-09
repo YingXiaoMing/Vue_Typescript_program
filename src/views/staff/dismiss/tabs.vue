@@ -82,7 +82,7 @@ export default class Tab extends Vue {
     }
     private getEmployeeDismissPositionData() {
         getEmployeeDismissedPosition(this.employeeId).then((res: any) => {
-            const data = res.data;
+            const data = res;
             this.dismissOptionData = _.map(data, (item: any) => {
                 return {
                     key: item.id,

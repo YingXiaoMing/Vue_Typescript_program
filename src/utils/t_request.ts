@@ -1,7 +1,10 @@
 import axios from 'axios';
+import config from './config';
 import qs from 'qs';
 const service = axios.create({
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8;' },
+    baseURL: config.baseUrl,
+    headers: {'Content-Type': 'application/vnd.ais.hr.department+json',
+              'Cache-Control': 'no-cache'},
     timeout: 5000,
 });
 

@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Form, Row, Col, Select, DatePicker, Button, Input, message } from 'ant-design-vue';
 import { BasicData, SelectValue } from '@/interface';
 import { putEmployeePositionModification, getEmployeePositionReinstatedType } from '@/api/operation';
@@ -43,6 +43,13 @@ class Tab1 extends Vue {
         wrapperCol: { span: 18 },
     };
     private Form: any;
+    @Watch('valueOption')
+    private valueOptionChange(value: SelectValue[]) {
+        console.log('thet talk');
+        this.Form.setFieldsValue({
+            position: value[0],
+        });
+    }
     private created() {
         getEmployeePositionReinstatedType().then((res: any) => {
             const data = res.data;
@@ -61,7 +68,7 @@ class Tab1 extends Vue {
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
                 putEmployeePositionModification(this.employeeId, {
-                    orginalPositionId: values.position.key,
+                    originalPositionId: values.position.key,
                     employeePositionModificationTypeId: values.typeId.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     reason: values.reason,
