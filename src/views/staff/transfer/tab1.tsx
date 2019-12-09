@@ -104,7 +104,7 @@ class Tab1 extends Vue {
                     return;
                 }
                 putEmployeePositionModification(this.employeeId, {
-                    orginalPositionId: values.originPostion.key,
+                    originalPositionId: values.originPostion.key,
                     newPositionCompanyId: this.newCompanyId,
                     newPositionDepartmentId: this.newDepartmentId,
                     newPositionId: this.newPositionId,
