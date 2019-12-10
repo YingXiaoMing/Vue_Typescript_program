@@ -11,11 +11,11 @@ export const getEmployeeDismissedPosition = (employeeId: string) =>
 
 // 查看员工调离职的记录
 export const getEmployeeModificationRecord = ( param: any) =>
-    request.get('/EmployeePositionModification/Collection?' + param);
+    request.get('/EmployeePositionModificationRecord/Collection?' + param);
 
 // 根据记录ID来查询员工的操作记录
-export const getEmployeeModificationByRecordId = (employeeId: string, recordId: string) =>
-    request.get('/employee/' + employeeId + '/EmployeePositionModification/' + recordId);
+export const getEmployeeModificationByRecordId = (recordId: string) =>
+    request.get('/EmployeePositionModificationRecord/' + recordId);
 
 // 根据记录ID来更新员工的操作记录
 export const putEmployeeModificationByRecordId = (recordId: string, param: any) =>

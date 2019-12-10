@@ -202,7 +202,7 @@ export default class RecordTable extends Vue {
     private makeEmployeeDataEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         const typeName = target.transfer;
-        getEmployeeModificationByRecordId(target.employeeId, target.key).then((res) => {
+        getEmployeeModificationByRecordId(target.key).then((res) => {
             const data = res.data;
             switch (typeName) {
                 case '调职':
