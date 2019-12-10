@@ -31,7 +31,7 @@
                 <tr>
                     <td colspan="6">
                         <a-form-item label="加班事由" v-bind="formItemLayout2" class="v-textera">
-                            <a-textarea :rows="4" :readonly="!data.isEdit" v-decorator="['reason', {initialValue: data.reason, rules: [{ required: true, message: ' ' }]}]"></a-textarea>
+                            <a-textarea :rows="4" :read-only="!data.isEdit" v-decorator="['reason', {initialValue: data.reason, rules: [{ required: true, message: ' ' }]}]"></a-textarea>
                         </a-form-item>
                     </td>
                 </tr>
@@ -70,7 +70,7 @@
                 <tr>
                     <td colspan="6">
                         <a-form-item label="备注" v-bind="formItemLayout2" class="v-textera">
-                            <a-textarea :rows="4" :readonly="!data.isEdit" v-decorator="['note', {initialValue: data.note}]"></a-textarea>
+                            <a-textarea :rows="4" :read-only="!data.isEdit" v-decorator="['note', {initialValue: data.note}]"></a-textarea>
                         </a-form-item>
                     </td>
                 </tr>

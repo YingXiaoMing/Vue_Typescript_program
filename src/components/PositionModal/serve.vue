@@ -4,19 +4,19 @@
             <a-row>
                 <a-col :span="12">
                     <a-form-item label="工单号" v-bind="formItemLayout">
-                        <a-input readonly v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
+                        <a-input read-only v-decorator="['orderNum', {initialValue: data.orderNum}]"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>
             <a-row>
                 <a-col :span="12">
                     <a-form-item label="员工工号" v-bind="formItemLayout">
-                        <a-input readonly v-decorator="['num', {initialValue: data.num}]"></a-input>
+                        <a-input read-only v-decorator="['num', {initialValue: data.num}]"></a-input>
                     </a-form-item>
                 </a-col>
                 <a-col :span="12">
                     <a-form-item label="员工姓名" v-bind="formItemLayout">
-                        <a-input readonly v-decorator="['name', {initialValue: data.name}]"></a-input>
+                        <a-input read-only v-decorator="['name', {initialValue: data.name}]"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -28,7 +28,7 @@
                 <a-select v-if="data.isEdit" labelInValue v-decorator="['typeId',  {initialValue: positionDelegateTypeOption[0]}]">
                     <a-select-option v-for="item in positionDelegateTypeOption" :value="item.key">{{item.label}}</a-select-option>
                 </a-select>
-                <a-input v-else readonly v-decorator="['typeId', {initialValue: data.typeId}]"></a-input>
+                <a-input v-else read-only v-decorator="['typeId', {initialValue: data.typeId}]"></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="18">
@@ -36,18 +36,18 @@
                   <a-cascader v-if="data.isEdit" :options="cascderOption"  placeholder="请选择职位"
                   v-decorator="['newPostion',{ initialValue: data.position, rules: [{ required: true, message: ' ' }] }]"
                   @change="positionsChange"></a-cascader>
-                  <a-input readonly v-else v-decorator="['newPosition', { initialValue: data.positionName }]"></a-input>
+                  <a-input read-only v-else v-decorator="['newPosition', { initialValue: data.positionName }]"></a-input>
               </a-form-item>
           </a-col>
           <a-col :span="12">
               <a-form-item label="生效日期" v-bind="formItemLayout">
                   <a-date-picker v-if="data.isEdit" v-decorator="['effectiveDate', {initialValue: momentFromDate(data.effectiveDate), rules: [{ required: true, message: ' ' }] }]"></a-date-picker>
-                  <a-input v-else readonly v-decorator="['effectiveDate', { initialValue: data.effectiveDate }]"></a-input>
+                  <a-input v-else read-only v-decorator="['effectiveDate', { initialValue: data.effectiveDate }]"></a-input>
               </a-form-item>
           </a-col>
           <a-col :span="24">
               <a-form-item label="原因" v-bind="formItemLayout3">
-                  <a-textarea :readonly="!data.isEdit" v-decorator="['reason', {initialValue: data.reason}]" rows="4"></a-textarea>
+                  <a-textarea :read-only="!data.isEdit" v-decorator="['reason', {initialValue: data.reason}]" rows="4"></a-textarea>
               </a-form-item>
           </a-col>
         </a-row>
