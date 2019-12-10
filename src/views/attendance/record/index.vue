@@ -289,6 +289,7 @@ export default class Record extends Vue {
         searchBusinessRecord(param).then((res: any) => {
             this.tabData = _.map(res.data, (item) => {
                 return {
+                    workOrderNumber: item.workOrderNumber,
                     key: item.id,
                     num: item.employeeStringID,
                     name: item.employeeFullName,

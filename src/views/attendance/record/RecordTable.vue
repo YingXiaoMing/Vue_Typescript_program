@@ -119,6 +119,11 @@ export default class RecordTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'Index' },
     }, {
+        title: '工单号',
+        dataIndex: 'workOrderNumber',
+        align: 'center',
+        scopedSlots: { customRender: 'workOrderNumber' },
+    }, {
         title: '员工工号',
         dataIndex: 'num',
         align: 'center',
