@@ -4,7 +4,7 @@
             <a-row :gutter="24">
                 <a-col  :lg="8" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="输入员工姓名或工号">
-                        <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                        <a-auto-complete placeholder="请输入姓名或工号进行智能搜索" @focus="focusHandle"
                         @search="handleChange" @select="onSelect" v-model="searchKey">
                             <template slot="dataSource">
                                 <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
@@ -173,6 +173,9 @@ export default class Serve extends Vue {
                 label: item.name,
             };
         });
+    }
+    private focusHandle() {
+        this.handleChange(this.searchKey);
     }
     private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
         const thiz = this;

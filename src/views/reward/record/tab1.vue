@@ -5,7 +5,7 @@
                 <a-row :gutter="24">
                     <a-col :lg="8" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="员工姓名(工号)">
-                            <a-auto-complete placeholder="请输入姓名或工号进行智能搜索"
+                            <a-auto-complete placeholder="请输入姓名或工号进行智能搜索" @focus="focusHandle"
                             @search="handleChange" @select="onSelect" v-decorator="['query']">
                                 <template slot="dataSource">
                                     <a-select-option v-for="item in employeeDataList" :key="item.value">{{item.text}}</a-select-option>
@@ -103,6 +103,9 @@ export default class Tab1 extends Vue {
     private created() {
         this.form = this.$form.createForm(this);
         this.fetch('');
+    }
+    private focusHandle() {
+        this.handleChange(this.searchKey);
     }
     private handleChange(value: string) {
         this.fetch(value);
