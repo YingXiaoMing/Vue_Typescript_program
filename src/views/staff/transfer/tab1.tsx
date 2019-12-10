@@ -103,7 +103,8 @@ class Tab1 extends Vue {
                     message.error('请选择一个有效职位');
                     return;
                 }
-                putEmployeePositionModification(this.employeeId, {
+                putEmployeePositionModification({
+                    employeeId: this.employeeId,
                     originalPositionId: values.originPostion.key,
                     newPositionCompanyId: this.newCompanyId,
                     newPositionDepartmentId: this.newDepartmentId,

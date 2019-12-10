@@ -223,7 +223,8 @@ export default class Serve extends Vue {
         }
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
-                putEmployeePositionModification(this.employeeId, {
+                putEmployeePositionModification({
+                    employeeId: this.employeeId,
                     newPositionCompanyId: this.companyId,
                     newPositionDepartmentId: this.departmentId,
                     newPositionId: this.positionId,
