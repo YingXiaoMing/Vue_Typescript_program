@@ -47,8 +47,7 @@
             <a-row>
                 <a-col :lg="10" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="现有职位">
-                        <a-card :class="{ServeCard: OriginPostionOptions.length > 0}" style="width: 100%">
-                            <p></p>
+                        <a-card class="ServeCard" style="width: 100%">
                             <p v-for="item in OriginPostionOptions">{{item.label}}</p>
                         </a-card>
                     </a-form-item>
