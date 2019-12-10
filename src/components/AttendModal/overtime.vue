@@ -39,14 +39,14 @@
                     <td class="firstTr">开始日期时间</td>
                     <td colspan="2" class="firstTr">
                         <a-form-item v-if="data.isEdit">
-                            <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"   v-decorator="['startDateTime', {initialValue: momentFromDate(data.endedDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                            <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"   v-decorator="['startDateTime', {initialValue: momentFromDate(data.startDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                         </a-form-item>
                         <span v-else>{{ data.startDateTime }}</span>
                     </td>
                     <td class="firstTr">结束日期时间</td>
                     <td colspan="2" class="firstTr">
                         <a-form-item v-if="data.isEdit">
-                            <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"  v-decorator="['endedDateTime', {initialValue: momentFromDate(data.startDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                            <a-date-picker :disabled="!data.isEdit" style='width: 100%' :showTime="{ format: 'hh:mm' }" :format="dateFormat"  v-decorator="['endedDateTime', {initialValue: momentFromDate(data.endedDateTime), rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                         </a-form-item>
                         <span v-else>{{ data.endedDateTime }}</span>
                     </td>
