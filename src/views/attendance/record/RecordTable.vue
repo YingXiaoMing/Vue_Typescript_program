@@ -20,7 +20,7 @@
         </a-table>
         <a-modal :visible="dialog.visible" :title="dialog.title"
         @cancel="cancelHandle" :width="928" @ok="okHandle" class="attendModal">
-            <component :is="dialog.name" ref="dialog" :data="dialog.data"></component>
+            <component :is="dialog.name" ref="dialog" :data="dialog.data" @loadData="loadNewData"></component>
         </a-modal>
     </div>
 </template>
@@ -316,6 +316,10 @@ export default class RecordTable extends Vue {
                 return;
             }
         });
+    }
+    private loadNewData() {
+        this.cancelHandle();
+        this.$emit('refreshData');
     }
 }
 </script>

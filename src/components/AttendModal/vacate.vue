@@ -1,5 +1,6 @@
 <template>
     <a-card class="vacateCard">
+        <div class="rightBtn" v-if="data.isEdit"><a-button @click="checkHoliday">核假</a-button></div>
         <span class="c-title">员工请假单</span>
         <a-form :form="form">
             <table border="1px" class="c-table">
@@ -201,7 +202,19 @@ export default class Vacate extends Vue {
             note: value.note,
         };
     }
-
+    private checkHoliday() {
+        const thiz = this;
+        this.$confirm({
+            title: '核假工单确认',
+            okText: '确认',
+            okType: 'danger',
+            content: '你将进行核假操作，请核对员工请假单信息是否正确，核假后，该请假单不能再编辑，请谨慎操作！',
+            cancelText: '取消',
+            onOk() {
+                thiz.$emit('loadData');
+            },
+        });
+    }
 }
 </script>
 
