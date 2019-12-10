@@ -147,6 +147,7 @@ export default class RecordTable extends Vue {
     }, {
         title: '状态',
         dataIndex: 'recordStateName',
+        width: 88,
         align: 'center',
         scopedSlots: { customRender: 'recordStateName' },
     }, {
@@ -202,7 +203,7 @@ export default class RecordTable extends Vue {
     private makeEmployeeDataEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         const typeName = target.transfer;
-        getEmployeeModificationByRecordId(target.key).then((res) => {
+        getEmployeeModificationByRecordId(key).then((res) => {
             const data = res.data;
             switch (typeName) {
                 case '调职':
