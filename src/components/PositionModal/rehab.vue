@@ -132,7 +132,7 @@ export default class Rehab extends Vue {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
                 if (this.data.isEdit) {
-                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                    putEmployeeModificationByRecordId(this.data.id, {
                         employeePositionModificationTypeId: values.employeePositionChangeTypeId,
                         originalPositionId: values.reinstatedPositionId,
                         effectiveDate: moment(values.effectiveDate).format(this.dateFormat),

@@ -18,8 +18,8 @@ export const getEmployeeModificationByRecordId = (employeeId: string, recordId: 
     request.get('/employee/' + employeeId + '/EmployeePositionModification/' + recordId);
 
 // 根据记录ID来更新员工的操作记录
-export const putEmployeeModificationByRecordId = (employeeId: string, recordId: string, param: any) =>
-    request.put('/employee/' + employeeId + '/EmployeePositionModification/' + recordId, param);
+export const putEmployeeModificationByRecordId = (recordId: string, param: any) =>
+    request.put('/EmployeePositionModificationRecord/' + recordId, param);
 
 
 // 查询公司的组织架构

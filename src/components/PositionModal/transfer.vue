@@ -208,7 +208,7 @@ export default class TransferForm extends Vue {
                         callback(false);
                         return;
                     }
-                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                    putEmployeeModificationByRecordId(this.data.id, {
                         originalPositionId: values.originalPositionId,
                         newPositionCompanyId: this.newCompanyId,
                         newPositionDepartmentId: this.newDepartmentId,

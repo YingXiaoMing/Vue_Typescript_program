@@ -128,7 +128,7 @@ export default class DismissForm extends Vue {
         this.form.validateFields((err: any, values: any) => {
             if (!err) {
                 if (this.data.isEdit) {
-                    putEmployeeModificationByRecordId(this.data.employeeId, this.data.id, {
+                    putEmployeeModificationByRecordId(this.data.id, {
                         employeePositionModificationTypeId: values.employeePositionChangeType,
                         originalPositionId: values.positionId,
                         effectiveDate: moment(values.effectiveDate).format(this.dateFormat),
