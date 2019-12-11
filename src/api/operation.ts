@@ -71,36 +71,36 @@ export const newPostion = (companyId: string, departmentId: string, param: any) 
     request.post('/company/' + companyId + '/department/' + departmentId + '/Position', param);
 
 // 新增员工奖惩
-export const newPrizePenalty = (employeeId: string, param: any) =>
-    request.post('/Employee/' + employeeId + '/PrizePenaltyRecord', param);
+export const newPrizePenalty = (param: any) =>
+    request.post('/PrizePenaltyRecord', param);
 
 // 新增员工日常请假出差操作
-export const newBusinesstrip = (employeeId: string, param: any) =>
-    request.post('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip', param);
+export const newBusinesstrip = (param: any) =>
+    request.post('/AskforLeaveOvertimeBusinesstripRecord', param);
 
-// 查询员工调离职
+// 查询员工奖惩记录
 export const searchPrizePenaltyRecord = (params: any) =>
     request.get('/PrizePenaltyRecord/Collection?' + params);
 
 // 查询员工加班请假记录
 export const searchBusinessRecord = (params: any) =>
-    request.get('/AskforLeaveOvertimeBusinesstrip/Collection?' + params);
+    request.get('/AskforLeaveOvertimeBusinesstripRecord/Collection?' + params);
 
 // 查看员工加班请假记录工单
-export const getAskforLeaveOvertimeBusinesstripRecordByEmployeeId = (employeeId: string, recordId: string) =>
-    request.get('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId);
+export const getAskforLeaveOvertimeBusinesstripRecordByEmployeeId = (recordId: string) =>
+    request.get('/AskforLeaveOvertimeBusinesstripRecord/' + recordId);
 
 // 操作员工加班请假记录
 export const operateBusinessRecord = (employeeId: string, id: string, params: any) =>
     request.patch('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + id, params);
 
 // 修改员工奖惩
-export const editPrizePenaltyRecord = (employeeId: string, id: string, params: any, headerObj: any) =>
-    request.patch('/Employee/' + employeeId + '/PrizePenaltyRecord/' + id, params, { headers: headerObj });
+export const editPrizePenaltyRecord = (id: string, params: any, headerObj: any) =>
+    request.patch('/PrizePenaltyRecord/' + id, params, { headers: headerObj });
 
 // 查看员工奖惩记录工单
-export const getPrizePenaltyRecordByEmployeeId = (employeeId: string, recordId: string) =>
-    request.get('/Employee/' + employeeId + '/PrizePenaltyRecord/' + recordId);
+export const getPrizePenaltyRecordByEmployeeId = (recordId: string) =>
+    request.get('/PrizePenaltyRecord/' + recordId);
 
 // 查看员工撤职所需的职位
 export const getEmployeePositionDismissedRecord = (employeeId: string, recordId: string) =>
@@ -120,8 +120,8 @@ export const getEmployeePositionForUpdatePositionDismissedRecord = (employeeId: 
     request.get('/employee/' + employeeId + '/EmployeePositionModificationRecord/' + recordId + '/EmployeePositionDismissed');
 
 // 更新员工加班请假出差记录
-export const putAskforLeaveOvertimeBusinesstripRecord = (employeeId: string, recordId: string, param: any) =>
-    request.put('/Employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId, param);
+export const putAskforLeaveOvertimeBusinesstripRecord = (recordId: string, param: any) =>
+    request.put('/AskforLeaveOvertimeBusinesstripRecord/' + recordId, param);
 
 // 获取任职类型
 export const getEmployeePositionDelegatedType = () =>
@@ -146,13 +146,13 @@ export const getEmployeeTokenByRrefreshToken = (url: string, param: any) =>
     t_request.post(url, param);
 
 // 撤销奖惩记录工单
-export const DeletePrizePenaltyRecord = (employeeId: string, recordId: string) =>
-    request.delete('/employee/' + employeeId + '/PrizePenaltyRecord/' + recordId);
+export const DeletePrizePenaltyRecord = (recordId: string) =>
+    request.delete('/PrizePenaltyRecord/' + recordId);
 
 // 撤销考勤记录工单
-export const DeleteAttendRecord = (employeeId: string, recordId: string) =>
-    request.delete('/employee/' + employeeId + '/AskforLeaveOvertimeBusinesstrip/' + recordId);
+export const DeleteAttendRecord = (recordId: string) =>
+    request.delete('/AskforLeaveOvertimeBusinesstripRecord/' + recordId);
 
 // 撤销职位变更记录工单
-export const DeletePositionRecord = (employeeId: string, recordId: string) =>
-    request.delete('/employee/' + employeeId + '/EmployeePositionModification/' + recordId);
+export const DeletePositionRecord = (recordId: string) =>
+    request.delete('/EmployeePositionModificationRecord/' + recordId);
