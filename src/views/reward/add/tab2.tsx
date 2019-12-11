@@ -57,7 +57,8 @@ class Tab2 extends Vue {
         }
         this.Form.validateFields((err: any, values: any) => {
             if (!err) {
-                newPrizePenalty(this.employeeId, {
+                newPrizePenalty({
+                    employeeId: this.employeeId,
                     prizePenaltyTypeId: values.punishType.key,
                     effectiveDate: moment(values.issueDate).format(this.dateFormat),
                     situationDescription: values.description,

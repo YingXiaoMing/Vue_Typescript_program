@@ -166,7 +166,7 @@ export default class RewardModal extends Vue {
                     const newValue = this.transformCompareData(values);
                     const puma = this.compareNewAndOldValue(newValue, oldValue);
                     if (employeeId && id && puma.length > 0) {
-                        editPrizePenaltyRecord(employeeId, id, puma, {
+                        editPrizePenaltyRecord(id, puma, {
                             'If-Match': this.ETag,
                         }).then((res) => {
                             this.form.resetFields();
