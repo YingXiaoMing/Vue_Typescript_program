@@ -157,7 +157,7 @@ export default class Vacate extends Vue {
         if (this.data.isEdit) {
             this.form.validateFields((err: any, values: any) => {
                 if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
-                    putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, {
+                    putAskforLeaveOvertimeBusinesstripRecord(this.data.id, {
                         askforLeaveOvertimeBusinesstripTypeId: values.timeoffOvertimeBusinesstripTypeId,
                         startDateTime: moment(values.startDateTime).format(this.dateFormat),
                         endedDateTime: moment(values.endedDateTime).format(this.dateFormat),

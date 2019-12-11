@@ -144,7 +144,7 @@ export default class Business extends Vue {
             this.form.validateFields((err: any, values: any) => {
                 if (!err && this.compareStartDateAndEndDate(values.startDateTime, values.endedDateTime) && this.isRangeDate(values.totalHours)) {
                     const param = this.transformNewData(values);
-                    putAskforLeaveOvertimeBusinesstripRecord(this.data.employeeId, this.data.id, param).then((res) => {
+                    putAskforLeaveOvertimeBusinesstripRecord(this.data.id, param).then((res) => {
                         message.success('更新成功');
                         callback(true);
                     });
