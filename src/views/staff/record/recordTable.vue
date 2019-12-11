@@ -311,6 +311,7 @@ export default class RecordTable extends Vue {
                     };
                     break;
                 default:
+                    message.warning('请查看其他职位操作记录工单');
                     break;
             }
         });
