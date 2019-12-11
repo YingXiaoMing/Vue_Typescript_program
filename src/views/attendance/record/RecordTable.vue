@@ -212,7 +212,7 @@ export default class RecordTable extends Vue {
             content: '注意！当你撤职考勤工单的操作，当工单撤销后，该工单下的考勤记录将被取消，无法恢复，请谨慎操作。',
             cancelText: '取消',
             onOk() {
-                DeleteAttendRecord(target.employeeId, key).then(() => {
+                DeleteAttendRecord(key).then(() => {
                     thiz.$emit('refreshData');
                 });
             },
@@ -220,7 +220,7 @@ export default class RecordTable extends Vue {
     }
     private makeTableRowEditable(key: string, isEdit: boolean) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        getAskforLeaveOvertimeBusinesstripRecordByEmployeeId(target.employeeId, target.key).then((res: any) => {
+        getAskforLeaveOvertimeBusinesstripRecordByEmployeeId(target.key).then((res: any) => {
             const data = res.data;
             switch (target.type) {
                 case '出差':
