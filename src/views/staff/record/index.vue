@@ -119,7 +119,6 @@ export default class Record extends Vue {
         }
     }
     private pageChange(current: number, pageSize: number) {
-        console.log('请求了2次吗');
         this.param.set('PageNumber', current.toString());
         this.param.set('PageSize', pageSize.toString());
         this.loadData();

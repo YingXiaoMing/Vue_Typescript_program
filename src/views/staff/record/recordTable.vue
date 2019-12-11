@@ -194,7 +194,7 @@ export default class RecordTable extends Vue {
             content: '注意！当你撤销职位变更工单的操作，当工单撤销后，该工单下的职位变动记录将被取消，无法恢复，请谨慎操作。',
             cancelText: '取消',
             onOk() {
-                DeletePositionRecord(target.employeeId, key).then(() => {
+                DeletePositionRecord(key).then(() => {
                     thiz.$emit('loadData');
                 });
             },

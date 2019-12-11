@@ -180,7 +180,7 @@ export default class Tab1Table extends Vue {
             content: '注意！当你撤职奖惩工单的操作，当工单撤销后，该工单下的奖惩记录将被取消，无法恢复，请谨慎操作。',
             cancelText: '取消',
             onOk() {
-                DeletePrizePenaltyRecord(target.employeeId, key).then(() => {
+                DeletePrizePenaltyRecord(key).then(() => {
                     thiz.$emit('refreshData');
                 });
             },
@@ -192,7 +192,7 @@ export default class Tab1Table extends Vue {
         if (_.isEqual(target.isReward, '奖励类')) {
             type = 1;
         }
-        getPrizePenaltyRecordByEmployeeId(target.employeeId, target.id).then((res: any) => {
+        getPrizePenaltyRecordByEmployeeId(target.id).then((res: any) => {
             const data = res.data;
             this.formData = {
                 name: data.employeeFullName,
