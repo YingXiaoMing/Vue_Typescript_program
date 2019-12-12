@@ -99,6 +99,8 @@ export default class Dismiss extends Vue {
         const params = new URLSearchParams();
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
+        params.set('PageNumber', '1');
+        params.set('PageSize', '10');
         searchEmployeeData(params.toString()).then((res) => {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
