@@ -189,7 +189,7 @@ export default class Operation extends Vue {
                 params.set('PageNumber', '1');
                 params.set('PageSize', '10');
                 if (values.searchKey) {
-                    params.set('FilterProperties.EmployeeIds', values.searchKey);
+                    params.set('FilterProperties.EmployeeId', values.searchKey);
                 }
                 if (values.WorkOrderNumber) {
                     params.set('FilterProperties.WorkOrderNumber', values.WorkOrderNumber);
