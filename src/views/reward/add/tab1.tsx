@@ -39,7 +39,7 @@ class Tab1 extends Vue {
     };
     private fromItemLayout2 = {
         labelCol: { span: 3 },
-        wrapperCol: { span: 20 },
+        wrapperCol: { span: 21 },
     };
     @Prop({default: ''}) private employeeId!: string;
     private RewardType: SelectValue[] = [];

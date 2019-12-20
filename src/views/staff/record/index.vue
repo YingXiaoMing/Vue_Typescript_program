@@ -99,8 +99,8 @@ export default class Record extends Vue {
         showTotal: this.showTotal,
     };
     private formItemLayout = {
-        labelCol: { xs: {span: 24}, sm: {span: 8}},
-        wrapperCol: { xs: {span: 24}, sm: {span: 16}},
+        labelCol: { xs: {span: 24}, sm: {span: 10}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 14}},
     };
     private form: any;
     private $form: any;
@@ -130,6 +130,8 @@ export default class Record extends Vue {
         const params = new URLSearchParams();
         params.set('SearchQuery', value);
         params.set('ShapedFields', 'fullName,employeeStringId,id');
+        params.set('PageNumber', '1');
+        params.set('PageSize', '10');
         this.changeDataToParamas(params, this.form.getFieldValue('IsIncludeTerminated'), 'FilterProperties.IsIncludeTerminated');
         searchEmployeeData(params.toString()).then((res) => {
             const data = res.data;

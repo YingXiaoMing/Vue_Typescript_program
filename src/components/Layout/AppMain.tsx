@@ -7,6 +7,8 @@ import Sidebar from './Sidebar';
 import './AppMain.less';
 import config from '@/utils/config';
 import SkinToolBox from './SkinToolbox/index.vue';
+import TagsView from './TagsView.vue';
+import 'animate.css';
 import jwt_decode from 'jwt-decode';
 import awsconfig from '@/aws-exports';
 import jsonpatch from 'fast-json-patch';
@@ -19,6 +21,7 @@ import { setAccessToken, getAccessToken, setRefreshToken, getRefreshToken } from
         'a-layout-content': Layout.Content,
         'a-layout': Layout,
         'a-skin-box': SkinToolBox,
+        'a-tags-view': TagsView,
     },
 })
 export default class AppMain extends Vue {
@@ -100,8 +103,9 @@ export default class AppMain extends Vue {
                 <Sidebar/>
                 <a-layout class={`page-content ${opened ? '' : 'sideLayout'}`}>
                     <Header/>
+                    <a-tags-view></a-tags-view>
                     <a-layout-content class='fixed-header-content'>
-                        <a-tabs class='page-tabs' activeKey={this.onTabs}
+                        {/* <a-tabs class='page-tabs' activeKey={this.onTabs}
                         on-change={this.tabChange} type='editable-card'
                         on-edit={this.onTabEdit} hide-add={true}>
                             {
@@ -110,15 +114,17 @@ export default class AppMain extends Vue {
                                 closable={tabList.length > 1}>
                                 </a-tab-pane>)
                             }
-                        </a-tabs>
+                        </a-tabs> */}
                         <div class='page-wrap' id='page-wrap'>
-                            <keep-alive include={keepList} exclude='staffadd'>
-                                <router-view></router-view>
-                            </keep-alive>
+                            <transition name='fade-transform' mode='out-in'>
+                                <keep-alive include={keepList} exclude='staffadd'>
+                                    <router-view></router-view>
+                                </keep-alive>
+                            </transition>
                         </div>
                     </a-layout-content>
                 </a-layout>
-                <a-skin-box></a-skin-box>
+                {/* <a-skin-box></a-skin-box> */}
             </div>
         );
     }

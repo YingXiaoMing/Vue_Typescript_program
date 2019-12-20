@@ -1,7 +1,7 @@
 import { ScopedSlot } from 'vue/types/vnode';
 
 export interface RouterItem {
-    name?: string;
+    name: string;
     component?: any;
     path: string;
     icon?: string;
@@ -50,7 +50,6 @@ export interface RemoteBankTableData {
     accountHolderName: string;
     note: string;
 }
-
 
 export interface ContractTableData {
     key: string;

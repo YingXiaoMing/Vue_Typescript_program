@@ -27,13 +27,13 @@ class Tab1 extends Vue {
     @Prop({default: ''}) private employeeId!: string;
     private dateFormat: string = 'YYYY-MM-DD';
     private basicItemLayout = {
-        lg: {span: 12},
-        md: {span: 24},
+        xxl: {span: 12},
+        md: {span: 16},
         sm: {span: 24},
     };
     private basicItemLayout2 = {
-        lg: {span: 6},
-        md: {span: 12},
+        xxl: {span: 6},
+        md: {span: 8},
         sm: {span: 24},
     };
     private fromItemLayout = {
@@ -79,6 +79,9 @@ class Tab1 extends Vue {
             }
             if (data.departments) {
                 this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
+            }
+            if (data.subDepartments) {
+                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
             }
             Options.push(TopParentNode);
             this.cascderOption = Options;
@@ -145,6 +148,9 @@ class Tab1 extends Vue {
                 }
                 if (node.departments) {
                     thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
+                }
+                if (node.subDepartments) {
+                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
                 }
                 if (node.positions) {
                     // tslint:disable-next-line:no-shadowed-variable

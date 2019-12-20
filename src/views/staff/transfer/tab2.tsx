@@ -24,18 +24,18 @@ class Tab2 extends Vue {
     @Prop({default: ''}) private employeeId!: string;
     private dateFormat: string = 'YYYY-MM-DD';
     private basicItemLayout = {
-        lg: {span: 24},
-        md: {span: 24},
+        xxl: {span: 12},
+        md: {span: 16},
         sm: {span: 24},
     };
     private basicItemLayout2 = {
-        lg: {span: 6},
-        md: {span: 12},
+        xxl: {span: 6},
+        md: {span: 8},
         sm: {span: 24},
     };
     private fromItemLayout = {
-        labelCol: { span: 2 },
-        wrapperCol: { span: 18 },
+        labelCol: { span: 4 },
+        wrapperCol: { span: 20 },
     };
     private fromItemLayout2 = {
         labelCol: { span: 8 },

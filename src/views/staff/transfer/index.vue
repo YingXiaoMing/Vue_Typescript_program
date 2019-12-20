@@ -61,8 +61,8 @@ interface EmployeeData {
     name: 'staff-transfer',
 })
 export default class Transfer extends Vue {
-    private labelCol = { xs: {span: 24}, sm: {span: 8}};
-    private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
+    private labelCol = { xs: {span: 24}, xl: {span: 10}, xxl: {span: 8}};
+    private wrapperCol = { xs: {span: 24}, xl: {span: 14}, xxl: {span: 16}};
     private employeeDataList: EmployeeData[] = [];
     private originPostions: SelectValue[] = [];
     private searchName: string = '';

@@ -120,6 +120,7 @@ const app = {
                 return item;
             });
             if (!hasMenu) {
+                console.log('添加路由');
                 resultData = findMenu(menuData, ArrPath.routeArr, tabList, tabActiveKey, ArrPath.params);
                 if (resultData.tabActiveKey && resultData.key) {
                     context.dispatch('AddKeep', resultData.key);

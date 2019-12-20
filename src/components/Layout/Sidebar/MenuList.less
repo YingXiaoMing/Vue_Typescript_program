@@ -1,9 +1,45 @@
-.left-menu {
-    text-align: left;
-    border-right: none;
-    height: e('calc(100vh - 65px)');
-    overflow-x: hidden;
-    overflow-y: auto;
-    border-top: 1px solid #eee;
-    box-sizing: border-box;
+@MdPaddingLeft1: 12px;
+@MdPaddingLeft2: 24px;
+.R_Menu {
+    .left-menu {
+        text-align: left;
+        border-right: none;
+        height: e('calc(100vh - 65px)');
+        overflow-x: hidden;
+        overflow-y: auto;
+        box-sizing: border-box;
+        background-color: #4767B0;
+        color: #fff;
+        .ant-menu-sub {
+            background-color: #305099;
+            color: #fff;
+        }
+        .ant-menu-submenu-inline > .ant-menu-submenu-title .ant-menu-submenu-arrow:after, .ant-menu-submenu-inline > .ant-menu-submenu-title .ant-menu-submenu-arrow:before {
+            background-image: none;
+            background: #fff;
+        }
+        .ant-menu-item-active {
+            background-color: #fff;
+        }
+        @media (max-width: 1400px) {
+            .ant-menu-submenu-title {
+                padding-left: @MdPaddingLeft1 !important;
+                span {
+                    font-size: 10px;
+                }
+            }
+            .ant-menu-sub .ant-menu-submenu {
+                padding-left: @MdPaddingLeft1;
+            }
+            .ant-menu-sub .ant-menu-item {
+                padding-left: @MdPaddingLeft2 !important;
+                span {
+                    font-size: 10px;
+                }
+                .ant-menu-sub .ant-menu-item {
+                    padding-left: 36px;
+                }
+            }
+        }
+    }
 }

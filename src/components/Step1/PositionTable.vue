@@ -105,6 +105,9 @@ export default class PhoneTable extends Vue {
             if (data.departments) {
                 this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
             }
+            if (data.subDepartments) {
+                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
+            }
             Options.push(TopParentNode);
             this.cascderOption = Options;
         });
@@ -125,6 +128,9 @@ export default class PhoneTable extends Vue {
                 }
                 if (node.departments) {
                     thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
+                }
+                if (node.subDepartments) {
+                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
                 }
                 if (node.positions) {
                     // tslint:disable-next-line:no-shadowed-variable

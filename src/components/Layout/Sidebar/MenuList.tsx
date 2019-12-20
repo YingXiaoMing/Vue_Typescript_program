@@ -1,8 +1,8 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Menu, Icon } from 'ant-design-vue';
 import { RouterItem } from '@/interface';
-import './MenuList.less';
 import { routeToArray } from '@/utils';
+import './MenuList.less';
 import _ from 'lodash';
 @Component({
     components: {
@@ -25,18 +25,20 @@ export default class MenuList extends Vue {
     public render() {
         const {menuData, sidebar: { opened } } = this.$store.state.app;
         return (
-            <a-menu
-            inlineCollapsed={!opened}
-            mode='inline'
-            class='left-menu'
-            selectedKeys= {this.keys}
-            on-click={(params: {item: any, key: string, keyPath: string[]}) => {
-                const keyPath = params.keyPath.reverse();
-                this.openPage(keyPath.join('/'));
-            }}
-            >
-            {menuData ? this.renderMenu(menuData) : null}
-            </a-menu>
+            <div class='R_Menu'>
+                <a-menu
+                inlineCollapsed={!opened}
+                mode='inline'
+                class='left-menu'
+                selectedKeys= {this.keys}
+                on-click={(params: {item: any, key: string, keyPath: string[]}) => {
+                    const keyPath = params.keyPath.reverse();
+                    this.openPage(keyPath.join('/'));
+                }}
+                >
+                {menuData ? this.renderMenu(menuData) : null}
+                </a-menu>
+            </div>
         );
     }
 

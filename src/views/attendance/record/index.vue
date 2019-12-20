@@ -95,10 +95,10 @@ interface TableData {
     name: 'attendRecord',
 })
 export default class Record extends Vue {
-    private labelCol = { xs: {span: 24}, sm: {span: 4}};
-    private wrapperCol = { xs: {span: 24}, sm: {span: 20}};
-    private labelCol1 = { xs: {span: 24}, sm: {span: 2}};
-    private wrapperCol1 = { xs: {span: 24}, sm: {span: 22}};
+    private labelCol = { xs: {span: 24}, lg: {span: 6} , xxl: {span: 4}};
+    private wrapperCol = { xs: {span: 24}, lg: {span: 18} , xxl: {span: 20}};
+    private labelCol1 = { xs: {span: 24}, lg: {span: 3}, xxl: {span: 2}};
+    private wrapperCol1 = { xs: {span: 24}, lg: {span: 21}, xxl: {span: 22}};
     private employeeDataList: EmployeeData[] = [];
     private param: URLSearchParams = new URLSearchParams();
     private employeePositionDataList: TableData[] = [];

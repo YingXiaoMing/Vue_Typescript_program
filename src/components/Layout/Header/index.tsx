@@ -14,6 +14,7 @@ import { removeAccessToken, removeRefreshToken } from '@/utils/auth';
 interface BreadItem {
     url: string;
     text: string;
+    name: string;
 }
 
 @Component({
@@ -61,6 +62,7 @@ export default class Header extends Vue {
                 this.breadList.push({
                     url: item.path,
                     text: item.meta.title ? item.meta.title : '',
+                    name: item.name,
                 });
                 if (item.children && (toDeapth.length - 1) >= this.onIndex) {
                     this.onIndex += 1;
@@ -141,10 +143,12 @@ export default class Header extends Vue {
             <div class={`header-wrap ${opened ? '' : 'sideLayout'}`}>
                 <div class='header-left'>
                     <i class={`menu-btn iconfont-${!opened ? 'indent' : 'outdent'}`} on-click={this.switchSidebar}></i>
-                    <a-breadcrumb class='header-bread' separator='/'>
-                        {this.breadList.map((item: BreadItem) => <a-breadcrumb-item
-                        to={item.url ? { path: '/'} : null}>{item.text}</a-breadcrumb-item>)}
-                    </a-breadcrumb>
+                    <transition-group name='breadcrumb'>
+                        <a-breadcrumb class='header-bread' separator='/' key='breadcrumb-item'>
+                                {this.breadList.map((item: BreadItem) => <a-breadcrumb-item key={item.name}
+                                to={item.url ? { path: '/'} : null}>{item.text}</a-breadcrumb-item>)}
+                        </a-breadcrumb>
+                        </transition-group>
                 </div>
                 <ul class='header-menu'>
                     <li class='user'>

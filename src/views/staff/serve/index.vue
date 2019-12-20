@@ -118,8 +118,8 @@ interface EmployeeData {
 })
 export default class Serve extends Vue {
     private dateForm = 'YYYY-MM-DD';
-    private labelCol = { xs: {span: 24}, sm: {span: 8}};
-    private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
+    private labelCol = { xs: {span: 24}, xl: {span: 10}, xxl: {span: 8}};
+    private wrapperCol = { xs: {span: 24}, xl: {span: 14}, xxl: {span: 16}};
     private labelCol1 = { xs: {span: 24}, sm: {span: 4}};
     private wrapperCol1 = { xs: {span: 24}, sm: {span: 20}};
     private labelCol2 = { xs: {span: 24}, sm: {span: 2}};
@@ -161,6 +161,9 @@ export default class Serve extends Vue {
             if (data.departments) {
                 this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
             }
+            if (data.subDepartments) {
+                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
+            }
             Options.push(TopParentNode);
             this.cascderOption = Options;
         });
@@ -192,6 +195,9 @@ export default class Serve extends Vue {
                 }
                 if (node.departments) {
                     thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
+                }
+                if (node.subDepartments) {
+                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
                 }
                 if (node.positions) {
                     // tslint:disable-next-line:no-shadowed-variable

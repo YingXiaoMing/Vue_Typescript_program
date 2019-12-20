@@ -14,12 +14,12 @@
                             </a-auto-complete>
                         </a-form-item>
                     </a-col>
-                    <a-col :lg="3">
+                    <a-col :lg="4">
                         <a-form-item>
                             <a-checkbox v-decorator="['IsIncludeTerminated', { valuePropName: 'checked', initialValue: false }]">包含离职员工</a-checkbox>
                         </a-form-item>
                     </a-col>
-                    <a-col :lg="13" :md="12" :sm="24">
+                    <a-col :lg="12" :md="12" :sm="24">
                         <a-form-item>
                             <a-button type="primary" @click="search">快速查询</a-button>
                             <a-button type="primary" style='marginLeft:15px' @click="detailSearch">高级查询</a-button>

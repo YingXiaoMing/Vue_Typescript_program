@@ -2,14 +2,14 @@
     <div>
         <a-form :form="form">
             <a-row>
-                <a-col :lg="6" :md="12" :sm="24">
+                <a-col :xxl="6" :md="8" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="工单号">
                         <a-input disabled v-decorator="['orderNum', { initialValue: '系统自动生成' }]"></a-input>
                     </a-form-item>
                 </a-col>
             </a-row>
             <a-row>
-                <a-col :lg="6" :md="12" :sm="24">
+                <a-col :xxl="6" :md="8" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="请假类型">
                         <a-select labelInValue  v-decorator="['type',{initialValue: options[0]}]">
                             <a-select-option v-for="item in options" :value="item.key">{{item.label}}</a-select-option>
@@ -19,13 +19,13 @@
             </a-row>
             <a-divider>请假详情</a-divider>
             <a-row>
-            <a-col :lg="6" :md="12" :sm="24">
+            <a-col :xxl="6" :md="8" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="开始日期时间">
                     <a-date-picker style="width: 100%"  :showTime="{ format: 'hh:mm' }" :format="dateForm" v-decorator="['startDateTime',
                     {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                 </a-form-item>
             </a-col>
-            <a-col :lg="6" :md="12" :sm="24">
+            <a-col :xxl="6" :md="8" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="结束日期时间">
                     <a-date-picker style="width: 100%"  :showTime="{ format: 'hh:mm' }" :format="dateForm" v-decorator="['endedDateTime', 
                     {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
@@ -33,19 +33,19 @@
             </a-col>
             </a-row>
             <a-row>
-            <a-col :lg="6" :md="12" :sm="24">
+            <a-col :xxl="6" :md="8" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="是否有薪">
                     <a-checkbox v-decorator="['isWithSalary']"></a-checkbox>
                 </a-form-item>
             </a-col>
-            <a-col :lg="6" :md="12" :sm="24">
+            <a-col :xxl="6" :md="8" :sm="24">
                 <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="可用有薪假">
                     <a-input  v-decorator="['salaryHour']" disabled></a-input>
                 </a-form-item>
             </a-col>
             </a-row>
             <a-row>
-                <a-col :lg="6" :md="12" :sm="24">
+                <a-col :xxl="6" :md="8" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="请假时长">
                         <a-input-number  style="width: 100%" v-decorator="['totalHours',
                         {rules: [{ required: true, message: ' ' }]}]"></a-input-number>
@@ -53,14 +53,14 @@
                 </a-col>
             </a-row>
             <a-row>
-                <a-col :lg="12" :md="12" :sm="24">
+                <a-col :xxl="12" :md="16" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="请假原因">
                         <a-textarea v-decorator="['reason',{rules: [{ required: true, message: ' ' }]}]"></a-textarea>
                     </a-form-item>
                 </a-col>
             </a-row>
             <a-row>
-                <a-col :lg="12" :md="12" :sm="24">
+                <a-col :xxl="12" :md="16" :sm="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="备注">
                         <a-textarea v-decorator="['note']"></a-textarea>
                     </a-form-item>
@@ -101,10 +101,10 @@ import {Prop, Watch } from 'vue-property-decorator';
 })
 export default class Tab1 extends Vue {
     @Prop({default: ''}) private employeeId!: string;
-    private labelCol = { xs: {span: 24}, sm: {span: 8}};
-    private wrapperCol = { xs: {span: 24}, sm: {span: 16}};
-    private labelCol1 = { xs: {span: 24}, sm: {span: 4} };
-    private wrapperCol1 = { xs: {span: 24}, sm: {span: 20} };
+    private labelCol = { xs: {span: 24}, md: { span: 8}};
+    private wrapperCol = { xs: {span: 24}, md: {span: 16}};
+    private labelCol1 = { xs: {span: 24}, md: { span: 4 }};
+    private wrapperCol1 = { xs: {span: 24}, md: { span: 20 }};
     private options: SelectValue[] = [];
     private dateForm = 'YYYY-MM-DD HH:mm';
     private form: any;

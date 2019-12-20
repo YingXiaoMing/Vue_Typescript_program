@@ -5,7 +5,7 @@ import { RouterItem } from '@/interface';
 Vue.use(Router);
 
 export const constantRouterMap: RouterItem[] & RouterOptions['routes'] = [
-    {path: '/', redirect: '/home'},
+    {path: '/', name: 'home', redirect: '/home'},
     {path: '/login', name: 'login', component: () => import('../views/Other/login.vue')},
 ];
 
@@ -35,7 +35,7 @@ export const asyncRouterMap: RouterItem[] = [
             },
             {
                 path: 'edit',
-                name: 'staff-edit',
+                name: 'staffedit',
                 isShow: false,
                 icon: 'idcard',
                 component: () => import('../views/staff/edit/index.vue'),
@@ -54,11 +54,11 @@ export const asyncRouterMap: RouterItem[] = [
                         isShow: true,
                         icon: 'crown',
                         component: () => import('../views/staff/serve/index.vue'),
-                        meta: {key: 'staffrecord', title: '员工任职'},
+                        meta: {key: 'staffserve', title: '员工任职'},
                     },
                     {
                         path: 'transfer',
-                        name: 'staff-transfer',
+                        name: 'stafftransfer',
                         isShow: true,
                         icon: 'team',
                         component: () => import('../views/staff/transfer/index.vue'),
@@ -66,7 +66,7 @@ export const asyncRouterMap: RouterItem[] = [
                     },
                     {
                         path: 'dismiss',
-                        name: 'staff-dismiss',
+                        name: 'staffdismiss',
                         isShow: true,
                         icon: 'tag',
                         component: () => import('../views/staff/dismiss/index.vue'),

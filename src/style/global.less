@@ -9,8 +9,8 @@ blockquote, body, dd, dl, dt, fieldset, figure, h1, h2, h3, h4, h5, h6, hr, html
     box-sizing: border-box;
 }
 ::-webkit-scrollbar {
-    width: .5rem;
-    height: .5rem;
+    width: .3rem;
+    height: .3rem;
 }
 ::-webkit-scrollbar-track {
     border-radius: 1px;
@@ -139,3 +139,36 @@ a.disabled-button {
         // overflow: hidden;
     }
 }
+
+// fade-transform
+.fade-transform-leave-active,
+.fade-transform-enter-active {
+    transition: all .5s;
+}
+.fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+.fade-transform-leave {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+/* breadcrumb-transform */
+.breadcrumb-enter-active,
+.breadcrumb-leave-active {
+    transition: all .5s;
+}
+.breadcrumb-enter,
+.breadcrumb-leave-active{
+    opacity: 0;
+    transform: translateX(20px);
+}
+.breadcrumb-leave-active {
+    position: absolute;
+}
+.breadcrumb-move {
+    transition: all .5s;
+}
+
+
