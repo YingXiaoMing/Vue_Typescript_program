@@ -41,7 +41,7 @@ import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Col, Divider, Input, Select, message } from 'ant-design-vue';
 import _ from 'lodash';
-import { newBusinessClassify, deleteBusinessClassify, patchBusinessClassify } from '@/api/basic';
+import { newBusinessClassify, deleteBusinessClassify, patchBusinessClassify, getAllBusinessClassify } from '@/api/basic';
 interface TableData {
     type: {
         key: string;
@@ -111,24 +111,60 @@ export default class PrizeTable extends Vue {
         }
     }
     private typeHandleChange(value: any, key: string) {
-        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
+        const newData = [...this.data];
+        const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            target.type = value;
+            target.type = Object.assign({}, target.type, value);
         }
+    }
+    private loadData() {
+        this.loading = true;
+        getAllBusinessClassify().then((res) => {
+            let data: TableData[] = [];
+            this.loading = false;
+            this.optionType = _.map(res.data, (item: any) => {
+                const newData = _.map(item.askforLeaveOvertimeBusinesstripTypeDtos, (itm) => {
+                    return {
+                        type: {
+                            key: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                            label: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
+                        },
+                        key: itm.id,
+                        name: itm.name,
+                        editable: false,
+                        isNew: false,
+                    };
+                });
+                data = _.concat(data, newData);
+                return {
+                    key: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                    label: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
+                };
+            });
+            data.push({
+                type: {
+                    key: this.optionType[0].key,
+                    label: this.optionType[0].label,
+                },
+                key: '1',
+                name: '',
+                editable: true,
+                isNew: true,
+            });
+            this.data = data;
+        });
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        if (this.cacheOriginData[key] && !_.isEqual(this.cacheOriginData[key].name, target.name)) {
+        if (this.cacheOriginData[key] && !_.isEqual(this.cacheOriginData[key].name, target.name) || !_.isEqual(this.cacheOriginData[key].type.key, target.type.key)) {
             patchBusinessClassify(key, {
                 askforLeaveOvertimeBusinesstripTypeClassifyValue: target.type.key,
                 name: target.name,
             }).then(() => {
-                const newData = [...this.data];
-                target.editable = false;
+                this.loadData();
             });
         } else {
-            const newData = [...this.data];
-            target.editable = false;
+            this.makeBusinessRowNotEditable(key);
         }
     }
     private addRow(key: string) {
@@ -138,24 +174,13 @@ export default class PrizeTable extends Vue {
                 name: target.name,
                 askforLeaveOvertimeBusinesstripTypeClassifyValue: target.type.key,
             }).then((res: any) => {
-                const newData = [...this.data];
-                target.editable = false;
-                target.key = res.id;
-                target.isNew = false;
-                this.data.push({
-                    name: '',
-                    editable: true,
-                    isNew: true,
-                    key: 'new_i2_1',
-                    type: this.optionType[0],
-                });
+                this.loadData();
             });
         }
     }
     private removeRow(key: string) {
         deleteBusinessClassify(key).then(() => {
-            const newData = this.data.filter((item) => !_.isEqual(item.key, key));
-            this.data = newData;
+            this.loadData();
         });
     }
     private isNullData(target: TableData): boolean {

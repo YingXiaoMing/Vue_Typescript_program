@@ -95,8 +95,10 @@ export default class PrizeTable extends Vue {
         this.data = value;
     }
     private loadData() {
+        this.loading = true;
         getAllPrizePenaltyClassify().then((res) => {
             let data: TableData[] = [];
+            this.loading = false;
             this.optionType = _.map(res.data, (item: any) => {
                 const newData =  _.map(item.prizePenaltyTypeDtos, (itm) => {
                     return {
@@ -138,7 +140,7 @@ export default class PrizeTable extends Vue {
     }
     private saveRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        if (this.cacheOriginData[key] && !_.isEqual(this.cacheOriginData[key].name, target.name)) {
+        if (this.cacheOriginData[key] && !_.isEqual(this.cacheOriginData[key].name, target.name) || !_.isEqual(this.cacheOriginData[key].type.key, target.type.key)) {
             patchPrizePenaltyClassify(key, {
                 prizePenaltyTypeClassifyValue: target.type.key,
                 name: target.name,
@@ -146,8 +148,7 @@ export default class PrizeTable extends Vue {
                 this.loadData();
             });
         } else {
-            const newData = [...this.data];
-            target.editable = false;
+            this.makeTableRowNotEditable(key);
         }
     }
     private makeTableRowEditable(key: string) {
@@ -162,7 +163,7 @@ export default class PrizeTable extends Vue {
     private typeHandleChange(value: any, key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         if (target) {
-            target.type = value;
+            target.type = Object.assign({}, target.type, value);
         }
     }
     private addRow(key: string) {
