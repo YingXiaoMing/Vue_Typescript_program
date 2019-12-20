@@ -101,8 +101,7 @@ export default class BasicTable extends Vue {
                 this.loadData();
             });
         } else {
-            const newData = [...this.data];
-            target.editable = false;
+            this.makeBasicRowNotEditable(key);
         }
     }
     private loadData() {
