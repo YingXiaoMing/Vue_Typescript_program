@@ -189,18 +189,7 @@ export default class BasicTable extends Vue {
             return;
         }
         newBasicData(this.url, {name: target.name}).then((response: any) => {
-            const index = key + 1;
-            const newData = [...this.data];
-            target.editable = false;
-            target.key = response.data.id;
-            target.isNew = false;
-            this.data.push({
-                name: '',
-                editable: true,
-                isNew: true,
-                key: 'new_id_1',
-                disable: false,
-            });
+            this.loadData();
         });
     }
     private deleteLast(arr: any) {
