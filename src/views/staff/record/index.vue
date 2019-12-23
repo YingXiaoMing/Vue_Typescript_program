@@ -79,7 +79,7 @@ interface TableData {
         'a-recordTable': RecordTable,
         'a-button': Button,
     },
-    name: 'staffrecord',
+    name: 'staffRecordSearch',
 })
 export default class Record extends Vue {
     private dateFormat = 'YYYY-MM-DD';
@@ -93,7 +93,6 @@ export default class Record extends Vue {
         pageSize: 0,
         total: 0,
         current: 0,
-        // onChange: this.pageChange,
         pageSizeOptions: ['5', '10', '15'],
         showSizeChanger: true,
         showTotal: this.showTotal,

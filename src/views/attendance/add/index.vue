@@ -56,6 +56,7 @@ interface EmployeeData {
         'a-input': Input,
         'a-tabs-com': TabComponent,
     },
+    name: 'attendAdd',
 })
 export default class Add extends Vue {
     private labelCol = { xs: {span: 24}, sm: {span: 8}};

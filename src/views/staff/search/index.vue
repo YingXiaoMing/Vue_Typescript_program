@@ -94,7 +94,7 @@ interface ExportModal {
         'a-form-modal': FormModal,
         'a-detail-modal': DetailModal,
     },
-    name: 'staffsearch',
+    name: 'staffSearch',
 })
 export default class Search extends Vue {
     public $refs!: {

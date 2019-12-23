@@ -115,6 +115,7 @@ interface EmployeeData {
         'a-cascader': Cascader,
         'a-form': Form,
     },
+    name: 'staffServe',
 })
 export default class Serve extends Vue {
     private dateForm = 'YYYY-MM-DD';

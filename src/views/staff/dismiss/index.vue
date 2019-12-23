@@ -58,6 +58,7 @@ interface EmployeeData {
         'a-input': Input,
         'a-tab-component': TabComponent,
     },
+    name: 'staffdismiss',
 })
 export default class Dismiss extends Vue {
     public $refs!: {

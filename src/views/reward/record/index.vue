@@ -27,6 +27,7 @@ import './index.less';
         'a-tab1': Tab1,
         'a-tab2': Tab2,
     },
+    name: 'rewardRecord',
 })
 export default class Record extends Vue {
     private tabListNoTitle = [{

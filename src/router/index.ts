@@ -26,20 +26,27 @@ export const asyncRouterMap: RouterItem[] = [
                 meta: {key: 'staffadd', title: '新增员工'},
             },
             {
+                path: 'export',
+                icon: 'export',
+                name: 'staffExport',
+                component: () => import('../views/staff/export/index.vue'),
+                meta: {key: 'staffExport', title: '基础数据导入'},
+            },
+            {
                 path: 'search',
                 icon: 'idcard',
-                name: 'staffsearch',
+                name: 'staffSearch',
                 isShow: true,
                 component: () => import('../views/staff/search/index.vue'),
-                meta: {key: 'staffsearch', title: '查询员工资料'},
+                meta: {key: 'staffSearch', title: '查询员工资料'},
             },
             {
                 path: 'edit',
-                name: 'staffedit',
+                name: 'staffEdit',
                 isShow: false,
                 icon: 'idcard',
                 component: () => import('../views/staff/edit/index.vue'),
-                meta: {key: 'staffedit', title: '编辑员工资料'},
+                meta: {key: 'staffEdit', title: '编辑员工资料'},
             },
             {
                 path: 'remote',
@@ -50,11 +57,11 @@ export const asyncRouterMap: RouterItem[] = [
                 children: [
                     {
                         path: 'serve',
-                        name: 'staffserve',
+                        name: 'staffServe',
                         isShow: true,
                         icon: 'crown',
                         component: () => import('../views/staff/serve/index.vue'),
-                        meta: {key: 'staffserve', title: '员工任职'},
+                        meta: {key: 'staffServe', title: '员工任职'},
                     },
                     {
                         path: 'transfer',
@@ -74,11 +81,11 @@ export const asyncRouterMap: RouterItem[] = [
                     },
                     {
                         path: 'srecord',
-                        name: 'staffrecord',
+                        name: 'staffRecordSearch',
                         isShow: true,
                         icon: 'file-text',
                         component: () => import('../views/staff/record/index.vue'),
-                        meta: {key: 'staffrecord', title: '职位变动查询'},
+                        meta: {key: 'staffRecordSearch', title: '职位变动查询'},
                     },
                     {
                         path: 'operationStaffRecord',

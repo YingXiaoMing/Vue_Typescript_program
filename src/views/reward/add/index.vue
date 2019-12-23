@@ -58,6 +58,7 @@ interface EmployeeData {
         'a-icon': Icon,
         'a-select': Select,
     },
+    name: 'addReward',
 })
 export default class Add extends Vue {
     private labelCol = { xs: {span: 24}, sm: {span: 8}};
