@@ -29,6 +29,7 @@ export const asyncRouterMap: RouterItem[] = [
                 path: 'export',
                 icon: 'export',
                 name: 'staffExport',
+                isShow: true,
                 component: () => import('../views/staff/export/index.vue'),
                 meta: {key: 'staffExport', title: '基础数据导入'},
             },
