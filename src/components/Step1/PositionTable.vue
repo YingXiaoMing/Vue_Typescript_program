@@ -36,8 +36,9 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { Table, Cascader, Divider, Radio, message, Button, Tooltip } from 'ant-design-vue';
-import { ColumnList, CascderOption, CascderOptionItem, CascderServerOption, RemotePositionsTableData } from '@/interface';
+import { ColumnList, CascderOption, CascderOptionItem, RemoteCompanyOrgaizationData, CascderServerOption, RemotePositionsTableData } from '@/interface';
 import { getOrginzationData } from '@/api/basic';
+import { conversionOrganizationData } from '@/utils';
 import { newEmployeePostionData, deleteEmployeePostionData, getEmployeePositionData, putEmployeeBasicData } from '@/api/staff';
 import _ from 'lodash';
 interface TableData {
@@ -90,70 +91,11 @@ export default class PhoneTable extends Vue {
     }];
     private created() {
         getOrginzationData().then((res: any) => {
-            const data = res.data;
-            const Options: CascderOption[] = [];
-            const TopParentNode: CascderOption = {
-                value: data.id,
-                label: data.name,
-                companyId: data.id,
-                description: 'company',
-                children: [],
-            };
-            if (data.subCompanies) {
-                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
-            }
-            if (data.departments) {
-                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
-            }
-            if (data.subDepartments) {
-                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
-            }
-            Options.push(TopParentNode);
-            this.cascderOption = Options;
-        });
-    }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
-        const thiz = this;
-        if (data) {
-            data.map((node: any, index: number) => {
-                index ++;
-                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
-                if (_.isEqual(descriptionName, 'company')) {
-                    childrenNode.companyId = node.id;
-                } else if (_.isEqual(descriptionName, 'department')) {
-                    childrenNode.companyId = node.companyId;
-                }
-                if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
-                }
-                if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
-                }
-                if (node.subDepartments) {
-                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
-                }
-                if (node.positions) {
-                    // tslint:disable-next-line:no-shadowed-variable
-                    node.positions.forEach((node: any, index: number) => {
-                        index ++;
-                        const object: CascderOptionItem = {
-                            value: node.id,
-                            label: node.name,
-                            key: node.id,
-                            departmentId: node.departmentId,
-                            description:  'position',
-                            companyId: TopParentNode.companyId,
-                        };
-                        if (childrenNode.children) {
-                            childrenNode.children.push(object);
-                        }
-                    });
-                }
-                if (TopParentNode.children) {
-                    TopParentNode.children.push(childrenNode);
-                }
+            const data: RemoteCompanyOrgaizationData = res.data;
+            this.cascderOption = conversionOrganizationData(data, {
+                isOperation: false,
             });
-        }
+        });
     }
     @Emit()
     private onChange(value: string[], selectOption: CascderOptionItem[], name: string, key: number) {

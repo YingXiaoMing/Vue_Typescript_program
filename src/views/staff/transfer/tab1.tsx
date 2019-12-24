@@ -1,10 +1,11 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Form, Cascader, Row, Col, Select, DatePicker, Divider, Button, message } from 'ant-design-vue';
-import { CascderOption, CascderOptionItem, BasicData, SelectValue } from '@/interface';
+import { CascderOption, CascderOptionItem, RemoteCompanyOrgaizationData, BasicData, SelectValue } from '@/interface';
 import { getOrginzationData, getEmployeePositionChangeType } from '@/api/basic';
 import _ from 'lodash';
 import { putEmployeePositionModification } from '@/api/operation';
 import { getEmployeePositionData } from '@/api/staff';
+import { conversionOrganizationData } from '@/utils';
 import moment from 'moment';
 @Component({
     components: {
@@ -65,26 +66,10 @@ class Tab1 extends Vue {
             this.transferTypeOption = this.transformSelectData(data);
         });
         getOrginzationData().then((res: any) => {
-            const data = res.data;
-            const Options: CascderOption[] = [];
-            const TopParentNode: CascderOption = {
-                value: data.id,
-                label: data.name,
-                companyId: data.id,
-                description: 'company',
-                children: [],
-            };
-            if (data.subCompanies) {
-                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
-            }
-            if (data.departments) {
-                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
-            }
-            if (data.subDepartments) {
-                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
-            }
-            Options.push(TopParentNode);
-            this.cascderOption = Options;
+            const data: RemoteCompanyOrgaizationData = res.data;
+            this.cascderOption = conversionOrganizationData(data, {
+                isOperation: false,
+            });
         });
     }
     private transformSelectData(data: any) {
@@ -129,51 +114,6 @@ class Tab1 extends Vue {
             this.$emit('clearEmployeeData');
             this.OriginPostionOptions = [];
         });
-    }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
-        const thiz = this;
-        if (data) {
-            data.map((node: any, index: number) => {
-                index ++;
-                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
-                if (_.isEqual(descriptionName, 'company')) {
-                    childrenNode.companyId = node.id;
-                } else if (_.isEqual(descriptionName, 'department')) {
-                    childrenNode.companyId = node.companyId;
-                }
-                childrenNode.label = node.name;
-                childrenNode.value = node.id;
-                if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
-                }
-                if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
-                }
-                if (node.subDepartments) {
-                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
-                }
-                if (node.positions) {
-                    // tslint:disable-next-line:no-shadowed-variable
-                    node.positions.forEach((node: any, index: number) => {
-                        index ++;
-                        const object: CascderOptionItem = {
-                            value: node.id,
-                            label: node.name,
-                            key: node.id,
-                            departmentId: node.departmentId,
-                            description:  'position',
-                            companyId: TopParentNode.companyId,
-                        };
-                        if (childrenNode.children) {
-                            childrenNode.children.push(object);
-                        }
-                    });
-                }
-                if (TopParentNode.children) {
-                    TopParentNode.children.push(childrenNode);
-                }
-            });
-        }
     }
     private positionsChange( value: string[], selectOption: CascderOptionItem[] ) {
         const target = _.last(selectOption);

@@ -18,6 +18,41 @@ export interface FormItem {
     key: string;
 }
 
+export interface RemoteCompanyOrgaizationData {
+    id: string;
+    parentCompanyId: string;
+    name: string;
+    description: string;
+    subCompanies: RemoteSubCompanyData[];
+    departments: RemoteSubDepartmentData[];
+}
+export interface RemoteSubCompanyData {
+    id: string;
+    parentCompanyId: string;
+    name: string;
+    description: string;
+    subCompanies: RemoteSubCompanyData[];
+    departments: RemoteSubDepartmentData[];
+}
+export interface RemoteSubDepartmentData {
+    id: string;
+    companyId: string;
+    parentDepartmentId: string;
+    name: string;
+    description: string;
+    subDepartments: RemoteSubDepartmentData[];
+    positions: RemoteSubPositionData[];
+}
+export interface RemoteSubPositionData {
+    id: string;
+    departmentId: string;
+    name: string;
+    description: string;
+}
+
+
+
+
 
 export interface DocumentTableData {
     key: string;

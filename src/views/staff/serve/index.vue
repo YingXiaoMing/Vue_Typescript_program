@@ -93,6 +93,7 @@ import './index.less';
 import moment from 'moment';
 import { SelectValue, CascderOption, CascderOptionItem, BasicData } from '@/interface';
 import { getOrginzationData } from '@/api/basic';
+import { conversionOrganizationData } from '@/utils';
 interface EmployeeData {
     value: string;
     text: string;
@@ -148,25 +149,9 @@ export default class Serve extends Vue {
         });
         getOrginzationData().then((res: any) => {
             const data = res.data;
-            const Options: CascderOption[] = [];
-            const TopParentNode: CascderOption = {
-                value: data.id,
-                label: data.name,
-                companyId: data.id,
-                description: 'company',
-                children: [],
-            };
-            if (data.subCompanies) {
-                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
-            }
-            if (data.departments) {
-                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
-            }
-            if (data.subDepartments) {
-                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
-            }
-            Options.push(TopParentNode);
-            this.cascderOption = Options;
+            this.cascderOption = conversionOrganizationData(data, {
+                isOperation: false,
+            });
         });
     }
     private transformSelectData(data: any) {
@@ -179,49 +164,6 @@ export default class Serve extends Vue {
     }
     private focusHandle() {
         this.handleChange(this.searchKey);
-    }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
-        const thiz = this;
-        if (data) {
-            data.map((node: any, index: number) => {
-                index ++;
-                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
-                if (_.isEqual(descriptionName, 'company')) {
-                    childrenNode.companyId = node.id;
-                } else if (_.isEqual(descriptionName, 'department')) {
-                    childrenNode.companyId = node.companyId;
-                }
-                if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
-                }
-                if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
-                }
-                if (node.subDepartments) {
-                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
-                }
-                if (node.positions) {
-                    // tslint:disable-next-line:no-shadowed-variable
-                    node.positions.forEach((node: any, index: number) => {
-                        index ++;
-                        const object: CascderOptionItem = {
-                            value: node.id,
-                            label: node.name,
-                            key: node.id,
-                            departmentId: node.departmentId,
-                            description:  'position',
-                            companyId: TopParentNode.companyId,
-                        };
-                        if (childrenNode.children) {
-                            childrenNode.children.push(object);
-                        }
-                    });
-                }
-                if (TopParentNode.children) {
-                    TopParentNode.children.push(childrenNode);
-                }
-            });
-        }
     }
     private save() {
         if (_.isEqual(this.employeeId, '')) {

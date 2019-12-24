@@ -67,11 +67,12 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { CascderOption, SelectValues, BasicData, CascderOptionItem } from '@/interface';
+import { CascderOption, SelectValues, BasicData, CascderOptionItem, RemoteCompanyOrgaizationData } from '@/interface';
 import { getOrginzationData, getEmployeePositionChangeType } from '@/api/basic';
 import { getEmployeePositionForUpdatePositionTransferRrcord, putEmployeeModificationByRecordId } from '@/api/operation';
 import moment from 'moment';
 import { message } from 'ant-design-vue';
+import { conversionOrganizationData } from '@/utils';
 import _ from 'lodash';
 interface FormData {
     name: string;
@@ -119,26 +120,17 @@ export default class TransferForm extends Vue {
             this.transferTypeOption = this.transformSelectData(data);
         });
         getOrginzationData().then((res: any) => {
-            const data = res.data;
-            const Options: CascderOption[] = [];
-            const TopParentNode: CascderOption = {
-                value: data.id,
-                label: data.name,
-                companyId: data.id,
-                description: 'company',
-                children: [],
-            };
-            if (data.subCompanies) {
-                this.traverseStepNodechilden(data.subCompanies, TopParentNode, 'company');
-            }
-            if (data.departments) {
-                this.traverseStepNodechilden(data.departments, TopParentNode, 'department');
-            }
-            if (data.subDepartments) {
-                this.traverseStepNodechilden(data.subDepartments, TopParentNode, 'department');
-            }
-            Options.push(TopParentNode);
-            this.cascderOption = Options;
+            const data: RemoteCompanyOrgaizationData = res.data;
+            this.cascderOption = conversionOrganizationData(data, {
+                isOperation: true,
+                positionId: this.data.newPositionId,
+                callback: (option: any) => {
+                    this.newPositionId = option.positionId;
+                    this.newCompanyId = option.companyId;
+                    this.newDepartmentId = option.departmentId;
+                    this.isNewPosition = true;
+                },
+            });
         });
         getEmployeePositionForUpdatePositionTransferRrcord(this.data.employeeId, this.data.id).then((res: any) => {
             const data = res.data;
@@ -153,57 +145,6 @@ export default class TransferForm extends Vue {
     private momentFromDate(date: string) {
          if (_.isEmpty(date)) { return null; }
          return moment(date, this.dateFormat);
-    }
-    private traverseStepNodechilden(data: any, TopParentNode: CascderOption, descriptionName: string) {
-        const thiz = this;
-        if (data) {
-            data.map((node: any, index: number) => {
-                index ++;
-                const childrenNode: CascderOption = {value: node.id, label: node.name, children: [], description: descriptionName, companyId: ''};
-                if (_.isEqual(descriptionName, 'company')) {
-                    childrenNode.companyId = node.id;
-                } else if (_.isEqual(descriptionName, 'department')) {
-                    childrenNode.companyId = node.companyId;
-                }
-                childrenNode.label = node.name;
-                childrenNode.value = node.id;
-                if (node.subCompanies) {
-                    thiz.traverseStepNodechilden(node.subCompanies, childrenNode, 'company');
-                }
-                if (node.departments) {
-                    thiz.traverseStepNodechilden(node.departments, childrenNode, 'department');
-                }
-                if (node.subDepartments) {
-                    thiz.traverseStepNodechilden(node.subDepartments, childrenNode, 'department');
-                }
-                if (node.positions) {
-                    // tslint:disable-next-line:no-shadowed-variable
-                    node.positions.forEach((node: any, index: number) => {
-                        index ++;
-                        if (_.isEqual(this.data.newPositionId, node.id)) {
-                            this.newPositionId = node.id;
-                            this.newCompanyId = TopParentNode.companyId;
-                            this.newDepartmentId = node.departmentId;
-                            this.isNewPosition = true;
-                        }
-                        const object: CascderOptionItem = {
-                            value: node.id,
-                            label: node.name,
-                            key: node.id,
-                            departmentId: node.departmentId,
-                            description:  'position',
-                            companyId: TopParentNode.companyId,
-                        };
-                        if (childrenNode.children) {
-                            childrenNode.children.push(object);
-                        }
-                    });
-                }
-                if (TopParentNode.children) {
-                    TopParentNode.children.push(childrenNode);
-                }
-            });
-        }
     }
     private sumbitData(callback: any) {
         this.form.validateFields((err: any, values: any) => {
