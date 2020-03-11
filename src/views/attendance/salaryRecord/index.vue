@@ -16,13 +16,12 @@
                     </a-col>
                     <a-col :lg="6" :md="12" :sm="24">
                         <a-form-item label="指定查询日期" v-bind="formItemLayout">
-                            <a-date-picker v-decorator="['WorkOrderNumber']"></a-date-picker>
+                            <a-date-picker v-decorator="['date']"></a-date-picker>
                         </a-form-item>
                     </a-col>
                     <a-col :lg="10" :md="12" :sm="24">
                         <a-form-item>
-                            <a-button type="primary">快速查询</a-button>
-                            <a-button type="primary" style="marginLeft: 10px">查询所有员工有薪假</a-button>
+                            <a-button type="primary" @click="searchClick">快速查询</a-button>
                         </a-form-item>
                     </a-col>
                 </a-form>
@@ -49,6 +48,9 @@ import Component from 'vue-class-component';
 import { searchEmployeeData } from '@/api/staff';
 import OperationRecordTable from './recordTable.vue';
 import { Pagination } from '@/interface';
+import { message } from 'ant-design-vue';
+import moment from 'moment';
+import { getEmployeeSalaryRecord } from '@/api/operation';
 import _ from 'lodash';
 import './index.less';
 interface EmployeeData {
@@ -100,6 +102,9 @@ export default class SalaryRecord extends Vue {
     private focusHandle() {
         this.handleChange(this.searchKey);
     }
+    private valueChange(value: string) {
+        this.searchKey = value;
+    }
     private fetch(value: string) {
         const params = new URLSearchParams();
         params.set('SearchQuery', value);
@@ -129,6 +134,45 @@ export default class SalaryRecord extends Vue {
         if (item) {
             this.searchKey = item.value;
         }
+    }
+    private searchClick() {
+        this.form.validateFields((err: any, values: any) => {
+            const params = new URLSearchParams();
+            if (_.isEmpty(values.searchKey)) {
+                message.error('员工暂时不能为空');
+                return;
+            }
+            if (values.date) {
+                params.set('endedDateTime', moment(values.date).format('YYYY-MM-DD'));
+            }
+            this.loadData(values.searchKey, params);
+        });
+    }
+    private loadData(id: string, params: URLSearchParams) {
+        this.searchLoading = true;
+        getEmployeeSalaryRecord(id, params).then((res: any) => {
+            const data = res.data;
+            console.log(data);
+            this.tabData = [...[{
+                key: 1,
+                num: data.employeeStringID,
+                name: data.employeeFullName,
+                employeeDate: moment(data.employeeEmploymentStartedDate).format('YYYY-MM-DD'),
+                typeName: data.totalGetingHolidayWithSalaryHoursThisYear,
+                type: data.totalRemainingHolidayWithSalaryHoursFromYesterYear,
+                isWithSalary: data.totalGotHolidayWithSalaryHoursToToday,
+                totalHours: data.totalUsedHolidayWithSalaryHoursThisYear,
+                startDateTime: data.blockedHolidayWithSalaryHours,
+                endedDateTime: data.blockedAdvanceHolidayWithSalaryHours,
+                status: data.vaildHolidayWithSalaryHoursThisToday,
+                operator: data.advanceHolidayWithSalaryHours,
+            }]];
+            this.searchLoading = false;
+            this.pagination.total = 1;
+            this.pagination.current = 1;
+        }).catch(() => {
+            this.searchLoading = false;
+        })
     }
 }
 </script>

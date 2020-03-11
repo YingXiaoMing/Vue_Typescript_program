@@ -156,3 +156,11 @@ export const DeleteAttendRecord = (recordId: string) =>
 // 撤销职位变更记录工单
 export const DeletePositionRecord = (recordId: string) =>
     request.delete('/EmployeePositionModificationRecord/' + recordId);
+
+// 获取员工的有薪假
+export const getEmployeeSalaryDayData = (employeeId: string) =>
+    request.get('/EmployeeHolidayWithSalary/' + employeeId + '/ValidHolidayWithSalaryTotalHours');
+
+// 获取某个员工的有薪假
+export const getEmployeeSalaryRecord = (employeeId: string, param: any) =>
+    request.get('/EmployeeHolidayWithSalary/' + employeeId + '/EmployeeHolidayWithSalaryDailyRecord?' + param);

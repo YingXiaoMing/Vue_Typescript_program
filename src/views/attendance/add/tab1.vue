@@ -79,7 +79,7 @@ import { Row, Col, Form, Select, Divider, DatePicker, Checkbox, Input, Button, m
 import _ from 'lodash';
 import { getLeaveOptions } from '@/api/basic';
 import { SelectValue, BasicData } from '@/interface';
-import { newBusinesstrip } from '@/api/operation';
+import { newBusinesstrip, getEmployeeSalaryDayData } from '@/api/operation';
 import moment from 'moment';
 import {Prop, Watch } from 'vue-property-decorator';
 
@@ -109,11 +109,22 @@ export default class Tab1 extends Vue {
     private dateForm = 'YYYY-MM-DD HH:mm';
     private form: any;
     private $form: any;
+    @Watch('employeeId')
+    private employeeIdChange(value: string) {
+        this.getSalaryTotalData(value);
+    }
     private created() {
         this.form = this.$form.createForm(this);
         getLeaveOptions().then((res: any) => {
             const data = res.data;
             this.options = this.transformSelectData(data);
+        });
+    }
+    private getSalaryTotalData(id: string) {
+        getEmployeeSalaryDayData(id).then((res: any) => {
+            this.form.setFieldsValue({
+                salaryHour: res.data,
+            });
         });
     }
     private transformSelectData(data: any) {
