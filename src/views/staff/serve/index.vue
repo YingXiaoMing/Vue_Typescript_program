@@ -56,27 +56,27 @@
                 <a-row>
                     <a-col :lg="10" :md="12" :sm="24">
                         <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="任职职位">
-                            <a-cascader :options="cascderOption" style="width:100%" v-decorator="['newPosition']"
+                            <a-cascader :options="cascderOption" style="width:100%" v-decorator="['newPosition', {rules: [{ required: true, message: ' ' }]}]"
                             :displayRender="({labels, selectedOptions}) => labels.join('->')" placeholder="请选择职位"
                             @change="(value, selectOption) => onChange(value, selectOption)"></a-cascader>
                         </a-form-item>
                     </a-col>
                     <a-col :lg="10" :md="12" :sm="24">
                     <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="生效日期">
-                        <a-date-picker v-decorator="['effectiveDate']"></a-date-picker>
+                        <a-date-picker v-decorator="['effectiveDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                     </a-form-item>
                     </a-col>
                 </a-row>
                 <a-row>
                     <a-col :lg="20" :md="24" :sm="24">
                         <a-form-item :labelCol="labelCol2" :wrapperCol="wrapperCol2" label="任职原因">
-                            <a-textarea v-decorator="['reason']" :rows="4"></a-textarea>
+                            <a-textarea v-decorator="['reason', {rules: [{ required: true, message: ' ' }]}]" :rows="4"></a-textarea>
                         </a-form-item>
                     </a-col>
                 </a-row>
             </a-form>
             <a-row class='bottom_button'>
-                <a-button type="primary" @click="save">保存</a-button>
+                <a-button class='serve_btn' type="primary" @click="save">保存</a-button>
             </a-row>
         </div>
     </div>
@@ -185,6 +185,22 @@ export default class Serve extends Vue {
                     this.searchEmployeePositionData(this.employeeId);
                     message.success('员工任职成功');
                 });
+            } else {
+                const keyString = [...err][0];
+                console.log(keyString);
+                switch (keyString) {
+                    case 'newPosition':
+                        message.error('任职职位不能为空');
+                        break;
+                    case 'effectiveDate':
+                        message.error('请填写生效日期');
+                        break;
+                    case 'reason':
+                        message.error('请填写原因');
+                        break;
+                    default:
+                        break;
+                };
             }
         });
     }

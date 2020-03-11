@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router, {RouterOptions} from 'vue-router';
 import { RouterItem } from '@/interface';
-
+import { lazyLoadView } from '@/utils';
 Vue.use(Router);
 
 export const constantRouterMap: RouterItem[] & RouterOptions['routes'] = [
@@ -14,7 +14,7 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/staff',
         icon: 'user',
         name: 'staff',
-        component: () => import('../views/staff'),
+        component: lazyLoadView('staff'),
         meta: { key: 'staff', title: '员工操作' },
         children: [
             {

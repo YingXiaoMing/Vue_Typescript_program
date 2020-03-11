@@ -105,16 +105,6 @@ export default class AppMain extends Vue {
                     <Header/>
                     <a-tags-view></a-tags-view>
                     <a-layout-content class='fixed-header-content'>
-                        {/* <a-tabs class='page-tabs' activeKey={this.onTabs}
-                        on-change={this.tabChange} type='editable-card'
-                        on-edit={this.onTabEdit} hide-add={true}>
-                            {
-                                tabList.map((item: any, index: number) => <a-tab-pane
-                                tab={item.meta.title} key={item.name}
-                                closable={tabList.length > 1}>
-                                </a-tab-pane>)
-                            }
-                        </a-tabs> */}
                         <div class='page-wrap' id='page-wrap'>
                             <transition name='fade-transform' mode='out-in'>
                                 <keep-alive include={keepList} exclude='staffadd'>

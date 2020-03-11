@@ -64,26 +64,29 @@ router.beforeEach((to: any, from: any, next: any) => {
   // }
 
   // 测试版本 (暂时屏蔽掉congito登录)
-  const toPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
-  store.dispatch('GetMenuData', asyncRouterMap);
+  // const toPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
+  // store.dispatch('GetMenuData', asyncRouterMap);
+  // next();
+  // if (getAccessToken()) {
+  //   const signed = store.state.app.signedIn;
+  //   if (!store.state.app.menuData.length && flag && !signed) {
+  //     const ToPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
+  //     store.dispatch('GetMenuData', asyncRouterMap);
+  //     next({
+  //       path: ToPath,
+  //     });
+  //   }
+  //   next();
+  // } else {
+  //   if (whiteList.indexOf(to.path) !== -1) {
+  //     next();
+  //   } else {
+  //     next('/login');
+  //   }
+  // }
+
+  // Xunit Test版本
   next();
-  if (getAccessToken()) {
-    const signed = store.state.app.signedIn;
-    if (!store.state.app.menuData.length && flag && !signed) {
-      const ToPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
-      store.dispatch('GetMenuData', asyncRouterMap);
-      next({
-        path: ToPath,
-      });
-    }
-    next();
-  } else {
-    if (whiteList.indexOf(to.path) !== -1) {
-      next();
-    } else {
-      next('/login');
-    }
-  }
 });
 
 new Vue({

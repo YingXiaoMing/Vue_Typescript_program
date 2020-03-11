@@ -92,3 +92,7 @@ function traverseStepNodechilden(data: RemoteSubCompanyData[] | RemoteSubDepartm
         });
     }
 }
+// 懒加载
+export function lazyLoadView(view: any) {
+    return () => import(`@/views/${view}`);
+}
