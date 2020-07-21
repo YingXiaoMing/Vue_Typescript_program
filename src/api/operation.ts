@@ -162,5 +162,5 @@ export const getEmployeeSalaryDayData = (employeeId: string) =>
     request.get('/EmployeeHolidayWithSalary/' + employeeId + '/ValidHolidayWithSalaryTotalHours');
 
 // 获取某个员工的有薪假
-export const getEmployeeSalaryRecord = (employeeId: string, param: any) =>
-    request.get('/EmployeeHolidayWithSalary/' + employeeId + '/EmployeeHolidayWithSalaryDailyRecord?' + param);
+export const getEmployeeSalaryRecord = (param: any) =>
+    request.get('/EmployeeHolidayWithSalary/Collection?' + param);

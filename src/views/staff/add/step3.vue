@@ -124,6 +124,7 @@ export default class Step3 extends Vue {
     };
     private created() {
         const { employeeStatus, newEmployeeId } = this.$store.state.step;
+        console.log('testetst');
         this.employeeStatus = employeeStatus;
         switch (employeeStatus) {
             case 3:
@@ -136,6 +137,7 @@ export default class Step3 extends Vue {
                 this.employeeId = newEmployeeId;
                 break;
         }
+        
         this.fetchCredentialTypeData();
         this.form = this.$form.createForm(this);
     }
@@ -192,6 +194,7 @@ export default class Step3 extends Vue {
         getCredentialTypeOption().then((res) => {
             const data = res.data;
             this.credentialTypeOption = this.transformSelectData(data);
+            console.log(this.credentialTypeOption);
             this.loadCredentialData();
         });
     }
@@ -199,7 +202,7 @@ export default class Step3 extends Vue {
         this.credentialLoading = true;
         getEmployeeCredentialData(this.employeeId).then((res) => {
             const data = res.data;
-            this.etag = res.headers.etag;
+            // this.etag = res.headers.etag;
             const newData = _.map(data, (item) => {
                 const targetType = _.find(this.credentialTypeOption, {key: item.typeId});
                 return {
@@ -220,10 +223,10 @@ export default class Step3 extends Vue {
         });
     }
     private transformSelectData(data: any) {
-        return _.map(data, (item: BasicData) => {
+        return _.map(data, (item: any) => {
             return {
                 key: item.id,
-                label: item.name,
+                label: item.Name,
             };
         });
     }

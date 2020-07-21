@@ -41,7 +41,7 @@ export default class RecordTable extends Vue {
     private pagination: Pagination = this.paginationData;
     private column: ColumnList[] = [{
         title: '序号',
-        width: 44,
+        width: 48,
         dataIndex: 'Index',
         align: 'center',
         scopedSlots: { customRender: 'Index' },
@@ -108,6 +108,7 @@ export default class RecordTable extends Vue {
     @Watch('tabList')
     private tableDataChange(value: any) {
         this.data = value;
+        console.log(this.data);
     }
     @Watch('paginationData')
     private paginationDataChange(value: any) {

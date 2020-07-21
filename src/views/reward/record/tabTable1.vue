@@ -97,7 +97,7 @@ export default class Tab1Table extends Vue {
     private pagination: Pagination = this.paginationData;
     private column: ColumnList[] = [{
         title: '序号',
-        width: 44,
+        width: 48,
         dataIndex: 'Index',
         align: 'center',
         scopedSlots: { customRender: 'Index' },

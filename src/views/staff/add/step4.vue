@@ -165,7 +165,7 @@ export default class Step4 extends Vue {
         return _.map(data, (item: BasicData) => {
             return {
                 key: item.id,
-                label: item.name,
+                label: item.Name,
             };
         });
     }

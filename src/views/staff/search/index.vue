@@ -370,34 +370,36 @@ export default class Search extends Vue {
         this.visible = false;
         this.searchParams = param;
         getEmployeeData(param).then((res) => {
+            console.log(res);
             const data = res.data;
             this.tabData = _.map(data, (item) => {
-                const target: any = _.find(item.phoneNumbers, { isDefault: true });
-                const positionItem = _.map(item.positions, (te: any) => {
+                const target: any = _.find(item.PhoneNumbers, { isDefault: true });
+                const positionItem = _.map(item.Positions, (te: any) => {
                     return {
                         positionFullPath: te.positionFullPath,
                         isDefault: _.isEqual(te.id, item.principalPositionId),
                     };
                 });
                 return {
-                    key: item.id,
-                    id: item.employeeStringID,
-                    name: item.fullName,
-                    gender: item.genderValue === 1 ? '男' : '女',
-                    num: item.id,
-                    employeeDate: moment(item.employmentStartedInfo.employmentStartedDate).format(this.dateFormat),
-                    highEducation: item.highestEducation.name,
-                    employeeStatus: item.employmentState.name,
-                    workplace: item.workingLocation.name,
+                    key: item.Id,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
+                    gender: item.GenderValue === 1 ? '男' : '女',
+                    num: item.Id,
+                    employeeDate: moment(item.EmploymentStartedInfo.employmentStartedDate).format(this.dateFormat),
+                    highEducation: item.HighestEducation.name,
+                    employeeStatus: item.EmploymentState.name,
+                    workplace: item.WorkingLocation.name,
                     tel: target.phoneNumber.number,
                     position: positionItem,
                 };
             });
+            console.log(this.tabData);
             this.searchLoading = false;
-            const paginationData = JSON.parse(res.headers['x-pagination']);
-            this.pagination.pageSize = paginationData.pageSize;
-            this.pagination.total = paginationData.totalCount;
-            this.pagination.current = paginationData.currentPage;
+            // const paginationData = JSON.parse(res.headers['x-pagination']);
+            // this.pagination.pageSize = paginationData.pageSize;
+            // this.pagination.total = paginationData.totalCount;
+            // this.pagination.current = paginationData.currentPage;
         }).catch(() => {
             this.tabData = [];
             this.pagination.pageSize = 0;
@@ -408,7 +410,9 @@ export default class Search extends Vue {
     }
     private searchData(current: number, pageSize: number) {
         const params = new URLSearchParams();
-        params.set('FilterProperties.Id', this.searchKey);
+        if (!_.isEmpty(this.searchKey)) {
+            params.set('FilterProperties.Id', this.searchKey);
+        }
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
         if (this.form.getFieldValue('IsIncludeTerminated')) {
@@ -443,9 +447,9 @@ export default class Search extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.id,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.Id,
                 };
             });
         });

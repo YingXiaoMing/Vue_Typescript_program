@@ -70,7 +70,7 @@ export default class Tab extends Vue {
     private getEmployeePostionData() {
         getEmployeePositionData(this.employeeId).then((res: any) => {
             const data = res.data;
-            this.originOptionData = _.map(data.positions, (item: any) => {
+            this.originOptionData = _.map(data.Positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,
@@ -83,6 +83,8 @@ export default class Tab extends Vue {
     private getEmployeeDismissPositionData() {
         getEmployeeDismissedPosition(this.employeeId).then((res: any) => {
             const data = res;
+            console.log('为什么这种方式');
+            console.log(res);
             this.dismissOptionData = _.map(data, (item: any) => {
                 return {
                     key: item.id,

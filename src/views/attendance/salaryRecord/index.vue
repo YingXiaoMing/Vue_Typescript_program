@@ -116,10 +116,10 @@ export default class SalaryRecord extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.employeeStringID,
-                    name: item.fullName,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
                 };
             });
         });
@@ -138,10 +138,12 @@ export default class SalaryRecord extends Vue {
     private searchClick() {
         this.form.validateFields((err: any, values: any) => {
             const params = new URLSearchParams();
-            if (_.isEmpty(values.searchKey)) {
-                message.error('员工暂时不能为空');
-                return;
+            let ids = '';
+            if (!_.isEmpty(values.searchKey)) {
+                ids = values.searchKey;
             }
+            params.set('FilterProperties.Id', ids);
+            params.set('endedDateTime', moment(new Date()).format('YYYY-MM-DD'));
             if (values.date) {
                 params.set('endedDateTime', moment(values.date).format('YYYY-MM-DD'));
             }
@@ -150,29 +152,35 @@ export default class SalaryRecord extends Vue {
     }
     private loadData(id: string, params: URLSearchParams) {
         this.searchLoading = true;
-        getEmployeeSalaryRecord(id, params).then((res: any) => {
+        getEmployeeSalaryRecord(params).then((res: any) => {
             const data = res.data;
-            console.log(data);
-            this.tabData = [...[{
-                key: 1,
-                num: data.employeeStringID,
-                name: data.employeeFullName,
-                employeeDate: moment(data.employeeEmploymentStartedDate).format('YYYY-MM-DD'),
-                typeName: data.totalGetingHolidayWithSalaryHoursThisYear,
-                type: data.totalRemainingHolidayWithSalaryHoursFromYesterYear,
-                isWithSalary: data.totalGotHolidayWithSalaryHoursToToday,
-                totalHours: data.totalUsedHolidayWithSalaryHoursThisYear,
-                startDateTime: data.blockedHolidayWithSalaryHours,
-                endedDateTime: data.blockedAdvanceHolidayWithSalaryHours,
-                status: data.vaildHolidayWithSalaryHoursThisToday,
-                operator: data.advanceHolidayWithSalaryHours,
-            }]];
+            this.tabData = _.map(data, (item: any, index: number) => {
+                return {
+                    key: index,
+                    num: item.employeeStringID,
+                    name: item.employeeFullName,
+                    employeeDate: moment(item.employeeEmploymentStartedDate).format('YYYY-MM-DD'),
+                    typeName: item.totalGetingHolidayWithSalaryHoursThisYear,
+                    type: item.totalRemainingHolidayWithSalaryHoursFromYesterYear,
+                    isWithSalary: item.totalGotHolidayWithSalaryHoursToToday,
+                    totalHours: item.totalUsedHolidayWithSalaryHoursThisYear,
+                    startDateTime: item.blockedHolidayWithSalaryHours,
+                    endedDateTime: item.blockedAdvanceHolidayWithSalaryHours,
+                    status: item.vaildHolidayWithSalaryHoursThisToday,
+                    operator: item.advanceHolidayWithSalaryHours,
+                };
+            });
             this.searchLoading = false;
-            this.pagination.total = 1;
-            this.pagination.current = 1;
+            // const paginationData = JSON.parse(res.headers['x-pagination']);
+            // this.pagination.pageSize = paginationData.pageSize;
+            // this.pagination.total = paginationData.totalCount;
+            // this.pagination.current = paginationData.currentPage;
         }).catch(() => {
+            this.pagination.total = 0;
             this.searchLoading = false;
-        })
+            this.tabData = [];
+            this.pagination.current = 1;
+        });
     }
 }
 </script>

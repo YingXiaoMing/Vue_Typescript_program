@@ -102,6 +102,8 @@
                             </a-form-item>
                         </fieldset>
                     </a-col>
+                </a-row>
+                <a-row :gutter="24">
                     <a-col :span="12" style="marginTop: 10px">
                         <fieldset>
                             <legend>入职离职日期范围</legend>
@@ -659,19 +661,19 @@ export default class FormModal extends Vue {
         this.$emit('cancel');
     }
     private transformTypeData(data: any) {
-        return _.map(data, (item: BasicData) => {
+        return _.map(data, (item: any) => {
             return {
-                value: item.id,
-                label: item.name,
+                value: item.Id,
+                label: item.Name,
             };
         });
     }
 
     private transformSelectData(data: any) {
-        return _.map(data, (item: BasicData) => {
+        return _.map(data, (item: any) => {
             return {
-                key: item.id,
-                label: item.name,
+                key: item.Id,
+                label: item.Name,
             };
         });
     }

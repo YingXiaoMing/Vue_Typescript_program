@@ -287,34 +287,36 @@ export default class Record extends Vue {
     private loadData(param: URLSearchParams) {
         this.searchLoading = true;
         searchBusinessRecord(param).then((res: any) => {
+            console.log('独自承受伤害');
+            console.log(res);
             this.tabData = _.map(res.data, (item) => {
                 return {
-                    workOrderNumber: item.workOrderNumber,
-                    key: item.id,
-                    num: item.employeeStringID,
-                    name: item.employeeFullName,
-                    position: item.employeePrincipalPositionFullPath,
-                    type: item.askforLeaveOvertimeBusinesstripTypeClassifyName,
-                    typeName: item.askforLeaveOvertimeBusinesstripTypeName,
-                    totalHours: item.totalHours,
-                    startTime: moment(item.startDateTime).format(this.dateFormat),
-                    endTime: moment(item.endedDateTime).format(this.dateFormat),
-                    isWithSalary: item.isWithSalary,
-                    timeoffOvertimeBusinesstripTypeId: item.timeoffOvertimeBusinesstripTypeId,
-                    employeeId: item.employeeId,
-                    businesstripLocaltion: item.businesstripLocaltion,
-                    status: item.recordStateName,
-                    reason: item.reason,
-                    isAllowModification: item.recordStateValue === 1 ? true : false,
-                    note: item.note,
-                    operateTime: moment(item.createDateTime).format(this.dateFormat),
+                    workOrderNumber: item.WorkOrderNumber,
+                    key: item.Id,
+                    num: item.EmployeeStringID,
+                    name: item.EmployeeFullName,
+                    position: item.EmployeePrincipalPositionFullPath,
+                    type: item.AskforLeaveOvertimeBusinesstripTypeClassifyName,
+                    typeName: item.AskforLeaveOvertimeBusinesstripTypeName,
+                    totalHours: item.TotalHours,
+                    startTime: moment(item.StartDateTime).format(this.dateFormat),
+                    endTime: moment(item.EndedDateTime).format(this.dateFormat),
+                    isWithSalary: item.IsWithSalary,
+                    timeoffOvertimeBusinesstripTypeId: item.TimeoffOvertimeBusinesstripTypeId,
+                    employeeId: item.EmployeeId,
+                    businesstripLocaltion: item.BusinesstripLocaltion,
+                    status: item.RecordStateName,
+                    reason: item.Reason,
+                    isAllowModification: item.RecordStateValue === 1 ? true : false,
+                    note: item.Note,
+                    operateTime: moment(item.CreateDateTime).format(this.dateFormat),
                 };
             });
             this.searchLoading = false;
-            const paginationData = JSON.parse(res.headers['x-pagination']);
-            this.pagination.pageSize = paginationData.pageSize;
-            this.pagination.total = paginationData.totalCount;
-            this.pagination.current = paginationData.currentPage;
+            // const paginationData = JSON.parse(res.headers['x-pagination']);
+            // this.pagination.pageSize = paginationData.pageSize;
+            // this.pagination.total = paginationData.totalCount;
+            // this.pagination.current = paginationData.currentPage;
         }).catch(() => {
             this.searchLoading = false;
             this.tabData = [];

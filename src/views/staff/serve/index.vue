@@ -187,7 +187,6 @@ export default class Serve extends Vue {
                 });
             } else {
                 const keyString = [...err][0];
-                console.log(keyString);
                 switch (keyString) {
                     case 'newPosition':
                         message.error('任职职位不能为空');
@@ -226,7 +225,7 @@ export default class Serve extends Vue {
     private searchEmployeePositionData(employeeId: string) {
         getEmployeePositionData(employeeId).then((res: any) => {
             const data = res.data;
-            this.OriginPostionOptions = _.map(data.positions, (item: any) => {
+            this.OriginPostionOptions = _.map(data.Positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,
@@ -247,10 +246,10 @@ export default class Serve extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.employeeStringID,
-                    name: item.fullName,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
                 };
             });
         });

@@ -127,7 +127,7 @@ export default class BasicTable extends Vue {
     private transformValueData(data: any) {
         return _.map(data, (item) => {
             return {
-                name: item.name,
+                name: item.Name,
                 key: item.id,
                 editable: false,
                 isNew: false,

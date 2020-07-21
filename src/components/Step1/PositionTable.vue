@@ -157,17 +157,6 @@ export default class PhoneTable extends Vue {
     }
     @Emit()
     private makePositionRowNotEditable(key: string) {
-        const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
-        const str = target.position;
-        if (target) {
-            if (!target.editable) {
-                this.cacheOriginData[key] = {...target};
-            }
-            target.editable = !target.editable;
-        }
-    }
-    @Emit()
-    private makePositionRowNotEditable(key: string) {
         const newData = [...this.data];
         const target = newData.filter((item) => _.isEqual(item.key, key))[0];
         if (this.cacheOriginData[key]) {

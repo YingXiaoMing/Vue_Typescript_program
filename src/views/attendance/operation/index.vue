@@ -76,7 +76,7 @@ export default class Operation extends Vue {
     };
     private column: ColumnList[] = [{
         title: '序号',
-        width: 44,
+        width: 48,
         dataIndex: 'Index',
         align: 'center',
         scopedSlots: { customRender: 'Index' },
@@ -177,10 +177,10 @@ export default class Operation extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.employeeStringID,
-                    name: item.fullName,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
                 };
             });
         });
@@ -219,26 +219,26 @@ export default class Operation extends Vue {
             const data = res.data;
             this.tabData = _.map(data, (item) => {
                 return {
-                    key: item.id,
-                    orderNum: item.workOrderNumber,
-                    num: item.employeeStringID,
-                    name: item.employeeFullName,
-                    position: item.employeePrincipalPositionFullPath,
-                    typeName: item.askforLeaveOvertimeBusinesstripTypeClassifyName,
-                    type: item.askforLeaveOvertimeBusinesstripTypeName,
-                    isWithSalary: item.isWithSalary ? '是' : '否',
-                    startDateTime: moment(item.startDateTime).format(this.dateTimeFormat),
-                    endedDateTime: moment(item.endedDateTime).format(this.dateTimeFormat),
-                    totalHours: item.totalHours,
-                    status: item.recordStateName,
-                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
+                    key: item.Id,
+                    orderNum: item.WorkOrderNumber,
+                    num: item.EmployeeStringID,
+                    name: item.EmployeeFullName,
+                    position: item.EmployeePrincipalPositionFullPath,
+                    typeName: item.AskforLeaveOvertimeBusinesstripTypeClassifyName,
+                    type: item.AskforLeaveOvertimeBusinesstripTypeName,
+                    isWithSalary: item.IsWithSalary ? '是' : '否',
+                    startDateTime: moment(item.StartDateTime).format(this.dateTimeFormat),
+                    endedDateTime: moment(item.EndedDateTime).format(this.dateTimeFormat),
+                    totalHours: item.TotalHours,
+                    status: item.RecordStateName,
+                    createDateTime: moment(item.CreateDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;
-            const paginationData = JSON.parse(res.headers['x-pagination']);
-            this.pagination.pageSize = paginationData.pageSize;
-            this.pagination.total = paginationData.totalCount;
-            this.pagination.current = paginationData.currentPage;
+            // const paginationData = JSON.parse(res.headers['x-pagination']);
+            // this.pagination.pageSize = paginationData.pageSize;
+            // this.pagination.total = paginationData.totalCount;
+            // this.pagination.current = paginationData.currentPage;
         });
     }
     private changeDataToParamas(params: URLSearchParams, data: boolean, paramName: string) {

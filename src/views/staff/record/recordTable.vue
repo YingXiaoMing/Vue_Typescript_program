@@ -25,7 +25,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { ColumnList, Pagination } from '@/interface';
-import { Table, Divider } from 'ant-design-vue';
+import { Table, Divider, message } from 'ant-design-vue';
 import { ScopedSlot } from 'vue/types/vnode';
 import TransferModal from '@/components/PositionModal/transfer.vue';
 import DismissModal from '@/components/PositionModal/dismiss.vue';
@@ -100,7 +100,7 @@ export default class RecordTable extends Vue {
     };
     private column: ColumnList[] = [{
         title: '序号',
-        width: 44,
+        width: 48,
         dataIndex: 'Index',
         align: 'center',
         scopedSlots: { customRender: 'Index' },

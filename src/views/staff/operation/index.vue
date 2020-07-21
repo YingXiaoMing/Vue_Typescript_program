@@ -76,7 +76,7 @@ export default class Operation extends Vue {
     };
     private column: ColumnList[] = [{
         title: '序号',
-        width: 44,
+        width: 48,
         dataIndex: 'Index',
         align: 'center',
         scopedSlots: { customRender: 'Index' },
@@ -167,10 +167,10 @@ export default class Operation extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.employeeStringID,
-                    name: item.fullName,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
                 };
             });
         });
@@ -223,10 +223,10 @@ export default class Operation extends Vue {
                 };
             });
             this.searchLoading = false;
-            const paginationData = JSON.parse(res.headers['x-pagination']);
-            this.pagination.pageSize = paginationData.pageSize;
-            this.pagination.total = paginationData.totalCount;
-            this.pagination.current = paginationData.currentPage;
+            // const paginationData = JSON.parse(res.headers['x-pagination']);
+            // this.pagination.pageSize = paginationData.pageSize;
+            // this.pagination.total = paginationData.totalCount;
+            // this.pagination.current = paginationData.currentPage;
         });
     }
     private changeDataToParamas(params: URLSearchParams, data: boolean, paramName: string) {

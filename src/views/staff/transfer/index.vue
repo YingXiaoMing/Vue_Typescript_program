@@ -78,7 +78,7 @@ export default class Transfer extends Vue {
         getEmployeePositionData(employeId).then((res: any) => {
             // tslint:disable-next-line:no-shadowed-variable
             const data = res.data;
-            this.originPostions = _.map(data.positions, (item: any) => {
+            this.originPostions = _.map(data.Positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,
@@ -131,10 +131,10 @@ export default class Transfer extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.id,
-                    text: item.employeeStringID + '-' + item.fullName,
-                    id: item.employeeStringID,
-                    name: item.fullName,
+                    value: item.Id,
+                    text: item.EmployeeStringID + '-' + item.FullName,
+                    id: item.EmployeeStringID,
+                    name: item.FullName,
                 };
             });
         });

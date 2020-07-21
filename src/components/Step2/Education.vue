@@ -117,8 +117,8 @@ export default class Education extends Vue {
                 const targetEducationType = _.find(this.educationLevelOption, { key: item.educationLevelId });
                 return {
                     key: item.id,
-                    startedDate: moment(item.startedDate).format(this.dateFormat),
-                    endDate: moment(item.endedDate).format(this.dateFormat),
+                    startedDate: moment(item.StartedDate).format(this.dateFormat),
+                    endDate: moment(item.EndedDate).format(this.dateFormat),
                     major: item.major,
                     schoolName: item.schoolName,
                     disable: false,
@@ -153,10 +153,10 @@ export default class Education extends Vue {
         });
     }
     private transformSelectData(data: any) {
-        return _.map(data, (item: BasicData) => {
+        return _.map(data, (item: any) => {
             return {
                 key: item.id,
-                label: item.name,
+                label: item.Name,
             };
         });
     }
