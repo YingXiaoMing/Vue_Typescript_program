@@ -202,10 +202,10 @@ export default class Tab1 extends Vue {
                 };
             });
             this.searchLoading = false;
-            // const paginationData = JSON.parse(res.headers['x-pagination']);
-            // this.pagination.pageSize = paginationData.pageSize;
-            // this.pagination.total = paginationData.totalCount;
-            // this.pagination.current = paginationData.currentPage;
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         });
     }
 }

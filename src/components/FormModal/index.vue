@@ -575,6 +575,7 @@ export default class FormModal extends Vue {
         const p1 = new Promise((resolve, reject) => {
             getWorkLocation().then((res) => {
                 this.workplaceOption = this.transformSelectData(res.data);
+                console.log(this.workplaceOption);
                 this.searchData.workplace = this.workplaceOption[0].key;
                 resolve();
             });
@@ -663,7 +664,7 @@ export default class FormModal extends Vue {
     private transformTypeData(data: any) {
         return _.map(data, (item: any) => {
             return {
-                value: item.Id,
+                value: item.id,
                 label: item.Name,
             };
         });
@@ -672,7 +673,7 @@ export default class FormModal extends Vue {
     private transformSelectData(data: any) {
         return _.map(data, (item: any) => {
             return {
-                key: item.Id,
+                key: item.id,
                 label: item.Name,
             };
         });

@@ -313,10 +313,10 @@ export default class Record extends Vue {
                 };
             });
             this.searchLoading = false;
-            // const paginationData = JSON.parse(res.headers['x-pagination']);
-            // this.pagination.pageSize = paginationData.pageSize;
-            // this.pagination.total = paginationData.totalCount;
-            // this.pagination.current = paginationData.currentPage;
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         }).catch(() => {
             this.searchLoading = false;
             this.tabData = [];

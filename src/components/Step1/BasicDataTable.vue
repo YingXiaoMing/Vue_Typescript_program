@@ -5,7 +5,7 @@
             <a-spin :spinning="tloading">
             <a-form :form="form">
                 <a-col :xl="20" :lg="24" :md="24" :sm="24" :xs="24" class="basicData">
-                    <a-row>
+                    <a-row :gutter="24">
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item v-bind="formItemLayout" label="员工工号">
                                 <a-input v-decorator="['num', { initialValue: basicData.id }]" disabled></a-input>

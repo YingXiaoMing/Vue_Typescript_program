@@ -394,12 +394,11 @@ export default class Search extends Vue {
                     position: positionItem,
                 };
             });
-            console.log(this.tabData);
             this.searchLoading = false;
-            // const paginationData = JSON.parse(res.headers['x-pagination']);
-            // this.pagination.pageSize = paginationData.pageSize;
-            // this.pagination.total = paginationData.totalCount;
-            // this.pagination.current = paginationData.currentPage;
+            const paginationData = JSON.parse(res.headers['x-pagination']);
+            this.pagination.pageSize = paginationData.pageSize;
+            this.pagination.total = paginationData.totalCount;
+            this.pagination.current = paginationData.currentPage;
         }).catch(() => {
             this.tabData = [];
             this.pagination.pageSize = 0;

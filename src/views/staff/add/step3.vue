@@ -124,7 +124,6 @@ export default class Step3 extends Vue {
     };
     private created() {
         const { employeeStatus, newEmployeeId } = this.$store.state.step;
-        console.log('testetst');
         this.employeeStatus = employeeStatus;
         switch (employeeStatus) {
             case 3:
@@ -137,7 +136,6 @@ export default class Step3 extends Vue {
                 this.employeeId = newEmployeeId;
                 break;
         }
-        
         this.fetchCredentialTypeData();
         this.form = this.$form.createForm(this);
     }
@@ -160,7 +158,7 @@ export default class Step3 extends Vue {
                     return;
                 }
                 if (moment(param.issueDate).isAfter()) {
-                    message.error('颁发日期不能早于当天时间');
+                    message.error('颁发日期不能晚于当天时间');
                     return;
                 }
                 newEmployeeCredential(this.employeeId, param).then((res: any) => {

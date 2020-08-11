@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-row>
+        <a-row :gutter="24">
           <a-basic-table :options="baiscDataTypeOption" :basicDatas="basicData" ref="basciTable" 
           @jump="linkToStep2" :isNew="isNew" @loadData="remoteEmployeeBasicData" @nextStep="nextStep"
           :employeeId="employeeId" :tloading="basicTableLoading" :ETag="basicETag"></a-basic-table>   
