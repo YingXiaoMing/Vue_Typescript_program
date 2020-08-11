@@ -414,6 +414,7 @@ export default class Search extends Vue {
         }
         params.set('PageNumber', current.toString());
         params.set('PageSize', pageSize.toString());
+        params.set('OrderBy', 'EmployeeStringID desc');
         if (this.form.getFieldValue('IsIncludeTerminated')) {
             const employeeStatusList = ['0FAGJ-XR8UN-Z5V2L-EWND7', '0FAGJ-XR8VC-Z5V2L-ES6RU', '0FCWK-UVPXV-Y5LQK-U5B8Y'];
             this.changeListDataToParams(params, employeeStatusList, 'FilterProperties.EmploymentStateIds');
