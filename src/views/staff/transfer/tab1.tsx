@@ -182,7 +182,7 @@ class Tab1 extends Vue {
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-divider >调动后</a-divider>
+                    <a-divider>调动后</a-divider>
                     <a-row>
                         <a-col {...{props: this.basicItemLayout}}>
                             <a-form-item label='新职位' {...{props: this.fromItemLayout}}>
@@ -191,7 +191,7 @@ class Tab1 extends Vue {
                                         required: true,
                                         message: ' ',
                                     }],
-                                })(<a-cascader options={this.cascderOption}
+                                })(<a-cascader options={this.cascderOption} placeholder='请选择职位'
                                 style='width:100%' on-change={this.positionsChange}></a-cascader>)}
                             </a-form-item>
                         </a-col>

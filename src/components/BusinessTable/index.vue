@@ -70,7 +70,7 @@ export default class PrizeTable extends Vue {
     private optionType: SelectValue[] = this.options;
     private cacheOriginData: { [key: string]: any } = {};
     private column: ColumnList[] = [{
-        title: '奖/惩',
+        title: '类型',
         dataIndex: 'type',
         align: 'center',
         scopedSlots: { customRender: 'type' },

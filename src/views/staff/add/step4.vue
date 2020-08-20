@@ -3,54 +3,62 @@
         <a-row :gutter="24" class='basicData'>
           <a-divider class='diliver_item'>个人合同</a-divider>
           <a-form :form="form">
-            <a-row :gutter="24"> 
-                <a-col :span="8">
-                    <a-form-item label="合同类型" v-bind="formItemLayout">
-                        <a-select labelInValue v-decorator="['contractType', {rules: [{ required: true, message: ' ' }], initialValue: contractTypeOption[0] }]">
-                        <a-select-option v-for="item in contractTypeOption" :value="item.key">{{item.label}}</a-select-option>
-                        </a-select>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="合同名称" v-bind="formItemLayout">
-                        <a-input v-decorator="['contractName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="合同编号" v-bind="formItemLayout">
-                        <a-input v-decorator="['contractNum', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                <a-form-item label="生效日期" v-bind="formItemLayout">
-                    <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
-                </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="合同有效期至" v-bind="formItemLayout">
-                        <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue}]"></a-radio-date>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="备注" v-bind="formItemLayout">
-                        <a-input v-decorator="['note']"></a-input>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="证件上传" v-bind="formItemLayout">
-                        <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
-                            <a-button>
-                                <a-icon type="upload"></a-icon>
-                                点击上传
-                            </a-button>
-                        </a-upload>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="16">
-                    <a-form-item class='rightBtn'>
-                        <a-button type="primary" @click="contractDataAdd">新增</a-button>
-                    </a-form-item>
-                </a-col>
+            <a-row :gutter="24">
+                <a-col :span="24">
+                    <a-row :gutter="24">
+                        <a-col :span="8">
+                            <a-form-item label="合同类型" v-bind="formItemLayout">
+                                <a-select labelInValue v-decorator="['contractType', {rules: [{ required: true, message: ' ' }], initialValue: contractTypeOption[0] }]">
+                                <a-select-option v-for="item in contractTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                                </a-select>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="合同名称" v-bind="formItemLayout">
+                                <a-input v-decorator="['contractName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="合同编号" v-bind="formItemLayout">
+                                <a-input v-decorator="['contractNum', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row :gutter="24">
+                        <a-col :span="8">
+                            <a-form-item label="生效日期" v-bind="formItemLayout">
+                                <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="合同有效期至" v-bind="formItemLayout">
+                                <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue}]"></a-radio-date>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="备注" v-bind="formItemLayout">
+                                <a-input v-decorator="['note']"></a-input>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row :gutter="24">
+                        <a-col :span="8">
+                            <a-form-item label="证件上传" v-bind="formItemLayout">
+                                <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
+                                    <a-button>
+                                        <a-icon type="upload"></a-icon>
+                                        点击上传
+                                    </a-button>
+                                </a-upload>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="16">
+                            <a-form-item class='rightBtn'>
+                                <a-button type="primary" @click="contractDataAdd">新增</a-button>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+               </a-col>
           </a-row>
           </a-form>
           <a-row style="marginTop:20px">

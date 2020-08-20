@@ -399,6 +399,7 @@ export default class Search extends Vue {
             this.pagination.pageSize = paginationData.pageSize;
             this.pagination.total = paginationData.totalCount;
             this.pagination.current = paginationData.currentPage;
+            console.log('rap star');
         }).catch(() => {
             this.tabData = [];
             this.pagination.pageSize = 0;

@@ -63,8 +63,8 @@ class Step3 extends Vue {
         sm: {span: 24},
     };
     private fromItemLayout = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
+        labelCol: { span: 4 },
+        wrapperCol: { span: 20 },
     };
     @Emit()
     private nextStep() {
@@ -230,9 +230,9 @@ class Step3 extends Vue {
                                         message: ' ',
                                     }],
                                 })(<a-radio-group onChange={(e: any) => this.onRadioChange(e)}>
-                                    <a-col {...{props: {lg: {span: 8}}}}><a-radio value={0}>永久</a-radio></a-col>
-                                    <a-col {...{props: {lg: {span: 16}}}}>
-                                        <a-radio value={1} style='width:138px'>
+                                    <a-col {...{props: {lg: {span: 4}}}}><a-radio value={0}>永久</a-radio></a-col>
+                                    <a-col {...{props: {lg: {span: 20}}}}>
+                                        <a-radio value={1} style='width:68px'>
                                             <a-date-picker format={this.dateFormat} disabled={this.endedDateShow}
                                             onChange={this.onDateChange}></a-date-picker>
                                         </a-radio>

@@ -4,48 +4,59 @@
             <a-divider class='diliver_item'>银行账号</a-divider>
             <a-form :form="form">
                 <a-row :gutter="24">
-                    <a-col :span="8">
-                        <a-form-item label="银行名称" v-bind="formItemLayout">
-                            <a-select labelInValue v-decorator="['bankType', {rules: [{ required: true, message: ' ' }], initialValue: bankNameTypeOption[0] }]">
-                                <a-select-option v-for="item in bankNameTypeOption" :value="item.key">{{item.label}}</a-select-option>
-                            </a-select>
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="8">
-                        <a-form-item label="开户行" v-bind="formItemLayout">
-                            <a-input v-decorator="['accountOpenedBranch', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="8">
-                        <a-form-item label="账户名" v-bind="formItemLayout">
-                            <a-input v-decorator="['accountHolderName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="8">
-                        <a-form-item label="账户" v-bind="formItemLayout">
-                            <a-input v-decorator="['bankAccountNumber', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="8">
-                        <a-form-item label="备注" v-bind="formItemLayout">
-                            <a-input v-decorator="['note']"></a-input>
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="8">
-                        <a-form-item label="附件上传" v-bind="formItemLayout">
-                            <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
-                                <a-button>
-                                    <a-icon type="upload"></a-icon>
-                                    点击上传
-                                </a-button>
-                            </a-upload>
-                        </a-form-item>
-                    </a-col>
                     <a-col :span="24">
-                        <a-form-item class='rightBtn'>
-                            <a-button type="primary" @click="bankDataAdd">新增</a-button>
-                        </a-form-item>
+                        <a-row :gutter="24">
+                            <a-col :span="8">
+                                <a-form-item label="银行名称" v-bind="formItemLayout">
+                                    <a-select labelInValue v-decorator="['bankType', {rules: [{ required: true, message: ' ' }], initialValue: bankNameTypeOption[0] }]">
+                                        <a-select-option v-for="item in bankNameTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                                    </a-select>
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="8">
+                                <a-form-item label="开户行" v-bind="formItemLayout">
+                                    <a-input v-decorator="['accountOpenedBranch', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="8">
+                                <a-form-item label="账户名" v-bind="formItemLayout">
+                                    <a-input v-decorator="['accountHolderName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="24">
+                            <a-col :span="8">
+                                <a-form-item label="账户" v-bind="formItemLayout">
+                                    <a-input v-decorator="['bankAccountNumber', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="8">
+                                <a-form-item label="备注" v-bind="formItemLayout">
+                                    <a-input v-decorator="['note']"></a-input>
+                                </a-form-item>
+                            </a-col>
+                            <a-col :span="8">
+                                <a-form-item label="附件上传" v-bind="formItemLayout">
+                                    <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
+                                        <a-button>
+                                            <a-icon type="upload"></a-icon>
+                                            点击上传
+                                        </a-button>
+                                    </a-upload>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                        <a-row :gutter="24">
+                            <a-col :span="24">
+                                <a-form-item class='rightBtn'>
+                                    <a-button type="primary" @click="bankDataAdd">新增</a-button>
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
                     </a-col>
+                    
+                    
+                    
                 </a-row>
             </a-form>
             <a-row style="marginTop: 20px">

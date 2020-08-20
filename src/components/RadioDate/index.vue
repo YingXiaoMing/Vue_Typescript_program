@@ -3,7 +3,7 @@
         <a-radio-group :value="radioValue" @change="onRadioChange">
             <a-radio value="0">永久</a-radio>
             <a-radio value="1">
-                <a-date-picker :value="momentDate(date)" :disabled="isShow" @change="onDateChange" :format="dateFormat"></a-date-picker>
+                <a-date-picker :value="momentDate(date)" :disabled="isShow" @change="onDateChange" :format="dateFormat" style="width: 136px"></a-date-picker>
             </a-radio>
         </a-radio-group>
     </div>

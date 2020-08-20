@@ -4,43 +4,51 @@
           <a-divider class='diliver_item'>证件资料</a-divider>
           <a-row :gutter="24">
             <a-form :form="form">
-                <a-col :span="8">
-                    <a-form-item label="证件/证书类型" v-bind="formItemLayout">
-                        <a-select labelInValue v-decorator="['credentialType', {rules: [{ required: true, message: ' ' }], initialValue: credentialTypeOption[0] }]">
-                            <a-select-option v-for="item in credentialTypeOption" :value="item.key">{{item.label}}</a-select-option>
-                        </a-select>
-                    </a-form-item>
+                <a-col :span="24">
+                    <a-row :gutter="24">
+                        <a-col :span="8">
+                            <a-form-item label="证件/证书类型" v-bind="formItemLayout">
+                                <a-select labelInValue v-decorator="['credentialType', {rules: [{ required: true, message: ' ' }], initialValue: credentialTypeOption[0] }]">
+                                    <a-select-option v-for="item in credentialTypeOption" :value="item.key">{{item.label}}</a-select-option>
+                                </a-select>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="证件/证书名称" v-bind="formItemLayout">
+                                <a-input v-decorator="['credentialName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="颁发日期" v-bind="formItemLayout">
+                                <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row :gutter="24">
+                         <a-col :span="8">
+                            <a-form-item label="有效日期" v-bind="formItemLayout">
+                                <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue }]"></a-radio-date>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item label="证件上传" v-bind="formItemLayout">
+                                <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
+                                    <a-button>
+                                        <a-icon type="upload"></a-icon>
+                                        点击上传
+                                    </a-button>
+                                </a-upload>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
+                            <a-form-item class='rightBtn'>
+                                <a-button type="primary" @click="credntialDataAdd">新增</a-button>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
                 </a-col>
-                <a-col :span="8">
-                    <a-form-item label="证件/证书名称" v-bind="formItemLayout">
-                        <a-input v-decorator="['credentialName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="颁发日期" v-bind="formItemLayout">
-                        <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="有效日期" v-bind="formItemLayout">
-                        <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue }]"></a-radio-date>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item label="证件上传" v-bind="formItemLayout">
-                        <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
-                            <a-button>
-                                <a-icon type="upload"></a-icon>
-                                点击上传
-                            </a-button>
-                        </a-upload>
-                    </a-form-item>
-                </a-col>
-                <a-col :span="8">
-                    <a-form-item class='rightBtn'>
-                        <a-button type="primary" @click="credntialDataAdd">新增</a-button>
-                    </a-form-item>
-                </a-col>
+                
+               
             </a-form>
           </a-row>
           <a-row style="marginTop:20px">
@@ -192,7 +200,6 @@ export default class Step3 extends Vue {
         getCredentialTypeOption().then((res) => {
             const data = res.data;
             this.credentialTypeOption = this.transformSelectData(data);
-            console.log(this.credentialTypeOption);
             this.loadCredentialData();
         });
     }

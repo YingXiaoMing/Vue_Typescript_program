@@ -1,10 +1,9 @@
 <template>
     <div class='wrapper'>
         <div class='staff-head'>
-            <a-row :gutter="24">
-                <a-form :form="form">
-                    <a-row>
-                        <a-col :xxl="10" :md="20" :sm="24">
+            <a-row :gutter="24" >
+                    <!-- <a-row>
+                        <a-col :xxl="12" :md="20" :sm="24">
                             <a-form-item label="导出选项" v-bind="formItemLayout">
                                 <a-checkbox-group>
                                     <a-row>
@@ -27,37 +26,45 @@
                                 </a-checkbox-group>
                             </a-form-item>
                         </a-col>
-                    </a-row>
+                    </a-row> -->
                     <a-row>
-                        <a-col :xxl="10" :md="20" :sm="24">
-                            <a-form-item label="导入文件上传" v-bind="formItemLayout">
-                                <a-button type="primary" icon="download">上传Excel</a-button>
-                            </a-form-item>
+                        <a-divider orientation="left">
+                            基础资料导入
+                        </a-divider>
+                        <a-col :xxl="12" :md="20" :sm="24" class="export_de">
+                            <a-button @click="exportBasicData">导入基础资料</a-button>
                         </a-col>
                     </a-row>
-                    
-                </a-form>
             </a-row>
+            <a-export-modal :visible="basciDataModalVisible"></a-export-modal>
         </div>
     </div>
 </template>
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import ExportModal from '@/components/UploadModal/index.vue';
 @Component({
-    components: {},
+    components: {
+        'a-export-modal': ExportModal,
+    },
     name: 'staffExport',
 })
 export default class StaffExport extends Vue {
-    private form: any;
-    private $form: any;
-    private formItemLayout = {
-        labelCol: { xs: {span: 24}, sm: {span: 6}},
-        wrapperCol: { xs: {span: 24}, sm: {span: 18}},
-    };
+    private basciDataModalVisible: boolean = false;
+
     private created() {
-        this.form = this.$form.createForm(this, {});
-        console.log('精算师');
+        console.log('这是一个测数据');
+    }
+    private exportBasicData() {
+        console.log('你何必这么烦，你何必那么乱');
+        this.basciDataModalVisible = true;
     }
 }
 </script>
+<style lang="less">
+.export_de {
+    padding: 10px 10px;
+}
+</style>
+

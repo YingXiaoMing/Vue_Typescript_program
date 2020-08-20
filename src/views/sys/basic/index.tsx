@@ -58,67 +58,144 @@ export default class Baisc extends Vue {
     private basicList: BasicForm[] = [{
         url: '/workingLocation',
         colName: '工作地点',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/addressType',
         colName: '联系人地址类型',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/credentialType',
         colName: '员工证书类型',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/bankName',
         colName: '银行名称',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/contractType',
         colName: '合同类型',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/educationLevel',
         colName: '学历',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/ethnicGroup',
         colName: '国籍/民族',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/employmentSource',
         colName: '入职来源',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/legalIdentiticationType',
         colName: '证件类型',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/relationship',
         colName: '紧急联系人关系',
-        tableList: [],
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }, {
         url: '/employeePhoneType',
-        colName: '紧急联系人电话类型',
-        tableList: [],
+        colName: '电话类型',
+        tableList: [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }],
         etag: '',
     }];
     private created() {
         this.fetchData();
+    }
+    private loadEmptyData(n: number) {
+        this.basicList[n].tableList = [{
+            name: '',
+            key: 'new_id_1',
+            isNew: true,
+            editable: true,
+            disable: false,
+        }];
     }
     private fetchData() {
         getWorkLocation().then((res) => {
             this.$nextTick(() => {
                 this.packBasicData(res.data, 0);
             });
+        }).catch(() => {
+            this.loadEmptyData(0);
         });
         getAddressTypeOption().then((res) => {
             this.$nextTick(() => {
