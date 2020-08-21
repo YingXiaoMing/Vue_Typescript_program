@@ -156,7 +156,7 @@ export default class Education extends Vue {
         return _.map(data, (item: any) => {
             return {
                 key: item.id,
-                label: item.Name,
+                label: item.name,
             };
         });
     }

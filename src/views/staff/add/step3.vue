@@ -231,7 +231,7 @@ export default class Step3 extends Vue {
         return _.map(data, (item: any) => {
             return {
                 key: item.id,
-                label: item.Name,
+                label: item.name,
             };
         });
     }
