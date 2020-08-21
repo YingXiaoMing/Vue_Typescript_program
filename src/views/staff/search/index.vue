@@ -143,95 +143,95 @@ export default class Search extends Vue {
         this.exportModal = {
             visible: true,
             data: [{
-                name: 'IsExportEmployeeLastName',
+                name: 'isExportEmployeeLastName',
                 title: '员工姓',
                 isSelect: false,
             }, {
-                name: 'IsExportEmployeeFirstName',
+                name: 'isExportEmployeeFirstName',
                 title: '员工名',
                 isSelect: false,
             }, {
-                name: 'IsExportDateOfBirth',
+                name: 'isExportDateOfBirth',
                 title: '出生日期',
                 isSelect: false,
             }, {
-                name: 'IsExportMarriage',
+                name: 'isExportMarriage',
                 title: '婚否',
                 isSelect: false,
             }, {
-                name: 'IsExportEthnicGroup',
+                name: 'isExportEthnicGroup',
                 title: '种族',
                 isSelect: false,
             }, {
-                name: 'IsExportGender',
+                name: 'isExportGender',
                 title: '性别',
                 isSelect: false,
             }, {
-                name: 'IsExportEmployeeLegal_id',
+                name: 'isExportEmployeeLegal_id',
                 title: '身份证件信息',
                 isSelect: false,
             }, {
-                name: 'IsExportHighestEducation',
+                name: 'isExportHighestEducation',
                 title: '最高学历',
                 isSelect: false,
             }, {
-                name: 'IsExportPersonalAbilityDescription',
+                name: 'isExportPersonalAbilityDescription',
                 title: '能力&特长',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentStartedDate',
+                name: 'isExportEmploymentStartedDate',
                 title: '入职日期',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentSource',
+                name: 'isExportEmploymentSource',
                 title: '入职来源',
                 isSelect: false,
             }, {
-                name: 'IsExportReferencePerson',
+                name: 'isExportReferencePerson',
                 title: '介绍人',
                 isSelect: false,
             }, {
-                name: 'IsExportWorkingLocation',
+                name: 'isExportWorkingLocation',
                 title: '工作地点',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentType',
+                name: 'isExportEmploymentType',
                 title: '工作性质',
                 isSelect: false,
             }, {
-                name: 'IsExportProbrationEndedDate',
+                name: 'isExportProbrationEndedDate',
                 title: '试用期截至',
                 isSelect: false,
             }, {
-                name: 'IsExportEmployeePosition',
+                name: 'isExportEmployeePosition',
                 title: '职位信息',
                 isSelect: true,
             }, {
-                name: 'IsExportEmploymentState',
+                name: 'isExportEmploymentState',
                 title: '员工状态',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentEndedType',
+                name: 'isExportEmploymentEndedType',
                 title: '离职类型',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentEndedDate',
+                name: 'isExportEmploymentEndedDate',
                 title: '离职日期',
                 isSelect: false,
             }, {
-                name: 'IsExportEmploymentEndedReason',
+                name: 'isExportEmploymentEndedReason',
                 title: '离职原因',
                 isSelect: false,
             }, {
-                name: 'IsExportEmployeePhoneNumber',
+                name: 'isExportEmployeePhoneNumber',
                 title: '联系电话',
                 isSelect: false,
             }, {
-                name: 'IsExportContactAddress',
+                name: 'isExportContactAddress',
                 title: '联系地址',
                 isSelect: false,
             }, {
-                name: 'IsExportEmergencyContact',
+                name: 'isExportEmergencyContact',
                 title: '紧急联系人',
                 isSelect: false,
             }],
@@ -370,26 +370,25 @@ export default class Search extends Vue {
         this.visible = false;
         this.searchParams = param;
         getEmployeeData(param).then((res) => {
-            console.log(res);
             const data = res.data;
             this.tabData = _.map(data, (item) => {
-                const target: any = _.find(item.PhoneNumbers, { isDefault: true });
-                const positionItem = _.map(item.Positions, (te: any) => {
+                const target: any = _.find(item.phoneNumbers, { isDefault: true });
+                const positionItem = _.map(item.positions, (te: any) => {
                     return {
                         positionFullPath: te.positionFullPath,
                         isDefault: _.isEqual(te.id, item.principalPositionId),
                     };
                 });
                 return {
-                    key: item.Id,
-                    id: item.EmployeeStringID,
-                    name: item.FullName,
-                    gender: item.GenderValue === 1 ? '男' : '女',
-                    num: item.Id,
-                    employeeDate: moment(item.EmploymentStartedInfo.employmentStartedDate).format(this.dateFormat),
-                    highEducation: item.HighestEducation.name,
-                    employeeStatus: item.EmploymentState.name,
-                    workplace: item.WorkingLocation.name,
+                    key: item.id,
+                    id: item.employeeStringID,
+                    name: item.fullName,
+                    gender: item.genderValue === 1 ? '男' : '女',
+                    num: item.id,
+                    employeeDate: moment(item.employmentStartedInfo.employmentStartedDate).format(this.dateFormat),
+                    highEducation: item.highestEducation.name,
+                    employeeStatus: item.employmentState.name,
+                    workplace: item.workingLocation.name,
                     tel: target.phoneNumber.number,
                     position: positionItem,
                 };
@@ -448,9 +447,9 @@ export default class Search extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.Id,
-                    text: item.EmployeeStringID + '-' + item.FullName,
-                    id: item.Id,
+                    value: item.id,
+                    text: item.employeeStringID + '-' + item.fullName,
+                    id: item.id,
                 };
             });
         });

@@ -158,10 +158,10 @@ export default class Operation extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.Id,
-                    text: item.EmployeeStringID + '-' + item.FullName,
-                    id: item.EmployeeStringID,
-                    name: item.FullName,
+                    value: item.id,
+                    text: item.employeeStringID + '-' + item.fullName,
+                    id: item.employeeStringID,
+                    name: item.fullName,
                 };
             });
         });
@@ -199,16 +199,16 @@ export default class Operation extends Vue {
             const data = res.data;
             this.tabData = _.map(data, (item) => {
                 return {
-                    key: item.Id,
-                    orderNum: item.WorkOrderNumber,
-                    num: item.EmployeeStringID,
-                    name: item.EmployeeFullName,
-                    position: item.EmployeePrincipalPositionFullPath,
-                    typeName: item.PrizePenaltyTypeClassifyName,
-                    type: item.PrizePenaltyTypeName,
-                    effectedDate: moment(item.EffectiveDate).format(this.dateFormat),
-                    status: item.RecordStateName,
-                    createDateTime: moment(item.CreateDateTime).format(this.dateTimeFormat),
+                    key: item.id,
+                    orderNum: item.workOrderNumber,
+                    num: item.employeeStringID,
+                    name: item.employeeFullName,
+                    position: item.employeePrincipalPositionFullPath,
+                    typeName: item.prizePenaltyTypeClassifyName,
+                    type: item.prizePenaltyTypeName,
+                    effectedDate: moment(item.effectiveDate).format(this.dateFormat),
+                    status: item.recordStateName,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;

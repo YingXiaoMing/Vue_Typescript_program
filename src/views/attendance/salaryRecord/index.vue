@@ -116,10 +116,10 @@ export default class SalaryRecord extends Vue {
             const data = res.data;
             this.employeeDataList = _.map(data, (item) => {
                 return {
-                    value: item.Id,
-                    text: item.EmployeeStringID + '-' + item.FullName,
-                    id: item.EmployeeStringID,
-                    name: item.FullName,
+                    value: item.id,
+                    text: item.employeeStringID + '-' + item.fullName,
+                    id: item.employeeStringID,
+                    name: item.fullName,
                 };
             });
         });
@@ -170,6 +170,8 @@ export default class SalaryRecord extends Vue {
                     operator: item.advanceHolidayWithSalaryHours,
                 };
             });
+            console.log('重新出发吗');
+            console.log(this.tabData);
             this.searchLoading = false;
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;

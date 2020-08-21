@@ -145,9 +145,9 @@ export default class Tab2 extends Vue {
         getCompanyOrganizationChart().then((res: any) => {
             const data = res.data;
             const newData: TableData = {
-                title: data.Name,
-                key: data.Id,
-                value: data.Id,
+                title: data.name,
+                key: data.id,
+                value: data.id,
                 description: 'company',
                 children: [],
             };
@@ -276,22 +276,22 @@ export default class Tab2 extends Vue {
         searchPrizePenaltyRecord(param).then((res) => {
             this.tabData = _.map(res.data, (item) => {
                 return {
-                    key: item.Id,
-                    num: item.EmployeeStringID,
-                    name: item.EmployeeFullName,
-                    position: item.EmployeePrincipalPositionFullPath,
-                    isReward: item.PrizePenaltyTypeClassifyName,
-                    rewardType: item.PrizePenaltyTypeName,
-                    date: moment(item.EffectiveDate).format(this.dateFormat),
-                    situationDescription: item.SituationDescription,
-                    solution: item.Solution,
-                    orderNum: item.WorkOrderNumber,
-                    status: item.RecordStateName,
-                    typeId: item.PrizePenaltyTypeId,
-                    id: item.Id,
-                    employeeId: item.EmployeeId,
-                    isAllowModification: item.RecordStateValue === 1 ? true : false,
-                    createDateTime: moment(item.CreateDateTime).format(this.dateTimeFormat),
+                    key: item.id,
+                    num: item.employeeStringID,
+                    name: item.employeeFullName,
+                    position: item.employeePrincipalPositionFullPath,
+                    isReward: item.prizePenaltyTypeClassifyName,
+                    rewardType: item.prizePenaltyTypeName,
+                    date: moment(item.effectiveDate).format(this.dateFormat),
+                    situationDescription: item.situationDescription,
+                    solution: item.solution,
+                    orderNum: item.workOrderNumber,
+                    status: item.recordStateName,
+                    typeId: item.prizePenaltyTypeId,
+                    id: item.id,
+                    employeeId: item.employeeId,
+                    isAllowModification: item.recordStateValue === 1 ? true : false,
+                    createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });
             this.searchLoading = false;
