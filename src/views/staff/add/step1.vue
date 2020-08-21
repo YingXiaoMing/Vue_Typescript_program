@@ -230,7 +230,7 @@ export default class Step1 extends Vue {
                     check: data.employmentProbrationInfo.probrationEndedDate ? true : false,
                     date: data.employmentProbrationInfo.probrationEndedDate ? moment(data.employmentProbrationInfo.probrationEndedDate).format(this.dateFormat) : null,
                 },
-                imageUrl: data.isHasPortrait ? config.baseUrl + '/employee/' + this.employeeId + '/PortraitImage' : this.orginImageUrl,
+                imageUrl: data.isHasPortrait ? data.imageUrl : this.orginImageUrl,
             });
         });
     }
