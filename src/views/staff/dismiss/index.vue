@@ -77,7 +77,7 @@ export default class Dismiss extends Vue {
         this.fetch(value);
     }
     private created() {
-        this.fetch('');
+        // this.fetch('');
     }
     private valueChange(value: string) {
         this.searchKey = value;

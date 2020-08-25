@@ -102,7 +102,7 @@ export default class Tab1 extends Vue {
     };
     private created() {
         this.form = this.$form.createForm(this);
-        this.fetch('');
+        // this.fetch('');
     }
     private focusHandle() {
         this.handleChange(this.searchKey);

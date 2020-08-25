@@ -86,7 +86,7 @@ export default class SalaryRecord extends Vue {
     private employeeDataList: EmployeeData[] = [];
     private created() {
         this.form = this.$form.createForm(this);
-        this.fetch('');
+        // this.fetch('');
     }
     private pageChange(current: number, pageSize: number) {
         // this.param.set('PageNumber', current.toString());

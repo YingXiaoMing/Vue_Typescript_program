@@ -99,7 +99,7 @@ export default class Transfer extends Vue {
         this.handleChange(this.searchKey);
     }
     private created() {
-        this.fetch('');
+        // this.fetch('');
     }
     private activated() {
         if (this.$route.params.form) {

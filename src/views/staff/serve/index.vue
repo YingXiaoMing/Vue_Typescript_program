@@ -142,7 +142,7 @@ export default class Serve extends Vue {
     private $form: any;
     private created() {
         this.form = this.$form.createForm(this);
-        this.fetch('');
+        // this.fetch('');
         getEmployeePositionDelegatedType().then((res: any) => {
             const data = res.data;
             this.positionDelegateTypeOption = this.transformSelectData(data);

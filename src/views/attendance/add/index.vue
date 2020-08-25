@@ -66,9 +66,6 @@ export default class Add extends Vue {
     private employeeNum: string = '';
     private searchKey: string = '';
     private employeeId: string = '';
-    private created() {
-        this.fetch('');
-    }
     private onSelect(value: string) {
         const item = _.find(this.employeeDataList, {value});
         if (item) {

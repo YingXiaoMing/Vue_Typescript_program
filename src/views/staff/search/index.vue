@@ -129,7 +129,7 @@ export default class Search extends Vue {
         this.form = this.$form.createForm(this, {
             IsIncludeTerminated: false,
         });
-        this.fetch('');
+        // this.fetch('');
     }
     private showTotal(total: string, range: any) {
         return  `总记录数: ${total}条`;

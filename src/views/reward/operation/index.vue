@@ -139,7 +139,7 @@ export default class Operation extends Vue {
         this.form = this.$form.createForm(this, {
             IsIncludeTerminated: false,
         });
-        this.fetch('');
+        // this.fetch('');
     }
     private handleChange(value: string) {
         this.fetch(value);
