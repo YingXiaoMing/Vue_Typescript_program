@@ -59,7 +59,7 @@ export const asyncRouterMap: RouterItem[] = [
                     },
                     {
                         path: 'transfer',
-                        name: 'stafftransfer',
+                        name: 'staff-transfer',
                         isShow: true,
                         icon: 'team',
                         component: () => import('../views/staff/transfer/index.vue'),
