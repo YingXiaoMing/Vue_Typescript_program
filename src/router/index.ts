@@ -184,14 +184,14 @@ export const asyncRouterMap: RouterItem[] = [
                 component: () => import('../views/sys/department/index.vue'),
                 meta: {key: 'department', title: '部门管理'},
             },
-            {
-                path: 'export',
-                icon: 'export',
-                name: 'staffExport',
-                isShow: true,
-                component: () => import('../views/staff/export/index.vue'),
-                meta: {key: 'staffExport', title: '基础数据导入'},
-            },
+            // {
+            //     path: 'export',
+            //     icon: 'export',
+            //     name: 'staffExport',
+            //     isShow: true,
+            //     component: () => import('../views/staff/export/index.vue'),
+            //     meta: {key: 'staffExport', title: '基础数据导入'},
+            // },
         ],
     },
 ];
