@@ -289,8 +289,8 @@ export default class Step1 extends Vue {
         getEmployeePositionData(this.employeeId).then((res: any) => {
             const data = res.data;
             this.positionETag = res.headers.etag;
-            const principalPositionId = data.PrincipalPositionId;
-            const newData = _.map(data.Positions, (item) => {
+            const principalPositionId = data.principalPositionId;
+            const newData = _.map(data.positions, (item) => {
                 return {
                     position: item.positionFullPath,
                     mainPosition: _.isEqual(item.id, principalPositionId),
