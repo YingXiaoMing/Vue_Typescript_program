@@ -78,7 +78,7 @@ export default class Transfer extends Vue {
         getEmployeePositionData(employeId).then((res: any) => {
             // tslint:disable-next-line:no-shadowed-variable
             const data = res.data;
-            this.originPostions = _.map(data.Positions, (item: any) => {
+            this.originPostions = _.map(data.positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,

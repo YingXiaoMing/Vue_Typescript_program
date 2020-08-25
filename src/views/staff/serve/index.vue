@@ -225,7 +225,7 @@ export default class Serve extends Vue {
     private searchEmployeePositionData(employeeId: string) {
         getEmployeePositionData(employeeId).then((res: any) => {
             const data = res.data;
-            this.OriginPostionOptions = _.map(data.Positions, (item: any) => {
+            this.OriginPostionOptions = _.map(data.positions, (item: any) => {
                 return {
                     key: item.id,
                     label: item.positionFullPath,

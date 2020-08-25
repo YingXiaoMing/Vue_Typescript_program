@@ -1,5 +1,5 @@
 <template>
-        <a-form :form="form">
+        <a-form :form="form" class="v_search_employeeForm">
             <a-row :gutter="24">
                 <a-col :span="8">
                     <a-form-item v-bind="formItemLayout" label="查询关键字">
@@ -628,6 +628,7 @@ export default class FormModal extends Vue {
             // 获取地址类型
             getAddressTypeOption().then((res) => {
                 this.addressTypeOption = this.transformSelectData(res.data);
+                this.addressTypeOption = _.flatten([{key: '全部', label: '全部'}, this.addressTypeOption]);
                 resolve();
             });
         });
@@ -665,7 +666,7 @@ export default class FormModal extends Vue {
         return _.map(data, (item: any) => {
             return {
                 value: item.id,
-                label: item.Name,
+                label: item.name,
             };
         });
     }
@@ -674,10 +675,17 @@ export default class FormModal extends Vue {
         return _.map(data, (item: any) => {
             return {
                 key: item.id,
-                label: item.Name,
+                label: item.name,
             };
         });
     }
 }
 </script>
 
+<style lang="less">
+.v_search_employeeForm {
+    .ant-form-item {
+        margin-bottom: 0px;
+    }
+}
+</style>
