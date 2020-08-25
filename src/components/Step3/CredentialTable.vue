@@ -139,7 +139,7 @@ export default class CredentialTable extends Vue {
             this.fileList  = _.map(data.employeeCredentialAttachments, (item) => {
                 return {
                     key: item.id,
-                    name: item.attachmentInfo.fileName,
+                    name: item.attachmentInfo.originalName,
                     description: item.description,
                     editable: false,
                     disable: false,

@@ -151,7 +151,7 @@ export default class ContractTable extends Vue {
             this.fileList  = _.map(data.employeeContractAttachments, (item) => {
                 return {
                     key: item.id,
-                    name: item.attachmentInfo.fileName,
+                    name: item.attachmentInfo.originalName,
                     description: item.description,
                     editable: false,
                     disable: false,

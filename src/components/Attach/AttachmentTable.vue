@@ -123,7 +123,7 @@ export default class AttachmentTable extends Vue {
             this.data = _.map(data[this.keyName], (item) => {
                 return {
                     key: item.id,
-                    name: item.attachmentInfo.fileName,
+                    name: item.attachmentInfo.originalName,
                     description: item.description,
                     editable: false,
                     disable: false,
