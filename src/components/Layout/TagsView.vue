@@ -2,7 +2,7 @@
     <div class="scroll-container">
         <router-link ref="tag" class="tags-view-item"
         v-for="tag in Array.from(visitedView)"
-        :to="tag.path" :key="tag.path" :class="isActive(tag) ? 'active': ''">
+        :to="tag" :key="tag.path" :class="isActive(tag) ? 'active': ''">
             {{ tag.meta.title }}
             <a-icon v-if="visitedView.length > 1" type="close-circle" @click.prevent.stop="closeSelectedTag(tag)"/>
         </router-link>
