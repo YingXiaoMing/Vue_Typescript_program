@@ -80,10 +80,10 @@ export default class MenuList extends Vue {
     }
 
     public openPage(path: string) {
-        if (_.isEqual(path, '/staff/add')) {
+        if (_.isEqual(path, '/staff/staffadd')) {
             this.$store.dispatch('changeEmployeeStatus', 1);
             this.$store.dispatch('changeNewEmployeeStatus', 1);
-        } else if (_.isEqual(path, '/staff/edit')) {
+        } else if (_.isEqual(path, '/staff/staffEdit')) {
             this.$store.dispatch('changeEmployeeStatus', 3);
         }
         this.$router.push(path);

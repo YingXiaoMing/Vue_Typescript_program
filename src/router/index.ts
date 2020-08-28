@@ -95,7 +95,7 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/reward',
         icon: 'edit',
         name: 'reward',
-        component: () => import('../views/reward'),
+        component: () => import('../views/layout'),
         meta: { key: 'reward', title: '奖惩操作' },
         children: [
             {
@@ -128,7 +128,7 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/attend',
         icon: 'dingding',
         name: 'attend',
-        component: () => import('../views/attendance'),
+        component: () => import('../views/layout'),
         meta: { key: 'attend', title: '考勤操作'},
         children: [{
             path: 'attendAdd',
@@ -164,7 +164,7 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/sys',
         icon: 'layout',
         name: 'sys',
-        component: () => import('../views/sys'),
+        component: () => import('../views/layout'),
         meta: { key: 'sys', title: '系统操作' },
         children: [
             {

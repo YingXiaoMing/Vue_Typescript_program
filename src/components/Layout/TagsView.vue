@@ -18,6 +18,7 @@ export default class TagsView extends Vue {
     private $store: any;
     private $route: any;
     get visitedView() {
+        console.log(this.$store.state.app.tabList);
         return this.$store.state.app.tabList;
     }
     private isActive(route: any): boolean {

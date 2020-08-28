@@ -132,7 +132,7 @@ export default class SearchTable extends Vue {
         this.$store.dispatch('ChangeEditEmployeeId', key);
         setEmployeeID(key);
         this.$router.replace({
-            path: '/staff/edit',
+            path: '/staff/staffEdit',
         });
         // this.$router.push('/staff/edit');
     }
