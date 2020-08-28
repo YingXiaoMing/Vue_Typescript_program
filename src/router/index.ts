@@ -18,16 +18,15 @@ export const asyncRouterMap: RouterItem[] = [
         meta: { key: 'staff', title: '员工操作' },
         children: [
             {
-                path: 'add',
+                path: 'staffadd',
                 icon: 'user-add',
                 name: 'staffadd',
                 isShow: true,
                 component: () => import('../views/staff/add/index.vue'),
                 meta: {key: 'staffadd', title: '新增员工'},
             },
-            
             {
-                path: 'search',
+                path: 'staffSearch',
                 icon: 'idcard',
                 name: 'staffSearch',
                 isShow: true,
@@ -35,7 +34,7 @@ export const asyncRouterMap: RouterItem[] = [
                 meta: {key: 'staffSearch', title: '查询员工资料'},
             },
             {
-                path: 'edit',
+                path: 'staffEdit',
                 name: 'staffEdit',
                 isShow: false,
                 icon: 'idcard',
@@ -50,7 +49,7 @@ export const asyncRouterMap: RouterItem[] = [
                 meta: {key: 'staffremote', title: '人事调用'},
                 children: [
                     {
-                        path: 'serve',
+                        path: 'staffServe',
                         name: 'staffServe',
                         isShow: true,
                         icon: 'crown',
@@ -58,15 +57,15 @@ export const asyncRouterMap: RouterItem[] = [
                         meta: {key: 'staffServe', title: '员工任职'},
                     },
                     {
-                        path: 'transfer',
-                        name: 'staff-transfer',
+                        path: 'staffTransfer',
+                        name: 'staffTransfer',
                         isShow: true,
                         icon: 'team',
                         component: () => import('../views/staff/transfer/index.vue'),
-                        meta: {key: 'stafftransfer', title: '员工调离职'},
+                        meta: {key: 'staffTransfer', title: '员工调离职'},
                     },
                     {
-                        path: 'dismiss',
+                        path: 'staffdismiss',
                         name: 'staffdismiss',
                         isShow: true,
                         icon: 'tag',
@@ -74,7 +73,7 @@ export const asyncRouterMap: RouterItem[] = [
                         meta: {key: 'staffdismiss', title: '员工撤复职'},
                     },
                     {
-                        path: 'srecord',
+                        path: 'staffRecordSearch',
                         name: 'staffRecordSearch',
                         isShow: true,
                         icon: 'file-text',
@@ -108,7 +107,7 @@ export const asyncRouterMap: RouterItem[] = [
                 meta: { key: 'addReward', title: '新增奖惩' },
             },
             {
-                path: 'record',
+                path: 'rewardRecord',
                 icon: 'layout',
                 isShow: true,
                 name: 'rewardRecord',

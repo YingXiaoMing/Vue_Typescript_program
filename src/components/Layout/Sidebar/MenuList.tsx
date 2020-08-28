@@ -33,6 +33,7 @@ export default class MenuList extends Vue {
                 selectedKeys= {this.keys}
                 on-click={(params: {item: any, key: string, keyPath: string[]}) => {
                     const keyPath = params.keyPath.reverse();
+                    console.log(keyPath.join('/'));
                     this.openPage(keyPath.join('/'));
                 }}
                 >

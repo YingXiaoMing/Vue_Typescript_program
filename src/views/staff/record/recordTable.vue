@@ -157,6 +157,11 @@ export default class RecordTable extends Vue {
         width: 98,
         scopedSlots: { customRender: 'action' },
     }, {
+        title: '操作人',
+        dataIndex: 'operator',
+        align: 'center',
+        scopedSlots: { customRender: 'operator' },
+    }, {
         title: '操作时间',
         dataIndex: 'createDateTime',
         align: 'center',
