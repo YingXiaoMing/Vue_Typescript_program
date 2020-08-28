@@ -14,7 +14,7 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/staff',
         icon: 'user',
         name: 'staff',
-        component: lazyLoadView('staff'),
+        component: () => import('../views/layout'),
         meta: { key: 'staff', title: '员工操作' },
         children: [
             {
@@ -45,7 +45,7 @@ export const asyncRouterMap: RouterItem[] = [
                 path: 'remote',
                 name: 'staffremote',
                 icon: 'solution',
-                component: () => import('../views/staff/remote'),
+                component: () => import('../views/layout'),
                 meta: {key: 'staffremote', title: '人事调用'},
                 children: [
                     {

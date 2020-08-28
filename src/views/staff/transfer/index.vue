@@ -58,7 +58,7 @@ interface EmployeeData {
         'a-input': Input,
         'a-tab-component': TabComponent,
     },
-    name: 'stafftransfer',
+    name: 'staffTransfer',
 })
 export default class Transfer extends Vue {
     private labelCol = { xs: {span: 24}, xl: {span: 10}, xxl: {span: 8}};
