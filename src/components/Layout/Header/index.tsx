@@ -84,12 +84,12 @@ export default class Header extends Vue {
                 this.modalVisible = true;
                 break;
             case 'userLogOut':
-                removeAccessToken();
-                removeRefreshToken();
-                this.SingOutFromSingoutEndPoint();
+                // removeAccessToken();
+                // removeRefreshToken();
+                // this.SingOutFromSingoutEndPoint();
                 // this.$store.dispatch('Logout');
                 // removeToken();
-                // this.$router.push('/login');
+                this.$router.push('/login');
                 break;
             default:
                 break;

@@ -2,41 +2,40 @@
     <div class='wrapper'>
         <div class='staff-head'>
             <a-row :gutter="24" >
-                    <!-- <a-row>
-                        <a-col :xxl="12" :md="20" :sm="24">
-                            <a-form-item label="导出选项" v-bind="formItemLayout">
-                                <a-checkbox-group>
-                                    <a-row>
-                                        <a-col :span="6"><a-checkbox value="1">基本信息</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="2">身份证件信息</a-checkbox></a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="3">联系电话</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="4">联系地址</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="5">紧急联系人资料</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="6">职位信息</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="7">教育经历</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="8">工作经历</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="9">证件资料</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="10">个人合同</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="11">银行账号</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="12">电脑登录账号</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="13">企业邮箱</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="14">企业钉钉</a-checkbox></a-col>
-                                        <a-col :span="6"><a-checkbox value="15">关联文档</a-checkbox></a-col>
-                                    </a-row>
-                                </a-checkbox-group>
-                            </a-form-item>
-                        </a-col>
-                    </a-row> -->
-                    <a-row>
-                        <a-divider orientation="left">
-                            基础资料导入
-                        </a-divider>
-                        <a-col :xxl="12" :md="20" :sm="24" class="export_de">
-                            <a-button @click="exportBasicData">导入基础资料</a-button>
-                        </a-col>
-                    </a-row>
+                <a-col :span="24">
+                    <a-divider orientation="left">
+                        基础资料导入
+                    </a-divider>
+                    <a-col :xxl="12" :md="20" :sm="24" class="export_de">
+                        <a-button @click="exportBasicData">导入基础资料</a-button>
+                    </a-col>
+                </a-col>
+                <a-col :span="24">
+                    <a-divider orientation="left">
+                        奖惩记录导入
+                    </a-divider>
+                    <a-col :xxl="12" :md="20" :sm="24" class="export_de">
+                        <a-button @click="exportPrizePenaltyData">导入奖惩记录</a-button>  
+                    </a-col>
+                </a-col>
+                <a-col :span="24">
+                    <a-divider orientation="left">
+                        请假出差记录导入
+                    </a-divider>
+                    <a-col :xxl="12" :md="20" :sm="24" class="export_de">
+                        <a-button @click="exportBussinessData">导入请假出差记录</a-button>
+                    </a-col>
+                </a-col>
+                <a-col :span="24">
+                    <a-divider orientation="left">
+                        员工信息导入
+                    </a-divider>
+                    <a-col :xxl="12" :md="20" :sm="24" class="export_de">
+                        <a-button @click="exportInfoData">导入员工信息</a-button>
+                    </a-col>
+                </a-col>
             </a-row>
-            <a-export-modal :visible="basciDataModalVisible"></a-export-modal>
+            <a-export-modal :visible="modalVisible" @cancel="cancelHandle" :mUrl="exportURL" :title="modalTitle"></a-export-modal>
         </div>
     </div>
 </template>
@@ -51,14 +50,31 @@ import ExportModal from '@/components/UploadModal/index.vue';
     name: 'staffExport',
 })
 export default class StaffExport extends Vue {
-    private basciDataModalVisible: boolean = false;
-
-    private created() {
-        console.log('这是一个测数据');
-    }
+    private modalVisible: boolean = false;
+    private modalTitle: string = '';
+    private exportURL: string = '';
     private exportBasicData() {
-        console.log('你何必这么烦，你何必那么乱');
-        this.basciDataModalVisible = true;
+        this.exportURL = '/ImportData/ImportBaseData';
+        this.modalTitle = '基础资料';
+        this.modalVisible = true;
+    }
+    private exportPrizePenaltyData() {
+        this.exportURL = '/ImportData/ImportPrizePenaltyData';
+        this.modalTitle = '奖惩记录';
+        this.modalVisible = true;
+    }
+    private exportBussinessData() {
+        this.exportURL = '/ImportData/ImportAskforLeaveOvertimeBusinesstripRecord';
+        this.modalTitle = '请假出差记录';
+        this.modalVisible = true;
+    }
+    private exportInfoData() {
+        this.exportURL = '/ImportData/ImportEmployeeInfo';
+        this.modalTitle = '员工信息';
+        this.modalVisible = true;
+    }
+    private cancelHandle() {
+        this.modalVisible = false;
     }
 }
 </script>
