@@ -96,3 +96,23 @@ function traverseStepNodechilden(data: RemoteSubCompanyData[] | RemoteSubDepartm
 export function lazyLoadView(view: any) {
     return () => import(`@/views/${view}`);
 }
+
+
+
+// 获取路由器的url参数
+
+export function getQueryObject(url?: string): {id_token: string} {
+    const newUrl = url == null ? window.location.href : url;
+    const search = newUrl.substring(newUrl.lastIndexOf('?') + 1);
+    const obj = {};
+    const reg = /([^?&=]+)=([^?&=]*)/g
+    search.replace(reg, (sa: any, $1: any, $2: any) => {
+        const name = decodeURIComponent($1);
+        let val = decodeURIComponent($2);
+        val = String(val);
+        obj[name] = val;
+        return sa;
+    });
+    return obj;
+} 
+

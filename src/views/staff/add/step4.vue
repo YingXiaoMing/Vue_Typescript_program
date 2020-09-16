@@ -36,6 +36,11 @@
                             </a-form-item>
                         </a-col>
                         <a-col :span="8">
+                            <a-form-item label="合同到期提醒" v-bind="formItemLayout">
+                                <a-checkbox v-decorator="['remind']"></a-checkbox>
+                            </a-form-item>
+                        </a-col>
+                        <a-col :span="8">
                             <a-form-item label="备注" v-bind="formItemLayout">
                                 <a-input v-decorator="['note']"></a-input>
                             </a-form-item>

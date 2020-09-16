@@ -230,5 +230,37 @@ export const searchEmployeeData = (paramString: any) =>
     request.get('/employee/GetAllEmployeeBasic?' + paramString);
 
 
+// 获取员工的用户名
+export const getEmployeeAccountData = (employeeId: string) =>
+    request.get('/EmployeeAccount/' + employeeId);
 
+
+// 新增域账号
+export const addEmployeeCompanyAccount = (employeeId: string, param: any) =>
+    request.post('/EmployeeCompanyAccount/' + employeeId, param);
+
+// 新增邮箱账号
+export const addEmployeeCompanyEmail = (employeeId: string, param: any) =>
+    request.post('/EmployeeEmailAccount/' + employeeId, param);
+
+// 更新邮箱状态
+export const updateEmployeeCompoanyEmail = (employeeId: string, param: boolean) =>
+    request.put('/EmployeeEmailAccount/' + employeeId + '?isEnableEmailAccount=' + param);
+
+// 更新账户状态
+export const updateEmployeeCompanyAccount = (employeeId: string, param: boolean) =>
+    request.put('/EmployeeCompanyAccount/' + employeeId + '?isEnableCompanyAccount=' + param);
+
+
+// 新增钉钉账号
+export const addEmployeeCompanyDingDing = (employeeId: string, param: any) =>
+    request.post('/EmployeeDingDingAccount/' + employeeId, param);
+
+// 更换钉钉
+export const replacePhoneNumCompanyDingDing = (employeeId: string, param: any) =>
+    request.put('/EmployeeDingDingAccount/' + employeeId, param);
+
+// 退出钉钉
+export const deleteCompanyDingDing = (employeeId: string) =>
+    request.delete('/EmployeeDingDingAccount/' + employeeId);
 

@@ -8,8 +8,9 @@
                     </div>
                 </a-col>
                 <a-col :span="24">
-                        <a-upload-dragger name="file" :multiple="false" :action="BaseUrl + mUrl"
-                    @change="handleChange" :file-list="fileList">
+                    <!-- @change="handleChange" -->
+                        <a-upload-dragger name="file" :multiple="false"
+                     :file-list="fileList" :customRequest="UploadFile" @change="handleChange">
                         <p class="ant-upload-drag-icon">
                             <a-icon type="inbox"></a-icon>
                         </p>
@@ -25,7 +26,11 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 import { message } from 'ant-design-vue';
+import { uploadExcelFile } from '@/api/basic';
+
+
 import config from '@/utils/config';
+import { TextDecoder } from 'util';
 @Component({
     components: {},
 })
@@ -61,12 +66,37 @@ export default class UploadModal extends Vue {
         this.fileList = [];
         this.$emit('cancel');
     }
-    private handleChange(info: any) {
+    private UploadFile(param: any) {
+        const formData = new FormData();
+        formData.append('file', param.file);
+        uploadExcelFile(this.BaseUrl + this.mUrl, formData).then((res: any) => {
+            if (res.status === 200) {
+                message.error('上传失败,请检查返回的Excel错误信息');
+                param.onError(res, param.file);
+                const binaryData = [];
+                binaryData.push(res.data);
+                const url = window.URL.createObjectURL(new Blob(binaryData, {type: 'application/vnd.ms-excel'}));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = param.file.name;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(a.href);
+                document.body.removeChild(a);
+            } else if (res.status === 204) {
+                message.success('上传成功');
+                param.onSuccess(res, param.file);
+            }
+        }).catch((error: any) => {
+            let enc = new TextDecoder('utf-8');
+            let blob = JSON.parse(enc.decode(new Uint8Array(error.response.data)))
+            console.log(blob);
+        })
+    }
+    private handleChange(info: any,data: any, event: any) {
         const status = info.file.status;
         const { fileList } = info;
-        if (status === 'done') {
-            message.success('上传成功');
-        }
         this.fileList = [... fileList];
     }
     private downloadModal() {

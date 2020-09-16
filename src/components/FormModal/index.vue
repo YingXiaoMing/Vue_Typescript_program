@@ -137,7 +137,7 @@
                                   <a-select-option v-for="item in credentialType" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
-                            <a-form-item v-bind="formItemLayout2" label="证书日期">
+                            <a-form-item v-bind="formItemLayout2" label="证书到期日期">
                                 <a-range-picker v-decorator="['credentialDate']">
                                     <a-icon slot="suffixIcon" type="smile"></a-icon>
                                 </a-range-picker>
@@ -147,7 +147,7 @@
                                   <a-select-option v-for="item in contractType" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
-                            <a-form-item v-bind="formItemLayout2" label="合同日期">
+                            <a-form-item v-bind="formItemLayout2" label="合同到期日期">
                                 <a-range-picker v-decorator="['contractDate']">
                                     <a-icon slot="suffixIcon" type="smile"></a-icon>
                                 </a-range-picker>
@@ -312,8 +312,8 @@ export default class FormModal extends Vue {
         wrapperCol: { span: 16 },
     };
     private formItemLayout2 = {
-        labelCol: { span: 4 },
-        wrapperCol: { span: 20 },
+        labelCol: { span: 6 },
+        wrapperCol: { span: 18 },
     };
     private isVisible: boolean = this.visible;
     @Watch('visible')

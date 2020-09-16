@@ -89,7 +89,8 @@ export default class Header extends Vue {
                 // this.SingOutFromSingoutEndPoint();
                 // this.$store.dispatch('Logout');
                 // removeToken();
-                this.$router.push('/login');
+                // this.$router.push('/login');
+                window.location.href = 'http://192.168.20.222';
                 break;
             default:
                 break;

@@ -5,10 +5,12 @@ import router , { asyncRouterMap } from '@/router';
 import store from '@/store';
 import awsconfig from './aws-exports';
 import Amplify from 'aws-amplify';
-import { getAccessToken, setAccessToken, setRefreshToken } from '@/utils/auth';
+import { getAccessToken, setAccessToken } from '@/utils/auth';
 import Antd from 'ant-design-vue';
 import config from '@/utils/config';
 import { getEmployeeToken } from '@/api/operation';
+import { getQueryObject } from '@/utils';
+
 Vue.config.productionTip = false;
 import _ from 'lodash';
 Vue.prototype.$confirm = Modal.confirm;
@@ -32,7 +34,20 @@ Vue.prototype.globalClick = function(callback: any) {
     });
   }
 };
+
+
 router.beforeEach((to: any, from: any, next: any) => {
+  const queryObj = getQueryObject();
+  const accessToken = queryObj.id_token;
+  if (getAccessToken() || accessToken) {
+    setAccessToken(accessToken);
+  } else {
+    window.location.href = 'http://192.168.20.222';
+  }
+  // if (queryObj.id_token) {
+
+  // }
+  // if (queryObj.id)
   // const code = to.query.code;
   // const stateCode = to.query.state;
   // if (code && VerifyStateCode(stateCode) || getAccessToken()) {

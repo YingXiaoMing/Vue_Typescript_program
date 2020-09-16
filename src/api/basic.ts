@@ -195,3 +195,14 @@ export const getBusinessOptions = () =>
         url: '/AskforLeaveOvertimeBusinesstripType/Businesstrip',
         method: 'get',
     });
+
+
+// 上传EXCEL附件
+
+export const uploadExcelFile = (url: string, param: any) =>
+    request({
+        url,
+        method: 'post',
+        responseType: 'arraybuffer',
+        data: param,
+    });

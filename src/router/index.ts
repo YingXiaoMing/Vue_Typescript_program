@@ -5,11 +5,20 @@ import { lazyLoadView } from '@/utils';
 Vue.use(Router);
 
 export const constantRouterMap: RouterItem[] & RouterOptions['routes'] = [
-    {path: '/', name: 'home', redirect: '/home'},
+    {path: '/', name: 'home', redirect: '/dashboard'},
     {path: '/login', name: 'login', component: () => import('../views/Other/login.vue')},
 ];
 
 export const asyncRouterMap: RouterItem[] = [
+    {
+        path: '/dashboard',
+        icon: 'home',
+        name: 'dashboard',
+        component: () => import('../views/home/index.vue'),
+        meta: {
+            key: 'dashboard',
+        },
+    },
     {
         path: '/staff',
         icon: 'user',
@@ -198,7 +207,7 @@ export const asyncRouterMap: RouterItem[] = [
 const routes = [ ...asyncRouterMap, ...constantRouterMap];
 
 export default new Router({
-    mode: 'hash',
+    mode: 'history',
     routes,
 });
 

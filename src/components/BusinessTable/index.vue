@@ -169,6 +169,11 @@ export default class PrizeTable extends Vue {
     }
     private addRow(key: string) {
         const target = this.data.filter((item) => _.isEqual(key, item.key))[0];
+        const originData = this.deleteLast(_.cloneDeep(this.data));
+        if (_.find(originData, {name: target.name})) {
+            message.error('不允许添加重复的数据');
+            return;
+        }
         if (target && this.isNullData(target)) {
             newBusinessClassify({
                 name: target.name,
@@ -177,6 +182,9 @@ export default class PrizeTable extends Vue {
                 this.loadData();
             });
         }
+    }
+    private deleteLast(arr: any) {
+        return arr.slice(0, arr.length - 1);
     }
     private removeRow(key: string) {
         deleteBusinessClassify(key).then(() => {

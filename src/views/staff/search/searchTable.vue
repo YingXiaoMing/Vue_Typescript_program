@@ -6,9 +6,9 @@
         </template>
         <template slot="action" slot-scope="text,record">
             <span>
-                <a @click="makeEmployeeDataEditable(record.key)">编辑</a>
+                <a @click="makeEmployeeDataEditable(record.key)">查看/编辑</a>
                 <a-divider type="vertical"></a-divider>
-                <a @click="transfer(record.key)">调职</a>
+                <a @click="transfer(record.key)">调/离职</a>
             </span>
         </template>
         <template slot="position" slot-scope="position">
@@ -140,7 +140,7 @@ export default class SearchTable extends Vue {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
         const newData = {...{employeeId: target.num, employeeName: target.name, employeeNum: target.id}};
         this.$router.push({
-            name: 'staff-transfer',
+            name: 'staffTransfer',
             params: {
                 form: newData,
             },
