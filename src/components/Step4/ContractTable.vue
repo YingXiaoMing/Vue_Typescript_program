@@ -18,6 +18,10 @@
                     @change="(date,dateString) => handleChange(dateString, record.key, 'issueDate')"></a-date-picker>
                 <template v-else>{{ text }}</template>
             </template>
+            <template slot="isExpirationReminder" slot-scope="text, record">
+                <a-checkbox v-if="record.editable" :checked="text" @change="e => handleChange(e.target.checked, record.key, 'isExpirationReminder')"></a-checkbox>
+                <template v-else>{{ text ? '是': '否' }}</template>
+            </template>
             <template slot="expireDate" slot-scope="text,record">
                 <a-date v-if="record.editable" :value="text" @change="e => handleChange(e, record.key, 'expireDate')"></a-date>
                 <template v-else>{{ text.date === `9999-12-31`?`永久` : text.date }} </template>
@@ -48,7 +52,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
-import { Table, Divider, DatePicker, Input, Select, message } from 'ant-design-vue';
+import { Table, Divider, DatePicker, Input, Select, message, Checkbox } from 'ant-design-vue';
 import { SelectValue, ColumnList, RemoteAttachmentData, AttachmentData, RemoteContractTableData } from '@/interface';
 import Attach from '@/components/Attach/index.vue';
 import jsonpatch from 'fast-json-patch';
@@ -123,6 +127,11 @@ export default class ContractTable extends Vue {
         dataIndex: 'expireDate',
         align: 'center',
         scopedSlots: { customRender: 'expireDate' },
+    }, {
+        title: '合同到期提醒',
+        dataIndex: 'isExpirationReminder',
+        align: 'center',
+        scopedSlots: { customRender: 'isExpirationReminder' },
     }, {
         title: '备注',
         dataIndex: 'note',
@@ -230,6 +239,7 @@ export default class ContractTable extends Vue {
                 expireDate: item.expireDate.value === '1' ? item.expireDate.date : '9999-12-31',
                 no: item.contractNum,
                 note: item.note,
+                isExpirationReminder: item.isExpirationReminder,
             };
         });
         return newData;

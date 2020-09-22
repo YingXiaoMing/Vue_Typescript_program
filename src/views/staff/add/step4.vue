@@ -37,16 +37,16 @@
                         </a-col>
                         <a-col :span="8">
                             <a-form-item label="合同到期提醒" v-bind="formItemLayout">
-                                <a-checkbox v-decorator="['remind']"></a-checkbox>
+                                <a-checkbox v-decorator="['isExpirationReminder']"></a-checkbox>
                             </a-form-item>
                         </a-col>
+                    </a-row>
+                    <a-row :gutter="24">
                         <a-col :span="8">
                             <a-form-item label="备注" v-bind="formItemLayout">
                                 <a-input v-decorator="['note']"></a-input>
                             </a-form-item>
                         </a-col>
-                    </a-row>
-                    <a-row :gutter="24">
                         <a-col :span="8">
                             <a-form-item label="证件上传" v-bind="formItemLayout">
                                 <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
@@ -57,7 +57,7 @@
                                 </a-upload>
                             </a-form-item>
                         </a-col>
-                        <a-col :span="16">
+                        <a-col :span="8">
                             <a-form-item class='rightBtn'>
                                 <a-button type="primary" @click="contractDataAdd">新增</a-button>
                             </a-form-item>
@@ -108,6 +108,7 @@ interface NewValueForm {
         value: string;
     };
     note: string;
+    isExpirationReminder: boolean;
 }
 @Component({
     components: {
@@ -234,6 +235,7 @@ export default class Step4 extends Vue {
                     issueDate: moment(item.issueDate).format(this.dateFormat),
                     expireDate: _.isEqual(moment(item.expireDate).format(this.dateFormat), '9999-12-31') ? {date: '9999-12-31', value: '0', isShow: true} : {date: moment(item.expireDate).format(this.dateFormat), value: '1', isShow: false},
                     editable: false,
+                    isExpirationReminder: item.isExpirationReminder,
                     disable: false,
                 };
             });
@@ -256,6 +258,7 @@ export default class Step4 extends Vue {
             note: data.note,
             issueDate:  moment(data.issueDate).format(this.dateFormat),
             expireDate: data.expireDate.value ===  '0' ? '9999-12-31' : data.expireDate.date,
+            isExpirationReminder: data.isExpirationReminder,
         };
     }
     private nextStep() {
