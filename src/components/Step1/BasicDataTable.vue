@@ -99,7 +99,9 @@
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item label="员工状态" v-bind="formItemLayout">
-                                <a-tag color="#2db7f5">正式员工</a-tag>
+                                <a-select labelInValue v-decorator="['employeeStatus', {rules: [{ required: true, message: ' ' }], initialValue: basicData.employeeStatus}]">
+                                    <a-select-option v-for="item in employeeStatusOption" :value="item.key">{{item.label}}</a-select-option>
+                                </a-select>
                             </a-form-item>
                         </a-col>
                         <a-col :span="24">
@@ -179,6 +181,19 @@ export default class BasicDataTable extends Vue {
     }, {
         key: 2,
         label: '已婚',
+    }];
+    private employeeStatusOption = [{
+        key: 1,
+        label: '试用期员工',
+    }, {
+        key: 2,
+        label: '正式员工',
+    }, {
+        key: 3,
+        label: '离职员工',
+    }, {
+        key: 4,
+        label: '留职停薪',
     }];
     private highEducationOption: SelectValues[] = this.options.highEducationOption;
     private employeeOriginOption: SelectValues[] = this.options.employeeOriginOption;
