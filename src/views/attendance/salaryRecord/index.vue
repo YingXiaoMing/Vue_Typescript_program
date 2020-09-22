@@ -22,23 +22,35 @@
                     <a-col :lg="10" :md="12" :sm="24">
                         <a-form-item>
                             <a-button type="primary" @click="searchClick">快速查询</a-button>
+                            <a-popover trigger="hover" title="说明" placement="bottom" style="marginLeft: 10px">
+                                <template slot="content">
+                                    <div class="contentNote">
+                                        <p><span>1.	本年年资可获有薪假H：当前工作年度做满一年可以获得的有薪假</span></p>
+                                        <p><span>2.	上一年剩余有薪假H：上一年度未用完的有薪假可以积累到下一年度</span></p>
+                                        <p><span>3.	本年已获得有薪假H：当前工作年度按天累加已获得的有薪假</span></p>
+                                        <p><span>4.	本年已使用有薪假H：当前工作年度已核销的有薪假</span></p>
+                                        <p><span>5.	待核销有薪假H：请了有薪假，处于请假状态，还未回公司销假的时数</span></p>
+                                        <p><span>6.	至指定查询日期可用有薪假H:</span></p>
+                                        <p><span>7.	当天可用有薪假H:</span></p>
+                                        <p><span>8.	至指定查询日期可用有薪假H=上一年剩余有薪假+本年已获得有薪假-本年已使用有薪假-待核销有薪假+当天至指定查询日期应当获得的有</span></p>
+                                        <p><span>9.	当天可用有薪假H=上一年剩余有薪假+本年已获得有薪假-本年已使用有薪假-待核销有薪假</span></p>
+                                    </div>
+                                    <div class="contentNote" style="marginTop: 2px">
+                                        <p><span class="title" >请有薪假注意事项:</span></p>
+                                        <p><span>1.	请有薪假的时候，当天有多少有薪假，就可以请多少有薪假，不可以请未来假</span></p>
+                                        <p><span>2.	有薪假每天0点自动计算更新</span></p>
+                                        <p><span>3.	有薪假请假流程：查询有薪假--》 请有薪假（状态：待核假）--》 有薪假待核销（冻结）--》请假回来上班找人事核销有薪假（按实际请假天数）--》有薪假核销完成（系统减扣有薪假，状态：已核假）</span></p>
+                                    </div>
+                                </template>
+                                <span class="x_cs_popver">说明</span><a-icon type="question" />
+                            </a-popover>
                         </a-form-item>
                     </a-col>
                 </a-form>
             </a-row>
             <a-operation-recordTable :tabList="tabData" :loading="searchLoading" :paginationData="pagination" @tableChange="pageChange"></a-operation-recordTable>
-            <div class="contentNote">
-                <p><span class="title">说明:</span></p>
-                <p><span>1.	本年年资可获有薪假H:  指该员工如果工作完当前工作年度能够获得的有薪假小时数</span></p>
-                <p><span>2.	往年年资剩余有薪假H：指该员工往年获得的累计剩余有薪假</span></p>
-                <p><span>3.	本年已获得有薪假H:   指该员工在当前工作年度已经获得的的有薪假</span></p>
-                <p><span>4.	本年已使用有薪假H 指该员工在当前工作年度已经使用的有薪假</span></p>
-                <p><span>5.	冻结已获得有薪假H： 指该员工录入有薪假请假工单后，已保存 状态，但是员工假期未休完，还未回来公司销假的请假单，暂时处于冻结有薪假状态，还未真正扣除</span></p>
-                <p><span>6.	冻结可预支有薪假H：指该员工如果在指定查询日期后（7月10日后）请有薪假，在查询当日（7月7日）已获得的有薪假不够扣请假时数的时候，就会用‘至查询日期可预支有薪假’冻结来扣</span></p>
-                <p><span>7.	至指定查询日期可预支有薪假H：指在查询当时并未获得该有薪假，但是因从查询当时到实际请假生效这段时间，员工仍可继续获得有薪假，故，可预支有薪假是指该员工从当询当天至指定查询日期这段时间内正常上班预计可产生的有薪假。</span></p>
-                <p><span>8.	本年可用有薪假H： 指到指定查询日期那一天的可用有薪假（包含了已获得的剩余有薪假+查询当天到指定查询日期这段时间内如果正常上班预计产生的有薪假-已冻结的有薪假）</span></p>
-                <p><span>9.	本年可用有薪假H=往年年资剩余有薪假H+本年已获得有薪假H-本年已使用有薪假H-冻结已获得有薪假H-冻结可预支有薪假H+至指定查询日期可预支有薪假H</span></p>
-            </div>
+            
+            
         </div>
     </div>
 </template>
@@ -170,8 +182,6 @@ export default class SalaryRecord extends Vue {
                     operator: item.advanceHolidayWithSalaryHours,
                 };
             });
-            console.log('重新出发吗');
-            console.log(this.tabData);
             this.searchLoading = false;
             const paginationData = JSON.parse(res.headers['x-pagination']);
             this.pagination.pageSize = paginationData.pageSize;
@@ -186,4 +196,10 @@ export default class SalaryRecord extends Vue {
     }
 }
 </script>
+<style lang="less">
+.x_cs_popver {
+    margin-top: 20px;
+    color: rgba(0, 0, 0, 0.45);
+}
+</style>
 

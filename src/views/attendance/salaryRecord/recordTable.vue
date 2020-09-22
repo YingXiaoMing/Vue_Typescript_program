@@ -66,7 +66,7 @@ export default class RecordTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'typeName' },
     }, {
-        title: '往年年资剩余有薪假H',
+        title: '上一年剩余有薪假H',
         dataIndex: 'type',
         align: 'center',
         scopedSlots: { customRender: 'type' },
@@ -81,22 +81,17 @@ export default class RecordTable extends Vue {
         align: 'center',
         scopedSlots: { customRender: 'totalHours' },
     }, {
-        title: '冻结已获得有薪假H',
+        title: '待核销有薪假H',
         dataIndex: 'startDateTime',
         align: 'center',
         scopedSlots: { customRender: 'startDateTime' },
     }, {
-        title: '冻结可预支有薪假H',
-        dataIndex: 'endedDateTime',
-        align: 'center',
-        scopedSlots: { customRender: 'endedDateTime' },
-    }, {
-        title: '至指定查询日期可预支有薪假H',
+        title: '至指定查询日期可用有薪假H',
         dataIndex: 'status',
         align: 'center',
         scopedSlots: { customRender: 'status' },
     }, {
-        title: '本年可用有薪假H',
+        title: '当天可用有薪假H',
         dataIndex: 'operator',
         align: 'center',
         scopedSlots: { customRender: 'operator' },
