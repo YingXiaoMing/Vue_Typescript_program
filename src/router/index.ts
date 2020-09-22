@@ -14,9 +14,11 @@ export const asyncRouterMap: RouterItem[] = [
         path: '/dashboard',
         icon: 'home',
         name: 'dashboard',
+        isShow: true,
         component: () => import('../views/home/index.vue'),
         meta: {
             key: 'dashboard',
+            title: '首页',
         },
     },
     {

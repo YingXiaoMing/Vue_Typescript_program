@@ -98,6 +98,7 @@ export interface ContractTableData {
     issueDate: string;
     expireDate: string;
     editable: boolean;
+    isExpirationReminder: boolean;
 }
 
 export interface RemoteContractTableData {

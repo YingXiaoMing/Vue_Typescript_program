@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-
+import x_request from '@/utils/u_request';
 
 export const getWorkLocation = () =>
     request({
@@ -200,9 +200,25 @@ export const getBusinessOptions = () =>
 // 上传EXCEL附件
 
 export const uploadExcelFile = (url: string, param: any) =>
-    request({
+    x_request({
         url,
         method: 'post',
         responseType: 'arraybuffer',
         data: param,
+    });
+
+
+
+// 获取首页合同情况
+export const GetContractExpirationData = () =>
+    request({
+        url: '/InstrumentPanel/GetContractExpirationStatistics',
+        method: 'get',
+    });
+
+// 获取首页合同列表数据
+export const GetContractExpirationList = (paramString: string) =>
+    request({
+        url: '/InstrumentPanel/GetContractExpirationList?' + paramString,
+        method: 'get',
     });

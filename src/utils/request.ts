@@ -24,6 +24,7 @@ service.interceptors.response.use(
     (error) => {
         switch (error.response.status) {
             case 401:
+                message.error('赶紧重新登录');
                 console.log('跳转到401页面');
                 break;
             default:
