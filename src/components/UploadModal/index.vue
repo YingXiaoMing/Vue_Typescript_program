@@ -30,7 +30,6 @@ import { uploadExcelFile } from '@/api/basic';
 
 
 import config from '@/utils/config';
-import { TextDecoder } from 'util';
 @Component({
     components: {},
 })
@@ -89,10 +88,11 @@ export default class UploadModal extends Vue {
                 param.onSuccess(res, param.file);
             }
         }).catch((error: any) => {
+            param.onError(error, param.file);
             let enc = new TextDecoder('utf-8');
-            let blob = JSON.parse(enc.decode(new Uint8Array(error.response.data)))
-            console.log(blob);
-        })
+            let blob = JSON.parse(enc.decode(new Uint8Array(error.response.data)));
+            message.error(blob.errorMessage[0]);
+        });
     }
     private handleChange(info: any,data: any, event: any) {
         const status = info.file.status;
