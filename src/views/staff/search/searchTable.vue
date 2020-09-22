@@ -80,6 +80,7 @@ export default class SearchTable extends Vue {
     }, {
         title: '职位',
         dataIndex: 'position',
+        width: 320,
         align: 'center',
         scopedSlots: { customRender: 'position' },
     }, {
@@ -134,7 +135,6 @@ export default class SearchTable extends Vue {
         this.$router.replace({
             path: '/staff/staffEdit',
         });
-        // this.$router.push('/staff/edit');
     }
     private transfer(key: string) {
         const target = this.data.filter((item) => _.isEqual(item.key, key))[0];
