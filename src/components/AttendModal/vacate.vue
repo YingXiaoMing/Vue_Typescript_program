@@ -91,7 +91,7 @@ import moment from 'moment';
 import { SelectValue, BasicData } from '@/interface';
 import { searchEmployeeData } from '@/api/staff';
 import { message } from 'ant-design-vue';
-import { putAskforLeaveOvertimeBusinesstripRecord } from '@/api/operation';
+import { putAskforLeaveOvertimeBusinesstripRecord, heJiaAttendRecord } from '@/api/operation';
 import _ from 'lodash';
 interface EmployeeData {
     value: string;
@@ -211,7 +211,9 @@ export default class Vacate extends Vue {
             content: '你将进行核假操作，请核对员工请假单信息是否正确，核假后，该请假单不能再编辑，请谨慎操作！',
             cancelText: '取消',
             onOk() {
-                thiz.$emit('loadData');
+                heJiaAttendRecord(thiz.data.id).then(() => {
+                    thiz.$emit('loadData');
+                });
             },
         });
     }

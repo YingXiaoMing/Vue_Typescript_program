@@ -153,6 +153,11 @@ export const DeletePrizePenaltyRecord = (recordId: string) =>
 export const DeleteAttendRecord = (recordId: string) =>
     request.delete('/AskforLeaveOvertimeBusinesstripRecord/' + recordId);
 
+
+// 员工核假
+export const heJiaAttendRecord = (recordId: string) =>
+    request.delete('/AskforLeaveNuclearLeave/' + recordId);
+
 // 撤销职位变更记录工单
 export const DeletePositionRecord = (recordId: string) =>
     request.delete('/EmployeePositionModificationRecord/' + recordId);

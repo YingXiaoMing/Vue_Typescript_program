@@ -307,7 +307,7 @@ export default class Record extends Vue {
                     businesstripLocaltion: item.businesstripLocaltion,
                     status: item.recordStateName,
                     reason: item.reason,
-                    isAllowModification: item.recordStateValue === 1 ? true : false,
+                    isAllowModification: item.recordStateValue,
                     note: item.Note,
                     operateTime: moment(item.createDateTime).format(this.dateFormat),
                 };
