@@ -19,15 +19,14 @@ interface TableData {
     orderNum: string;
     num: string;
     name: string;
-    position: string;
-    typeName: string;
-    type: string;
-    startDateTime: string;
-    endedDateTime: string;
-    isWithSalary: string;
-    totalHours: string;
-    operator: string;
-    operateTime: string;
+    employmentStartedDate: string;
+    yearWillGotWithSalaryHours: string;
+    lastYearLeftWithSalaryHours: string;
+    yearGotWithSalaryHours: string;
+    yearUsedWithSalaryHours: string;
+    blockedWithSalaryHours: string;
+    toDateWithSalaryHours: string;
+    toDayWithSalaryHours: string;
 }
 @Component({
     components: {},
@@ -57,44 +56,44 @@ export default class RecordTable extends Vue {
         scopedSlots: { customRender: 'name' },
     }, {
         title: '入职日期',
-        dataIndex: 'employeeDate',
+        dataIndex: 'employmentStartedDate',
         align: 'center',
-        scopedSlots: { customRender: 'employeeDate' },
+        scopedSlots: { customRender: 'employmentStartedDate' },
     }, {
         title: '本年年资可获有薪假H',
-        dataIndex: 'typeName',
+        dataIndex: 'yearWillGotWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'typeName' },
+        scopedSlots: { customRender: 'yearWillGotWithSalaryHours' },
     }, {
         title: '上一年剩余有薪假H',
-        dataIndex: 'type',
+        dataIndex: 'lastYearLeftWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'type' },
+        scopedSlots: { customRender: 'lastYearLeftWithSalaryHours' },
     }, {
         title: '本年已获得有薪假H',
-        dataIndex: 'isWithSalary',
+        dataIndex: 'yearGotWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'isWithSalary' },
+        scopedSlots: { customRender: 'yearGotWithSalaryHours' },
     }, {
         title: '本年已使用有薪假H',
-        dataIndex: 'totalHours',
+        dataIndex: 'yearUsedWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'totalHours' },
+        scopedSlots: { customRender: 'yearUsedWithSalaryHours' },
     }, {
         title: '待核销有薪假H',
-        dataIndex: 'startDateTime',
+        dataIndex: 'blockedWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'startDateTime' },
+        scopedSlots: { customRender: 'blockedWithSalaryHours' },
     }, {
         title: '至指定查询日期可用有薪假H',
-        dataIndex: 'status',
+        dataIndex: 'toDateWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'status' },
+        scopedSlots: { customRender: 'toDateWithSalaryHours' },
     }, {
         title: '当天可用有薪假H',
-        dataIndex: 'operator',
+        dataIndex: 'toDayWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'operator' },
+        scopedSlots: { customRender: 'toDayWithSalaryHours' },
     }];
     @Watch('loading')
     private loadingChange(value: boolean) {
@@ -102,8 +101,9 @@ export default class RecordTable extends Vue {
     }
     @Watch('tabList')
     private tableDataChange(value: any) {
+        console.log('rest');
+        console.log(value);
         this.data = value;
-        console.log(this.data);
     }
     @Watch('paginationData')
     private paginationDataChange(value: any) {

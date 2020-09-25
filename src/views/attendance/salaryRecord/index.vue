@@ -153,8 +153,8 @@ export default class SalaryRecord extends Vue {
             let ids = '';
             if (!_.isEmpty(values.searchKey)) {
                 ids = values.searchKey;
+                params.set('FilterProperties.Id', ids);
             }
-            params.set('FilterProperties.Id', ids);
             params.set('endedDateTime', moment(new Date()).format('YYYY-MM-DD'));
             if (values.date) {
                 params.set('endedDateTime', moment(values.date).format('YYYY-MM-DD'));
@@ -169,17 +169,16 @@ export default class SalaryRecord extends Vue {
             this.tabData = _.map(data, (item: any, index: number) => {
                 return {
                     key: index,
-                    num: item.employeeStringID,
+                    num: item.employeeStringId,
                     name: item.employeeFullName,
-                    employeeDate: moment(item.employeeEmploymentStartedDate).format('YYYY-MM-DD'),
-                    typeName: item.totalGetingHolidayWithSalaryHoursThisYear,
-                    type: item.totalRemainingHolidayWithSalaryHoursFromYesterYear,
-                    isWithSalary: item.totalGotHolidayWithSalaryHoursToToday,
-                    totalHours: item.totalUsedHolidayWithSalaryHoursThisYear,
-                    startDateTime: item.blockedHolidayWithSalaryHours,
-                    endedDateTime: item.blockedAdvanceHolidayWithSalaryHours,
-                    status: item.vaildHolidayWithSalaryHoursThisToday,
-                    operator: item.advanceHolidayWithSalaryHours,
+                    employmentStartedDate: moment(item.employmentStartedDate).format('YYYY-MM-DD'),
+                    yearWillGotWithSalaryHours: item.yearWillGotWithSalaryHours,
+                    lastYearLeftWithSalaryHours: item.lastYearLeftWithSalaryHours,
+                    yearGotWithSalaryHours: item.yearGotWithSalaryHours,
+                    yearUsedWithSalaryHours: item.yearUsedWithSalaryHours,
+                    blockedWithSalaryHours: item.blockedWithSalaryHours,
+                    toDateWithSalaryHours: item.toDateWithSalaryHours,
+                    toDayWithSalaryHours: item.toDayWithSalaryHours,
                 };
             });
             this.searchLoading = false;

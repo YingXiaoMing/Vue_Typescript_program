@@ -345,8 +345,8 @@ export default class UploadModal extends Vue {
                     contractType: item.contractType,
                     contractName: item.contractName,
                     contractNum: item.contractNo,
-                    issueDate: moment(item.contractIssueDate).format(this.dateFormat),
-                    expireDate: moment(item.contractExpireDate).format(this.dateFormat),
+                    issueDate: item.contractIssueDate ? moment(item.contractIssueDate).format(this.dateFormat) : '',
+                    expireDate: item.contractExpireDate ? moment(item.contractExpireDate).format(this.dateFormat) : '',
                     note: item.contractNote,
                 };
             });

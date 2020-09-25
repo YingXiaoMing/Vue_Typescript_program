@@ -14,7 +14,8 @@
                     <a v-if="record.isAllowModification == 6" @click="makeTableRowEditable(record.key, true)">编辑</a>
                     <a v-else @click="makeTableRowEditable(record.key, false)">查看</a>
                     <a-divider type="vertical"></a-divider>
-                    <a :class="{'disabled-button': record.isAllowModification !== 6 || record.isAllowModification !== 5}" @click="revokeClick(record.key)">撤销</a>
+                    <!-- 5 和 6 可以撤销 -->
+                    <a :class="{'disabled-button': record.isAllowModification == 6 || record.isAllowModification == 5 ? false: true}" @click="revokeClick(record.key)">撤销</a>
                 </span>
             </template>
         </a-table>
