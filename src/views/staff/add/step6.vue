@@ -141,14 +141,15 @@
                             <a-row>
                                 <a-col :span="4" :offset="1">
                                     <a-form-item  v-bind="formItemLayout">
-                                        <a-checkbox v-decorator="['newValue3', { initialValue: formData.newValue3 }]" @change="handleDingDingAccountChange">创建企业钉钉</a-checkbox>
+                                        <a-checkbox v-decorator="['newValue3', { initialValue: formData.newValue3 }]" @change="handleDingDingAccountChange">加入公司企业钉钉</a-checkbox>
                                     </a-form-item>
                                 </a-col>
                             </a-row>
                             <a-row>
-                                <a-col :span="4" :offset="1">
-                                    <a-form-item  v-bind="formItemLayout1" label="手机号码">
+                                <a-col :span="24">
+                                    <a-form-item  v-bind="formItemLayout2" label="手机号码">
                                         <a-input style="width: 220px" v-model="createDingDingAccount"></a-input>
+                                        <span style="marginLeft: 10px">（员工需自行下载钉钉，并用该号码注册钉钉后，方能加入公司企业钉钉）</span>
                                     </a-form-item>
                                 </a-col>
                             </a-row>
@@ -223,7 +224,11 @@ export default class Step6 extends Vue {
     private formItemLayout1 = {
         labelCol: { xs: {span: 24}, sm: {span: 6}},
         wrapperCol: { xs: {span: 24}, sm: {span: 18}},
-    }
+    };
+    private formItemLayout2 = {
+        labelCol: { xs: {span: 24}, sm: {span: 2}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 22}},
+    };
     private botttomLayout = {
         lg: {span: 12, offset: 8},
         md: {span: 24, offset: 14},

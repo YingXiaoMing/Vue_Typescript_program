@@ -415,7 +415,7 @@ export default class Search extends Vue {
         params.set('PageSize', pageSize.toString());
         params.set('OrderBy', 'EmployeeStringID desc');
         if (this.form.getFieldValue('IsIncludeTerminated')) {
-            const employeeStatusList = ['0FAGJ-XR8UN-Z5V2L-EWND7', '0FAGJ-XR8VC-Z5V2L-ES6RU', '0FCWK-UVPXV-Y5LQK-U5B8Y'];
+            const employeeStatusList = ['0FCWK-UVPXV-Y5LQK-U5B6Y', '0FAGJ-XR8UN-Z5V2L-EWND7', '0FAGJ-XR8VC-Z5V2L-ES6RU'];
             this.changeListDataToParams(params, employeeStatusList, 'FilterProperties.EmploymentStateIds');
         }
         this.searchParamData(params);

@@ -159,8 +159,8 @@ export default class Header extends Vue {
                                 <span class='name'>{username}</span>
                             </span>
                             <a-menu slot='overlay' on-click={this.menuClick}>
-                                <a-menu-item key='userChangePassword'>修改密码</a-menu-item>
-                                <a-menu-divider/>
+                                {/* <a-menu-item key='userChangePassword'>修改密码</a-menu-item> */}
+                                {/* <a-menu-divider/> */}
                                 <a-menu-item key='userLogOut'><font color='red'>退出登录</font></a-menu-item>
                             </a-menu>
                         </a-dropdown>
