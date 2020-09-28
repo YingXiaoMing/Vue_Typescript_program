@@ -63,6 +63,7 @@ export default class Step1 extends Vue {
     private LegalTypeOption: SelectValue[] = [];
     private AddressTypeOption: SelectValue[] = [];
     private relationTypeOption: SelectValue[] = [];
+    private employeeStatusOption: SelectValue[] = [];
     private phoneTypeOption: SelectValue[] = [];
     private baiscDataTypeOption: BasicDataOption = {
         highEducationOption: [],
@@ -70,6 +71,7 @@ export default class Step1 extends Vue {
         workpalceOption: [],
         employeeTypeOption: [],
         ethnicGroupOption: [],
+        employeeStatusOption: [],
     };
     private dateFormat = 'YYYY-MM-DD';
     private orginImageUrl: string = require('../../../assets/user.png');
@@ -81,6 +83,10 @@ export default class Step1 extends Vue {
         birthOfDate: null,
         isMarried: 1,
         highEducation: {
+            key: '',
+            label: '',
+        },
+        employmentStateId: {
             key: '',
             label: '',
         },
@@ -205,6 +211,7 @@ export default class Step1 extends Vue {
             this.basicTableLoading = false;
             this.basicETag = response.headers.etag;
             const data = response.data;
+            const targetEmployeeState = _.find(this.baiscDataTypeOption.employeeStatusOption, { key: data.employmentStateId });
             const targetEmployeeOrigin = _.find(this.baiscDataTypeOption.employeeOriginOption, { key: data.employmentStartedInfo.employmentSourceId });
             const targetEmployeeWorkplace = _.find(this.baiscDataTypeOption.workpalceOption, { key: data.workingLocationId });
             const targetEmployeeType = _.find(this.baiscDataTypeOption.employeeTypeOption, { key: data.employmentStartedInfo.employmentTypeId});
@@ -218,6 +225,7 @@ export default class Step1 extends Vue {
                 birthOfDate: moment(data.dateOfBirth).format(this.dateFormat),
                 isMarried: data.marriageStateValue,
                 highEducation: targetHightEducationId,
+                employmentStateId: targetEmployeeState,
                 gender: data.genderValue,
                 employeeDate: moment(data.employmentStartedInfo.employmentStartedDate).format(this.dateFormat),
                 employeeOrigin: targetEmployeeOrigin,
@@ -239,6 +247,7 @@ export default class Step1 extends Vue {
         const p1 = new Promise((resolve, reject) => {
             getBasicInfoAllOption().then((datas: any) => {
                 const response = datas.data;
+                this.employeeStatusOption = this.transformSelectData(response.employmentStates);
                 this.AddressTypeOption = this.transformSelectData(response.addressTypes);
                 this.LegalTypeOption = this.transformSelectData(response.legalIdentiticationTypes);
                 this.relationTypeOption = this.transformSelectData(response.relationships);
@@ -248,8 +257,10 @@ export default class Step1 extends Vue {
                     workpalceOption: this.transformSelectData(response.workingLocations),
                     employeeOriginOption: this.transformSelectData(response.employmentSources),
                     employeeTypeOption: this.transformSelectData(response.employmentTypes),
-                    ethnicGroupOption: this.transformSelectData(response.ethnicGroups)
+                    ethnicGroupOption: this.transformSelectData(response.ethnicGroups),
+                    employeeStatusOption: this.transformSelectData(response.employmentStates),
                 });
+                console.log(this.baiscDataTypeOption);
                 resolve();
             });
         });
@@ -263,6 +274,7 @@ export default class Step1 extends Vue {
                         employeeType: this.baiscDataTypeOption.employeeTypeOption[0],
                         highEducation: this.baiscDataTypeOption.highEducationOption[0],
                         ethnicGroupId: this.baiscDataTypeOption.ethnicGroupOption[0],
+                        employmentStateId: this.baiscDataTypeOption.employeeStatusOption[0],
                         isMarried: 1,
                     });
                     break;

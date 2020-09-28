@@ -99,7 +99,7 @@
                         </a-col>
                         <a-col :lg="6" :md="12" :sm="24">
                             <a-form-item label="员工状态" v-bind="formItemLayout">
-                                <a-select labelInValue v-decorator="['employeeStatus', {rules: [{ required: true, message: ' ' }], initialValue: basicData.employeeStatus}]">
+                                <a-select labelInValue v-decorator="['employmentStateId', {rules: [{ required: true, message: ' ' }], initialValue: basicData.employeeStatus}]">
                                     <a-select-option v-for="item in employeeStatusOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
@@ -182,19 +182,7 @@ export default class BasicDataTable extends Vue {
         key: 2,
         label: '已婚',
     }];
-    private employeeStatusOption = [{
-        key: 1,
-        label: '试用期员工',
-    }, {
-        key: 2,
-        label: '正式员工',
-    }, {
-        key: 3,
-        label: '离职员工',
-    }, {
-        key: 4,
-        label: '留职停薪',
-    }];
+    private employeeStatusOption: SelectValues[] = this.options.employeeStatusOption;
     private highEducationOption: SelectValues[] = this.options.highEducationOption;
     private employeeOriginOption: SelectValues[] = this.options.employeeOriginOption;
     private workpalceOption: SelectValues[] = this.options.workpalceOption;
@@ -381,6 +369,7 @@ export default class BasicDataTable extends Vue {
             dateOfBirth: values.birthOfDate ? moment(values.birthOfDate).format(this.dateFormat) : null,
             marriageStateValue: values.isMarried,
             genderValue: values.gender,
+            employmentStateId: values.employmentStateId.key,
             ethnicGroupId: values.ethnicGroupId.key,
             personalAbilityDescription: values.personalAbilityDescription,
             workingLocationId: values.workplace.key,
@@ -437,6 +426,7 @@ export default class BasicDataTable extends Vue {
             dateOfBirth: value.birthOfDate ? moment(value.birthOfDate).format(this.dateFormat) : null,
             marriageStateValue: value.isMarried,
             genderValue: value.gender,
+            employmentStateId: value.employmentStateId.key,
             ethnicGroupId: value.ethnicGroupId.key,
             personalAbilityDescription: value.personalAbilityDescription,
             workingLocationId: value.workplace.key,
@@ -467,6 +457,7 @@ export default class BasicDataTable extends Vue {
         this.employeeOriginOption = value.employeeOriginOption;
         this.workpalceOption = value.workpalceOption;
         this.ethnicGroupOption = value.ethnicGroupOption;
+        this.employeeStatusOption = value.employeeStatusOption;
     }
     @Watch('basicDatas')
     private basicDataChange(values: NewBasicForm) {
@@ -488,7 +479,10 @@ export default class BasicDataTable extends Vue {
             ethnicGroupId: values.ethnicGroupId,
             personalAbilityDescription: values.personalAbilityDescription,
             dueDate: values.dueDate,
+            employmentStateId: values.employmentStateId,
         });
+        console.log('one for family');
+        console.log(values.employmentStateId);
         this.imageUrl = values.imageUrl;
     }
 }

@@ -172,7 +172,7 @@ export default class SalaryRecord extends Vue {
                     num: item.employeeStringId,
                     name: item.employeeFullName,
                     employmentStartedDate: moment(item.employmentStartedDate).format('YYYY-MM-DD'),
-                    yearWillGotWithSalaryHours: item.yearWillGotWithSalaryHours,
+                    yearObtainableWithSalaryHours: item.yearObtainableWithSalaryHours,
                     lastYearLeftWithSalaryHours: item.lastYearLeftWithSalaryHours,
                     yearGotWithSalaryHours: item.yearGotWithSalaryHours,
                     yearUsedWithSalaryHours: item.yearUsedWithSalaryHours,

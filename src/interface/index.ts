@@ -312,6 +312,7 @@ export interface BasicDataOption {
     workpalceOption: SelectValue[];
     employeeTypeOption: SelectValue[];
     ethnicGroupOption: SelectValue[];
+    employeeStatusOption: SelectValue[];
 }
 
 export interface SelectValues {
@@ -399,6 +400,7 @@ export interface FormBasicData {
     personalAbilityDescription: string;
     workingLocationId: string;
     employeeStringID?: string;
+    employmentStateId: string;
     // employmentStateId: number;
     // principalPositionId: number;
     employmentStartedInfo: {
@@ -507,6 +509,10 @@ export interface BasicForm {
         key: string;
         label: string;
     };
+    employmentStateId: {
+        key: string;
+        label: string;
+    };
     ethnicGroupId: {
         key: string;
         label: string;
@@ -533,6 +539,10 @@ export interface NewBasicForm {
     };
     gender: number;
     employeeDate: string | null;
+    employmentStateId: {
+        key: string;
+        label: string;
+    };
     employeeOrigin: {
         key: string;
         label: string;

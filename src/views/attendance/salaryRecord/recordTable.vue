@@ -20,7 +20,7 @@ interface TableData {
     num: string;
     name: string;
     employmentStartedDate: string;
-    yearWillGotWithSalaryHours: string;
+    yearObtainableWithSalaryHours: string;
     lastYearLeftWithSalaryHours: string;
     yearGotWithSalaryHours: string;
     yearUsedWithSalaryHours: string;
@@ -61,9 +61,9 @@ export default class RecordTable extends Vue {
         scopedSlots: { customRender: 'employmentStartedDate' },
     }, {
         title: '本年年资可获有薪假H',
-        dataIndex: 'yearWillGotWithSalaryHours',
+        dataIndex: 'yearObtainableWithSalaryHours',
         align: 'center',
-        scopedSlots: { customRender: 'yearWillGotWithSalaryHours' },
+        scopedSlots: { customRender: 'yearObtainableWithSalaryHours' },
     }, {
         title: '上一年剩余有薪假H',
         dataIndex: 'lastYearLeftWithSalaryHours',

@@ -20,7 +20,7 @@
           <a-row>
               <a-col :xxl="6" :md="8" :sm="24">
                   <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="是否有薪">
-                      <a-checkbox v-decorator="['isWithSalary']"></a-checkbox>
+                      <a-checkbox v-decorator="['isWithSalary',{valuePropName:'checked', initialValue: false}]"></a-checkbox>
                   </a-form-item>
               </a-col>
             </a-row>

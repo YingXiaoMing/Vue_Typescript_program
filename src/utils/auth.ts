@@ -2,7 +2,7 @@ import Cookie from 'js-cookie';
 
 const TokenKey = 'vue_hr_token';
 const millisecond = new Date().getTime();
-const expiresTime = new Date(millisecond + 60 * 1000 * 60);
+const expiresTime = new Date(millisecond + 60 * 1000 * 60 * 60);
 
 
 const refreshTokenKey = 'vue_hr_refresh_token';
