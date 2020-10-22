@@ -142,8 +142,6 @@ export const putEmployeePositionModification = (param: any) =>
 export const getEmployeeToken = (url: string, param: any) =>
     t_request.post(url, param);
 
-export const getEmployeeTokenByRrefreshToken = (url: string, param: any) =>
-    t_request.post(url, param);
 
 // 撤销奖惩记录工单
 export const DeletePrizePenaltyRecord = (recordId: string) =>

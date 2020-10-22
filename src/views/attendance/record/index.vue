@@ -4,12 +4,14 @@
             <a-form :form="form">
             <a-row :gutter="24">
                 <a-col :lg="7" :md="12" :sm="24">
-                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="类型" class="form_control">
-                        <a-select mode="multiple" v-decorator="['AskforLeaveOvertimeBusinesstripTypeIds']">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="类型">
+                        <!-- <a-select mode="multiple" v-decorator="['AskforLeaveOvertimeBusinesstripTypeIds']">
                             <a-select-opt-group v-for="item in businessData" :label="item.name">
                                 <a-select-option v-for="it in item.children" :value="it.id">{{it.name}}</a-select-option>
                             </a-select-opt-group>
-                        </a-select>
+                        </a-select> -->
+                        <a-tree-select :treeData="typeTreeData" :showCheckedStrategy="SHOW_PARENT" treeCheckable
+                        v-decorator="['AskforLeaveOvertimeBusinesstripTypeIds']"/>
                     </a-form-item>
                 </a-col>
                 <a-col :lg="7" :md="12" :sm="24">
@@ -24,13 +26,26 @@
                 </a-col>
             </a-row>
             <a-row :gutter="24">
-                <a-col :lg="14" :md="12" :sm="24">
-                    <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="部门组织">
+                <a-col :lg="7" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="部门组织">
                         <a-tree-select :treeData="treeData" :showCheckedStrategy="SHOW_PARENT" treeCheckable
                         v-decorator="['EmployeePrincipalPositionFullPaths']"/>
                     </a-form-item>
                 </a-col>
-                <a-col :lg="10" :md="12" :sm="24">
+                <a-col :lg="7" :md="12" :sm="24">
+                    <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="状态">
+                        <a-select v-decorator="['recordStateValue',{initialValue: ''}]">
+                          <a-select-option value="">全部</a-select-option>
+                          <a-select-option value="1">已生效</a-select-option>
+                          <a-select-option value="2">已删除</a-select-option>
+                          <a-select-option value="3">已取消</a-select-option>
+                          <a-select-option value="4">已撤销</a-select-option>
+                          <a-select-option value="5">已核假</a-select-option>
+                          <a-select-option value="6">已保存</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+                <a-col :lg="7" :md="12" :sm="24">
                     <a-form-item>
                         <a-button type="primary" @click="searchClick">查询</a-button>
                         <a-button style="marginLeft: 20px" @click="exportDataClick">导出数据</a-button>
@@ -78,14 +93,14 @@ interface BusinessTable {
 interface Data {
     title: string;
     value: string;
-    description: string;
+    description?: string;
     key: string;
 }
 interface TableData {
     title: string;
     key: string;
     value: string;
-    description: string;
+    description?: string;
     children: Data[];
 }
 @Component({
@@ -102,8 +117,10 @@ export default class Record extends Vue {
     private employeeDataList: EmployeeData[] = [];
     private param: URLSearchParams = new URLSearchParams();
     private employeePositionDataList: TableData[] = [];
+    private businessTypeList: string[] = [];
     private SHOW_PARENT = TreeSelect.SHOW_PARENT;
     private treeData: TableData[] = [{ title: '', key: '', value: '', children: [], description: '' }];
+    private typeTreeData: TableData[] = [{ title: '', key: '', value: '', children: [] }];
     private searchLoading: boolean = false;
     private businessData: BusinessTable[] = [];
     private searchKey: string = '';
@@ -111,6 +128,7 @@ export default class Record extends Vue {
     private employeeNum: string = '';
     private employeeId: string = '';
     private dateFormat = 'YYYY-MM-DD hh:mm';
+    private $route: any;
     private pagination: Pagination = {
         pageSize: 0,
         total: 0,
@@ -123,6 +141,18 @@ export default class Record extends Vue {
     private tabData: any = [];
     private form: any;
     private $form: any;
+    private activated() {
+        if (this.$route.params.type === 1) {
+            this.getAllBusinessTypeData(() => {
+                this.form.setFieldsValue({
+                    recordStateValue: '6',
+                    endDateTime: moment().format(this.dateFormat),
+                    AskforLeaveOvertimeBusinesstripTypeIds: [this.businessTypeList[0]],
+                });
+                this.searchClick();
+            });
+        }
+    }
     private created() {
         this.form = this.$form.createForm(this);
         this.getOrganizationData();
@@ -203,16 +233,29 @@ export default class Record extends Vue {
     private addEmployeePositionDataList(data: TableData) {
         this.employeePositionDataList.push(data);
     }
-    private getAllBusinessTypeData() {
+    private getAllBusinessTypeData(callback: any) {
         getAllBusinessClassify().then((res) => {
             const data = res.data;
-            this.businessData = _.map(data, (item: any) => {
+            this.businessTypeList = _.map(data, (item: any) => {
+                return item.askforLeaveOvertimeBusinesstripTypeClassifyValue;
+            });
+            this.typeTreeData = _.map(data, (item: any) => {
                 return {
-                    name: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
-                    id: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
-                    children: item.askforLeaveOvertimeBusinesstripTypeDtos,
+                    title: item.askforLeaveOvertimeBusinesstripTypeClassifyDisplayName,
+                    key: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                    value: item.askforLeaveOvertimeBusinesstripTypeClassifyValue,
+                    children: _.map(item.askforLeaveOvertimeBusinesstripTypeDtos, (vt: any) => {
+                        return {
+                            title: vt.name,
+                            value: vt.id,
+                            key: vt.id,
+                        };
+                    }),
                 };
             });
+            if (callback) {
+                callback();
+            }
         });
     }
     private exportDataClick() {
@@ -242,6 +285,9 @@ export default class Record extends Vue {
                 if (values.endDateTime) {
                     params.set('FilterProperties.EndedDateTime', moment(values.endDateTime).format(this.dateFormat));
                 }
+                if (values.recordStateValue) {
+                    params.set('FilterProperties.RecordStateValue', values.recordStateValue);
+                }
                 this.changeListDataToParams(params, values.AskforLeaveOvertimeBusinesstripTypeIds, 'FilterProperties.AskforLeaveOvertimeBusinesstripTypeIds');
                 this.changePositionDataToParams(params, values.EmployeePrincipalPositionFullPaths);
                 this.param = params;
@@ -253,7 +299,14 @@ export default class Record extends Vue {
     private changeListDataToParams(params: URLSearchParams, data: string[], paramName: string) {
         if ( data && data.length > 0) {
             data.filter((item: string) => {
-                params.append(paramName, item);
+                if (!_.includes(this.businessTypeList, item)) {
+                    params.append(paramName, item);
+                } else {
+                    const newData: TableData = _.find(this.typeTreeData, { value: item });
+                    newData.children.filter((vt: Data) => {
+                        params.append(paramName, vt.value);
+                    });
+                }
             });
         }
     }

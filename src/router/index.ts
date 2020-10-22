@@ -57,7 +57,7 @@ export const asyncRouterMap: RouterItem[] = [
                 name: 'staffremote',
                 icon: 'solution',
                 component: () => import('../views/layout'),
-                meta: {key: 'staffremote', title: '人事调用'},
+                meta: {key: 'staffremote', title: '人事调离'},
                 children: [
                     {
                         path: 'staffServe',

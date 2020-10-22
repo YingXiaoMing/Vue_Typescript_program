@@ -219,6 +219,7 @@ export default class Operation extends Vue {
                     type: item.employeePositionModificationTypeName,
                     effectedDate: moment(item.effectiveDate).format(this.dateFormat),
                     status: item.recordStateName,
+                    operator: item.createEmployeeId,
                     createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });

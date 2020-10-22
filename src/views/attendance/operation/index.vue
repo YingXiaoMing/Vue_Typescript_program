@@ -226,6 +226,7 @@ export default class Operation extends Vue {
                     typeName: item.askforLeaveOvertimeBusinesstripTypeClassifyName,
                     type: item.askforLeaveOvertimeBusinesstripTypeName,
                     isWithSalary: item.isWithSalary ? '是' : '否',
+                    operator: item.createEmployeeId,
                     startDateTime: moment(item.startDateTime).format(this.dateTimeFormat),
                     endedDateTime: moment(item.endedDateTime).format(this.dateTimeFormat),
                     totalHours: item.totalHours,

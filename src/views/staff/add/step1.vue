@@ -133,6 +133,7 @@ export default class Step1 extends Vue {
     private addressETag: string = '';
     private contactETag: string = '';
     private phoneETag: string = '';
+    private $route: any;
     private positionETag: string = '';
     private basicETag: string = '';
     private isNew: boolean = true;
@@ -260,6 +261,9 @@ export default class Step1 extends Vue {
                     ethnicGroupOption: this.transformSelectData(response.ethnicGroups),
                     employeeStatusOption: this.transformSelectData(response.employmentStates),
                 });
+                if (this.isNew) {
+                    this.baiscDataTypeOption.employeeStatusOption = [{key: '0FAGJ-XR8UN-Z5V2L-EWND7', label: '在职'}];
+                };
                 console.log(this.baiscDataTypeOption);
                 resolve();
             });

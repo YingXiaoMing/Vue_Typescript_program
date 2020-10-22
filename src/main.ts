@@ -6,6 +6,7 @@ import store from '@/store';
 import awsconfig from './aws-exports';
 import Amplify from 'aws-amplify';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
+import { setUserName } from '@/utils/cookie';
 import Antd from 'ant-design-vue';
 import config from '@/utils/config';
 import { getEmployeeToken } from '@/api/operation';
@@ -16,10 +17,14 @@ import _ from 'lodash';
 Vue.prototype.$confirm = Modal.confirm;
 import './style/global.less';
 import 'ant-design-vue/dist/antd.css';
-
+import { getUserName } from './utils/cookie';
+import jwt from 'jsonwebtoken';
+import astict from '@/utils/astrict';
+import { setRefreshToken, setAccessExpiredToken } from './utils/auth';
 const whiteList = ['/login'];
 const flag: boolean = true;
 Vue.use(Antd);
+Vue.use(astict);
 const VerifyStateCode = (value: string): boolean => {
   const retrieveStateValue = localStorage.getItem('stateCode');
   if (value !== '' && retrieveStateValue === value) { return true; }
@@ -37,70 +42,35 @@ Vue.prototype.globalClick = function(callback: any) {
 
 
 router.beforeEach((to: any, from: any, next: any) => {
+  console.log('舞台的烦恼');
   const queryObj = getQueryObject();
   const accessToken = queryObj.id_token;
-  if (getAccessToken() || accessToken) {
+  const refreshToken = queryObj.refresh_token;
+  if (accessToken && refreshToken) {
+    const jwtData = jwt.decode(accessToken);
+    setAccessExpiredToken(jwtData.exp);
     setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+  }
+  if (getAccessToken()) {
+    const jwtData = jwt.decode(getAccessToken());
+    const userName = jwtData.name;
+    // tslint:disable-next-line: variable-name
+    const expire_time = jwtData.exp;
+    const param = {
+      access_token: getAccessToken(),
+      refresh_token: '1',
+      expires_in: expire_time,
+    };
+    store.dispatch('setToken', param);
+    if (userName) {
+      setUserName(userName);
+    }
+    store.dispatch('SetUsername', getUserName());
   } else {
     window.location.href = 'http://192.168.20.222';
+    // console.log('想要成为rappstar吗??');
   }
-  // if (queryObj.id_token) {
-
-  // }
-  // if (queryObj.id)
-  // const code = to.query.code;
-  // const stateCode = to.query.state;
-  // if (code && VerifyStateCode(stateCode) || getAccessToken()) {
-  //   if (code) {
-  //     const newUrl = config.awsTokenDomain;
-  //     getEmployeeToken(newUrl, {
-  //       grant_type: 'authorization_code',
-  //       client_id: awsconfig.aws_user_pools_web_client_id,
-  //       code,
-  //       redirect_uri: awsconfig.Auth.oauth.redirectSignIn,
-  //       code_verifier: localStorage.getItem('codeVerifier'),
-  //     }).then((res: any) => {
-  //       setAccessToken(res.access_token);
-  //       setRefreshToken(res.refresh_token);
-  //       store.dispatch('GetMenuData', asyncRouterMap);
-  //       next();
-  //     }).catch(() => {
-  //       next('/login');
-  //     });
-  //   }
-  //   store.dispatch('GetMenuData', asyncRouterMap);
-  //   next();
-  // } else {
-  //   if (whiteList.indexOf(to.path) !== -1) {
-  //     next();
-  //   } else {
-  //     next('/login');
-  //   }
-  // }
-
-  // 测试版本 (暂时屏蔽掉congito登录)
-  // const toPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
-  // store.dispatch('GetMenuData', asyncRouterMap);
-  // next();
-  // if (getAccessToken()) {
-  //   const signed = store.state.app.signedIn;
-  //   if (!store.state.app.menuData.length && flag && !signed) {
-  //     const ToPath = config.noLoginList.indexOf(`#${to.path}`) > -1 ? '/' : to.path;
-  //     store.dispatch('GetMenuData', asyncRouterMap);
-  //     next({
-  //       path: ToPath,
-  //     });
-  //   }
-  //   next();
-  // } else {
-  //   if (whiteList.indexOf(to.path) !== -1) {
-  //     next();
-  //   } else {
-  //     next('/login');
-  //   }
-  // }
-
-  // Xunit Test版本
   next();
 });
 

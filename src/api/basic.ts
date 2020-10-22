@@ -208,6 +208,13 @@ export const uploadExcelFile = (url: string, param: any) =>
     });
 
 
+// 获取有薪假强制提醒信息
+export const GetAskforLeaveOvertimeBusinesstripExpirationStatistics = () =>
+    request({
+        url: '/InstrumentPanel/GetAskforLeaveOvertimeBusinesstripExpirationStatistics',
+        method: 'get',
+    });
+
 
 // 获取首页合同情况
 export const GetContractExpirationData = () =>
@@ -222,3 +229,31 @@ export const GetContractExpirationList = (paramString: string) =>
         url: '/InstrumentPanel/GetContractExpirationList?' + paramString,
         method: 'get',
     });
+
+// 获取首页试用期到期的员工
+export const GetEmploymentProbrationExpirationStatistics = () =>
+    request({
+        url: '/InstrumentPanel/GetEmploymentProbrationExpirationStatistics',
+        method: 'get',
+    });
+
+// 获取首页试用期到期员工列表数据
+export const getEmploymentProbrationExpirationStatisticsList = (paramString: string) =>
+    request({
+        url: '/InstrumentPanel/GetEmploymentProbrationExpirationList?' + paramString,
+        method: 'get',
+    });
+
+// 获取首页证书到期情况数据
+export const getCredentialExpirationStatistics = () =>
+    request({
+        url: '/InstrumentPanel/GetCredentialExpirationStatistics',
+        method: 'get',
+    });
+
+// 获取首页证书到期情况列表数据
+export const getCredentialExpirationStatisticsList = (paramString: string) => 
+    request({
+        url: '/InstrumentPanel/GetCredentialExpirationList?' + paramString,
+        method: 'get',
+    })

@@ -25,6 +25,10 @@
         <template slot="attachment" slot-scope="text,record">
             <a @click="openAttachmentDialog(record.key, record.employeeCredentialAttachments)">查看</a>
         </template>
+        <template slot="isExpirationReminder" slot-scope="text, record">
+            <a-checkbox v-if="record.editable" :checked="text" @change="e => handleChange(e.target.checked, record.key, 'isExpirationReminder')"></a-checkbox>
+            <template v-else>{{ text ? '是': '否' }}</template>
+        </template>
         <template slot="action" slot-scope="text,record">
             <template v-if="record.editable">
                 <span>
@@ -119,6 +123,11 @@ export default class CredentialTable extends Vue {
         dataIndex: 'expireDate',
         align: 'center',
         scopedSlots: { customRender: 'expireDate' },
+    }, {
+        title: '证书到期提醒',
+        dataIndex: 'isExpirationReminder',
+        align: 'center',
+        scopedSlots: { customRender: 'isExpirationReminder' },
     }, {
         title: '附件',
         dataIndex: 'attachment',
@@ -233,6 +242,7 @@ export default class CredentialTable extends Vue {
                 name: item.name,
                 issueDate: item.issueDate,
                 expireDate: item.expireDate.value === '1' ? item.expireDate.date : '9999-12-31',
+                isExpirationReminder: item.isExpirationReminder,
             };
         });
         return newData;

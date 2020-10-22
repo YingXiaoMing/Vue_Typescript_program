@@ -191,6 +191,7 @@ export default class Record extends Vue {
                     recordStateName: item.recordStateName,
                     workOrderNumber: item.workOrderNumber,
                     isAllowModification: item.isAllowModification,
+                    operator: item.createEmployeeId,
                     createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };
             });

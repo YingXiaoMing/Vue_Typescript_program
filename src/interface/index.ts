@@ -614,6 +614,7 @@ export interface RemotePostionChangeRecord {
     workOrderNumber: string;
     isAllowModification: boolean;
     createDateTime: string;
+    createEmployeeId: string;
 }
 
 export interface PositionReinstatedRecordData {
@@ -636,4 +637,11 @@ export interface PositionTransferRecordData {
     effectiveDate: string;
     selectOption: SelectValue[];
     employeeId: string;
+}
+
+
+export interface TokenInfo {
+    access_token: string;
+    expires_in: any;
+    refresh_token: string;
 }

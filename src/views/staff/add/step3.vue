@@ -6,31 +6,31 @@
             <a-form :form="form">
                 <a-col :span="24">
                     <a-row :gutter="24">
-                        <a-col :span="8">
+                        <a-col :span="6">
                             <a-form-item label="证件/证书类型" v-bind="formItemLayout">
                                 <a-select labelInValue v-decorator="['credentialType', {rules: [{ required: true, message: ' ' }], initialValue: credentialTypeOption[0] }]">
                                     <a-select-option v-for="item in credentialTypeOption" :value="item.key">{{item.label}}</a-select-option>
                                 </a-select>
                             </a-form-item>
                         </a-col>
-                        <a-col :span="8">
+                        <a-col :span="6">
                             <a-form-item label="证件/证书名称" v-bind="formItemLayout">
                                 <a-input v-decorator="['credentialName', {rules: [{ required: true, message: ' ' }]}]"></a-input>
                             </a-form-item>
                         </a-col>
-                        <a-col :span="8">
+                        <a-col :span="6">
                             <a-form-item label="颁发日期" v-bind="formItemLayout">
                                 <a-date-picker :format="dateFormat" v-decorator="['issueDate', {rules: [{ required: true, message: ' ' }]}]"></a-date-picker>
                             </a-form-item>
                         </a-col>
-                    </a-row>
-                    <a-row :gutter="24">
-                         <a-col :span="8">
+                        <a-col :span="6">
                             <a-form-item label="有效日期" v-bind="formItemLayout">
                                 <a-radio-date v-decorator="['expireDate', {rules: [{ required: true, message: ' ' }], initialValue: initialDateValue }]"></a-radio-date>
                             </a-form-item>
                         </a-col>
-                        <a-col :span="8">
+                    </a-row>
+                    <a-row :gutter="24">
+                        <a-col :span="6">
                             <a-form-item label="证件上传" v-bind="formItemLayout">
                                 <a-upload :fileList="fileList" :beforeUpload="beforeUpload" :remove="handleRemove">
                                     <a-button>
@@ -40,8 +40,15 @@
                                 </a-upload>
                             </a-form-item>
                         </a-col>
-                        <a-col :span="8">
-                            <a-form-item class='rightBtn'>
+                        <a-col :span="6">
+                            <a-form-item label="合同到期提醒" v-bind="formItemLayout">
+                                <a-checkbox v-decorator="['isExpirationReminder']"></a-checkbox>
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row :gutter="24">
+                        <a-col :span="24">
+                            <a-form-item class="rightBtn">
                                 <a-button type="primary" @click="credntialDataAdd">新增</a-button>
                             </a-form-item>
                         </a-col>
@@ -92,6 +99,7 @@ interface NewValueForm {
         date: string;
         value: string;
     };
+    isExpirationReminder: boolean;
 }
 @Component({
     components: {
@@ -117,8 +125,8 @@ export default class Step3 extends Vue {
         isShow: true,
     };
     private formItemLayout = {
-        labelCol: { xs: {span: 24}, sm: {span: 10}},
-        wrapperCol: { xs: {span: 24}, sm: {span: 14}},
+        labelCol: { xs: {span: 24}, sm: {span: 8}},
+        wrapperCol: { xs: {span: 24}, sm: {span: 16}},
     };
     private bottomLayoutBtn = {
         lg: {span: 12},
@@ -219,6 +227,7 @@ export default class Step3 extends Vue {
                     disable: false,
                     expireDate: _.isEqual(moment(item.expireDate).format(this.dateFormat), '9999-12-31') ? {date: '9999-12-31', value: '0', isShow: true} : {date: moment(item.expireDate).format(this.dateFormat), value: '1', isShow: false},
                     employeeCredentialAttachments: item.employeeCredentialAttachments,
+                    isExpirationReminder: item.isExpirationReminder,
                 };
             });
             this.credntialTableData = newData;
@@ -241,6 +250,7 @@ export default class Step3 extends Vue {
             name: data.credentialName,
             issueDate:  moment(data.issueDate).format(this.dateFormat),
             expireDate: data.expireDate.value ===  '0' ? '9999-12-31' : data.expireDate.date,
+            isExpirationReminder: data.isExpirationReminder,
         };
     }
     private nextStep() {

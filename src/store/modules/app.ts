@@ -1,9 +1,9 @@
 import types from '../mutation-types';
-import { RouterItem } from '@/interface';
+import { RouterItem, TokenInfo } from '@/interface';
 import { routeToArray } from '@/utils';
 import router from '@/router';
 import _ from 'lodash';
-
+import { getUserName } from '@/utils/cookie';
 
 function findMenu(
     data: any,
@@ -49,9 +49,21 @@ const app = {
         tabActiveKey: '',
         keepList: [],
         signedIn: false,
-        username: 'admin',
+        username: '',
+        token: '',
+        refresh_token: '',
+        expires_time: '', // token过期时间
     },
     mutations: {
+        [types.SET_TOKEN]: (state: any, data: string) => {
+            state.token = data;
+        },
+        [types.SET_REFRESH_TOKEN]: (state: any, data: string) => {
+            state.refresh_token = data;
+        },
+        [types.SET_EXPIRES_TIME]: (state: any, data: number) => {
+            state.expires_time = data;
+        },
         [types.SET_MENUDATA]: (state: any, menuData: RouterItem[]) => {
             state.menuData = menuData;
         },
@@ -77,6 +89,11 @@ const app = {
         },
     },
     actions: {
+        setToken: (context: any, tokenInfo: TokenInfo) => {
+            context.commit(types.SET_TOKEN, tokenInfo.access_token);
+            context.commit(types.SET_REFRESH_TOKEN, tokenInfo.refresh_token);
+            context.commit(types.SET_EXPIRES_TIME, tokenInfo.expires_in);
+        },
         GetMenuData: (context: any, menuData: RouterItem[]) => {
             context.commit(types.SET_MENUDATA, menuData);
         },

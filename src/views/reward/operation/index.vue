@@ -207,6 +207,7 @@ export default class Operation extends Vue {
                     typeName: item.prizePenaltyTypeClassifyName,
                     type: item.prizePenaltyTypeName,
                     effectedDate: moment(item.effectiveDate).format(this.dateFormat),
+                    operator: item.createEmployeeId,
                     status: item.recordStateName,
                     createDateTime: moment(item.createDateTime).format(this.dateTimeFormat),
                 };

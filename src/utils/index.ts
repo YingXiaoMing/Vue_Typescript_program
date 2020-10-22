@@ -101,7 +101,7 @@ export function lazyLoadView(view: any) {
 
 // 获取路由器的url参数
 
-export function getQueryObject(url?: string): {id_token: string} {
+export function getQueryObject(url?: string): {id_token: string, refresh_token: string} {
     const newUrl = url == null ? window.location.href : url;
     const search = newUrl.substring(newUrl.lastIndexOf('?') + 1);
     const obj = {};
