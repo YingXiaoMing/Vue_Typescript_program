@@ -41,7 +41,7 @@
                             </a-form-item>
                         </a-col>
                         <a-col :span="6">
-                            <a-form-item label="合同到期提醒" v-bind="formItemLayout">
+                            <a-form-item label="证件到期提醒" v-bind="formItemLayout">
                                 <a-checkbox v-decorator="['isExpirationReminder']"></a-checkbox>
                             </a-form-item>
                         </a-col>
