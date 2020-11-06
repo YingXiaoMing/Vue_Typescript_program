@@ -42,7 +42,6 @@ Vue.prototype.globalClick = function(callback: any) {
 
 
 router.beforeEach((to: any, from: any, next: any) => {
-  console.log('舞台的烦恼');
   const queryObj = getQueryObject();
   const accessToken = queryObj.id_token;
   const refreshToken = queryObj.refresh_token;

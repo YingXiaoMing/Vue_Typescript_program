@@ -22,6 +22,17 @@ export const asyncRouterMap: RouterItem[] = [
         },
     },
     {
+        path: '/postCard',
+        icon: 'credit-card',
+        name: 'postCard',
+        isShow: true,
+        component: () => import('../views/card/index.vue'),
+        meta: {
+            key: 'postCard',
+            title: '发卡管理',
+        },
+    },
+    {
         path: '/staff',
         icon: 'user',
         name: 'staff',
