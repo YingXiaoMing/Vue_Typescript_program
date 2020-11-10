@@ -84,7 +84,7 @@ import { SelectValue, BasicData, BankTableData } from '@/interface';
 import { getBankNameOption } from '@/api/basic';
 import BankTable from '@/components/Step5/BankTable.vue';
 import { getEmployeeID } from '@/utils/cookie';
-import { getEmployeeBankData } from '@/api/staff';
+import { getEmployeeBankData, addEmployeeBankData, newEmployeeBankAttachment } from '@/api/staff';
 import _ from 'lodash';
 import { message } from 'ant-design-vue';
 interface NewValueForm {
