@@ -31,8 +31,14 @@
                 <a-col :span="24">
                     <a-form-item :labelCol="labelCol1" :wrapperCol="wrapperCol1" label="IC卡号">
                         <a-input v-model="cardNums" style="width: 200px" :disabled="cardNumShow"></a-input>
-                        <a-button style="marginLeft: 18px" @click="shuaiCard">刷卡</a-button>
-                        <a-input v-model="cardNumsDisplay" ref="mark" @change="e => handleInputVal(e.target.value)" class="show_input_1"></a-input>
+                        <a-button style="marginLeft: 18px" @click="shuaiCard" id="mybtn">{{ buttonText }}</a-button>
+                        <div style="color:red">*刷卡时请勿进行其他操作，以免造成卡号错误</div>
+                        <!--   -->
+                        <div id="test">
+                            <a-input v-model="cardNumsDisplay" ref="mark" @change="e => handleInputVal(e.target.value)"  class="show_input_1"
+                        v-on:keydown="e => handleKeyDown(e)"></a-input>
+                        </div>
+                        
                         <div class="m_red"></div>
                     </a-form-item>
                 </a-col>
@@ -44,31 +50,43 @@
                         <a-checkbox-group v-model="operateList">
                             <a-row>
                                 <a-col :span="12">
-                                    <a-checkbox value="A">员工信息导入消费系统</a-checkbox>
+                                    <a-checkbox value="IsXiaofei">员工信息导入消费系统</a-checkbox>
                                 </a-col>
                                 <a-col :span="12">
-                                    <a-checkbox value="B">员工信息导入消费系统(新系统)</a-checkbox>
+                                    <a-checkbox value="IsXiaofei63">员工信息导入消费系统(新系统)</a-checkbox>
                                 </a-col>
                                 <a-col :span="24">
-                                    <a-checkbox value="C">员工信息导入门禁系统</a-checkbox>
+                                    <a-checkbox value="IsMenjin">员工信息导入门禁系统</a-checkbox>
                                 </a-col>
                                 <a-col :span="24">
-                                    <a-checkbox value="D">门禁发卡</a-checkbox>
+                                    <a-checkbox value="IsCreateICCardInfo">门禁发卡</a-checkbox>
                                 </a-col>
                             </a-row>
                         </a-checkbox-group>
-                        <a-button>保存</a-button>
+                        <a-button @click="saveData">保存</a-button>
                     </a-form-item>
                 </a-col>
             </div>
         </a-row>
+        <a-modal :visible="isVisible" title="处理结果" :width="488" :maskClosable="false" @cancel="cancelHandle"
+         >
+            <div v-for="(item, index) in returnMsgList" :key="index" style="marginBottom: 10px">
+                <a-alert v-if="item.code === 0" :message="item.message" type="success" show-icon />
+                <a-alert v-if="item.code === 1" :message="item.message" type="error" show-icon />
+            </div>
+            <template slot="footer">
+                <a-button @click="cancelHandle">确认</a-button>
+            </template>
+        </a-modal>
     </div>
 </template>
 <script lang="ts">
 import Vue from 'vue';
 import { searchEmployeeData } from '@/api/staff';
 import Component from 'vue-class-component';
-
+import { message } from 'ant-design-vue';
+import { sendCardOperation } from '@/api/operation';
+import moment from 'moment';
 import _ from 'lodash';
 interface EmployeeData {
     value: string;
@@ -84,28 +102,90 @@ export default class CardView extends Vue {
     private labelCol1 =  { xs: {span: 24}, sm: {span: 5}};
     private wrapperCol = { xs: {span: 24}, sm: {span: 14}};
     private wrapperCol1 =  { xs: {span: 24}, sm: {span: 19}};
+    private isVisible: boolean = false;
     private readonly: boolean = true;
+    private buttonText: string = '刷卡';
+    private buttonType:string = 'omitted';
     private employeeName: string = '';
     private employeeNum: string = '';
+    private firstEnterNum: number = 0;
+    private firstEnterInput: boolean = false;
     private searchKey: string = '';
     private employeeId: string = '';
     private cardNums: string = '';
     private cardNumsDisplay: string = '';
     private cardNumShow: boolean = true;
-    private operateList: string[] = ['A' , 'B', 'C', 'D'];
+    private operateList: string[] = ['IsXiaofei' , 'IsXiaofei63', 'IsMenjin', 'IsCreateICCardInfo'];
     private employeeDataList: EmployeeData[] = [];
+    private returnMsgList: any = [];
+    private $info: any;
     private shuaiCard() {
         // this.readonly = true;
         this.cardNumsDisplay = '';
         this.$refs.mark.focus();
-        this.cardNums = '请输入...';
+        this.handleClickCardData();
+        this.buttonType = 'danger';
+        this.buttonText = '请刷卡...';
+        this.firstEnterInput = true;
+    }
+    private handleClickCardData() {
+      
+            document.addEventListener('click', (e:any) => {
+                console.log(this.firstEnterInput);
+                const targetSource = document.getElementById('mybtn');
+                if (this.firstEnterInput && targetSource && !targetSource.contains(e.target)) {
+                    console.log('let me love you');
+                    console.log(e.target);
+                    this.cardNumsDisplay = '';
+                    this.buttonText = '刷卡';
+                    this.firstEnterInput = false;
+                    document.removeEventListener('click',()=>{});
+                }
+            });
+        
+        
     }
     private handleInputVal(val: string) {
-        console.log(val.length);
-        this.cardNums = val;
-        if (val.length === 8) {
-            this.$refs.mark.blur();
+        // console.log(val.length);
+        // this.cardNums = val;
+        // if (val.length === 9) {
+        //     this.$refs.mark.blur();
+        // }
+    }
+    private handleKeyDown(val: any) {
+        if (val.key == 'Enter' && this.firstEnterInput) {
+            // 截取最后的8位数
+            this.cardNums = this.cardNumsDisplay.substring(this.cardNumsDisplay.length - 8);
+            this.cardNumsDisplay = '';
+            this.buttonText = '刷卡';
+            this.firstEnterInput = false;
+
+            // const nowTime = + moment().format('x').valueOf();
+            // console.log(nowTime);
+            // console.log(this.firstEnterNum);
+            // if (nowTime - this.firstEnterNum > 200) {
+            //     this.cardNumsDisplay = '';
+            //     this.buttonText = '刷卡';
+            // } else {
+            //     console.log(this.cardNumsDisplay);
+            //     this.cardNums = _.cloneDeep(this.cardNumsDisplay);
+            //     this.cardNumsDisplay = '';
+            //     this.buttonText = '刷卡';
+            // }
+            
+            // this.cardNums = this.cardNumsDisplay;
+            // this.cardNumsDisplay = '';
+
         }
+    }
+    private cancelHandle() {
+        this.isVisible = false;
+        this.searchKey = ''
+        this.employeeId = '';
+        this.employeeName = '';
+        this.employeeNum = '';
+        this.cardNums = '';
+        this.operateList = ['IsXiaofei','IsXiaofei63','IsMenjin','IsCreateICCardInfo'];
     }
     private valueChange(value: string) {
         this.searchKey = value;
@@ -117,6 +197,34 @@ export default class CardView extends Vue {
             this.employeeNum = item.id;
             this.employeeId = item.value;
         }
+    }
+    private saveData() {
+        if (this.employeeId === '') {
+            message.warning('请选择其中一个员工进行操作');
+            return;
+        }
+        const IsXiaofei = _.includes(this.operateList, 'IsXiaofei');
+        const IsXiaofei63 = _.includes(this.operateList, 'IsXiaofei63');
+        const IsMenjin = _.includes(this.operateList, 'IsMenjin');
+        const IsCreateICCardInfo = _.includes(this.operateList, 'IsCreateICCardInfo');
+        if (this.cardNums == '' && IsCreateICCardInfo) {
+            message.warning('请刷员工IC卡');
+            return;
+        }
+        const param = {
+            IsXiaofei,
+            IsXiaofei63,
+            IsMenjin,
+            IsCreateICCardInfo,
+            employeeId: this.employeeId,
+            icCard: this.cardNums,
+        }
+        sendCardOperation(param).then((res: any) => {
+            console.log(res);
+            this.returnMsgList = _.orderBy(res.data, 'code', 'asc') ;
+            this.isVisible = true;
+            
+        });
     }
     private focusHandle() {
         this.handleChange(this.searchKey);
@@ -149,7 +257,7 @@ export default class CardView extends Vue {
     margin-left: 0px !important;
     margin-right: 0px !important;
     .SettingClassDetail {
-        width: 620px;
+        width: 630px;
         overflow: hidden;
     }
     .ant-form-item {
@@ -176,7 +284,7 @@ export default class CardView extends Vue {
 }
 .m_red {
     position: absolute;
-    top: 33px;
+    top: 73px;
     left: 0;
     width: 205px;
     height: 33px;

@@ -22,17 +22,6 @@ export const asyncRouterMap: RouterItem[] = [
         },
     },
     {
-        path: '/postCard',
-        icon: 'credit-card',
-        name: 'postCard',
-        isShow: true,
-        component: () => import('../views/card/index.vue'),
-        meta: {
-            key: 'postCard',
-            title: '发卡管理',
-        },
-    },
-    {
         path: '/staff',
         icon: 'user',
         name: 'staff',
@@ -180,7 +169,17 @@ export const asyncRouterMap: RouterItem[] = [
             name: 'attendOperationRecord',
             component: () => import('../views/attendance/operation/index.vue'),
             meta: { key: 'attendOperationRecord', title: '操作记录查询' },
-        }],
+        }, {
+            path: 'postCard',
+            icon: 'credit-card',
+            name: 'postCard',
+            isShow: true,
+            component: () => import('../views/card/index.vue'),
+            meta: {
+                key: 'postCard',
+                title: '发卡管理',
+            },
+        },],
     },
     {
         path: '/sys',

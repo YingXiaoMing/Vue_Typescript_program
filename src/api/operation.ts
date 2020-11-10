@@ -167,3 +167,8 @@ export const getEmployeeSalaryDayData = (employeeId: string) =>
 // 获取某个员工的有薪假
 export const getEmployeeSalaryRecord = (param: any) =>
     request.get('/EmployeeHolidayWithSalary/Collection?' + param);
+
+
+// 员工发卡管理
+export const sendCardOperation = (param: any) =>
+    request.post('/EmployeesSettings/SendCard', param);
