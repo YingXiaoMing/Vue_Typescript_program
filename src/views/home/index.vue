@@ -76,9 +76,9 @@
                 </div>
             </a-col>
         </a-row>
-        <a-modal :visible="isVisible1" title="合同到期/签订情况" :width="1228" :maskClosable="false"
+        <a-modal :visible="isVisible1" title="合同到期/签订情况" :width="1228" :height="330" :maskClosable="false"
         class="basciData" @cancel="cancelHandle1" @ok="okHandle1">
-        <a-row :gutter="24">
+        <a-row :gutter="24" class="x_contauiner">
             <a-col :span="24" style="marginBottom: 10px">
                 <div class="right">
                     <a-button @click="downloadModal('/InstrumentPanel/ExportContractExpirationList')">导出数据</a-button>
@@ -99,7 +99,7 @@
         </a-modal>
         <a-modal :visible="isVisible2" title="试用到期员工列表" :width="1228" :maskClosable="false"
         class="basciData" @cancel="cancelHandle2" @ok="okHandle2">
-            <a-row :gutter="24">
+            <a-row :gutter="24" class="x_contauiner">
                 <a-col :span="24" style="marginBottom: 10px">
                     <div class="right">
                         <a-button @click="downloadModal('/InstrumentPanel/ExportEmploymentProbrationExpiration')">导出数据</a-button>
@@ -120,7 +120,7 @@
         </a-modal>
         <a-modal :visible="isVisible3" title="证件/证书到期情况列表" :width="1228" :maskClosable="false"
         class="basciData" @cancel="cancelHandle3" @ok="okHandle3">
-            <a-row :gutter="24">
+            <a-row :gutter="24" class="x_contauiner">
                 <a-col :span="24" style="marginBottom: 10px">
                     <div class="right">
                         <a-button @click="downloadModal('/InstrumentPanel/ExportCredentialExpirationList')">导出数据</a-button>
@@ -128,7 +128,7 @@
                 </a-col>
                 <a-col :span="24">
                     <a-table bordered size="small" :columns="column2" :dataSource="data2" :loading="loading3"
-                     :pagination="pagination1" @change="pageCredentialDataChange">
+                     :pagination="pagination2" @change="pageCredentialDataChange">
                         <template slot="position" slot-scope="position">
                             <div v-for="(t, i) in position">
                                 <template v-if="i == 0">{{ t }}（主职位）</template>
