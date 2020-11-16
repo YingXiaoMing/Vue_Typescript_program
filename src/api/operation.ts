@@ -172,3 +172,6 @@ export const getEmployeeSalaryRecord = (param: any) =>
 // 员工发卡管理
 export const sendCardOperation = (param: any) =>
     request.post('/EmployeesSettings/SendCard', param);
+
+export const getCardInfo = (data: any) =>
+    request.get('/EmployeesSettings/ReadIcCardInfo?IcCardNo=' + data);
