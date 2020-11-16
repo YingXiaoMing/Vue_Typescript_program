@@ -177,7 +177,7 @@ export const asyncRouterMap: RouterItem[] = [
             component: () => import('../views/card/index.vue'),
             meta: {
                 key: 'postCard',
-                title: '发卡管理',
+                title: '员工卡号管理',
             },
         },],
     },
