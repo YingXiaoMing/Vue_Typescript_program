@@ -31,7 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.19",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "qs": "^6.9.4",
     "ts.cryptojs256": "^1.0.1",
     "url-search-params": "^1.1.0",
